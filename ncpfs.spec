@@ -266,7 +266,7 @@ rm -rf $RPM_BUILD_ROOT
 %doc BUGS Changes FAQ README* ncpfs-*
 %attr(755,root,root) %{_bindir}/[^i]*
 %attr(755,root,root) %{_sbindir}/[^i]*
-%attr(755,root,root) %{_libdir}/libncp.so*
+%attr(755,root,root) %{_libdir}/libncp.so.*
 
 %{_mandir}/man8/[^i]*
 %{_mandir}/man1/*
