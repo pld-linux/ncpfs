@@ -4,8 +4,8 @@ Summary(fr):	Gestionnaires pour ncpfs, le client Netware libre pour Linux.
 Summary(tr):	Linux için Netware istemcisi destek yazýlýmlarý
 Summary(pl):	Darmowy klient Netware dla Linuxa wraz z dodatkowymi programami
 Name:		ncpfs
-Version:	2.2.0.17
-Release:	7
+Version:	2.2.0.18
+Release:	1
 Copyright:	GPL
 Source:		ftp://platan.vc.cvut.cz/pub/linux/%{name}/%{name}-%{version}/%name-%version.tgz
 Source1:	ncpfs.init
@@ -16,8 +16,7 @@ Requires:	pam
 BuildRequires:	glibc-devel
 Prereq:		/sbin/ldconfig
 Patch0:		%name-lang.patch
-Patch1:		%name-ncplib.patch
-Patch2:		%name-largekeys.patch.gz
+Patch1:		%name-largekeys.patch.gz
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -46,7 +45,17 @@ plików ncpfs. Dziêki ncpfs mo¿liwe jest pod³±czanie wolumenów serwerów
 Netware i modyfikowanie ich zawarto¶ci.
 
 Wymagane zale¿no¶ci w j±drze systemu:
+
 [...]
+Networking option
+
+<M> The IPX protocol
+<Y> IPX: Full internal IPX network
+
+[...]
+
+Filesystems -> Network File systems
+
 <M> NCP filesystem support (to mount NetWare volumes)
 [*]    Packet signatures
 [*]    Proprietary file locking
@@ -105,7 +114,6 @@ hatalarýný ayýklamak için kullanýlabilecek bir dizi uygulama içermektedir.
 %setup -q
 %patch -p1
 %patch1 -p0
-%patch2 -p1
 
 %build
 ./conf
@@ -114,13 +122,15 @@ hatalarýný ayýklamak için kullanýlabilecek bir dizi uygulama içermektedir.
 	--enable-mount-v3 \
 	--enable-mount-v2 \
 	--enable-nds \
+	--enable-udp \
 	--enable-ipx \
 	--enable-signatures \
 	--enable-kernel \
 	--enable-reentrant \
 	--enable-trace \
 	--enable-warnings \
-	--enable-nls 
+	--enable-nls \
+	--disable-versions
 
 %{__make} OPT_FLAGS="$RPM_OPT_FLAGS -w" 
 %{__make} -C ipxdump OPT_FLAGS="$RPM_OPT_FLAGS -w"
@@ -148,7 +158,10 @@ install -s sutil/nwsfind sutil/ncpmount sutil/ncpumount $RPM_BUILD_ROOT%{_bindir
 
 ## instal util 
 
-for i in slist pqlist nwfsinfo pserver nprint nsend nwpasswd nwbols nwbocreate nwborm nwboprops pqstat pqrm nwbpcreate nwbprm nwbpvalues nwbpadd nwbpset nwgrant nwrevoke nwuserlist nwrights nwauth nwfstime nwvolinfo nwtrustee nwpurge nwdir nwfsctrl nwdpvalues ncopy ; do
+for i in slist pqlist nwfsinfo pserver nprint nsend nwpasswd \
+    nwbols nwbocreate nwborm nwboprops pqstat pqrm nwbpcreate nwbprm nwbpvalues \
+    nwbpadd nwbpset nwgrant nwrevoke nwuserlist nwauth nwfstime nwvolinfo \
+    nwtrustee nwdir nwfsctrl nwdpvalues ncopy nwtrustee2 nwpurge nwrights; do
 	install -s util/$i $RPM_BUILD_ROOT%{_bindir}
 done	
 
@@ -164,9 +177,11 @@ install man/*.8 $RPM_BUILD_ROOT%{_mandir}/man8
 
 ## install ipx-1.0
 
-install -s ipx-1.0/ipx_configure ipx-1.0/ipx_interface ipx-1.0/ipx_internal_net ipx-1.0/ipx_route ipx-1.0/ipx_cmd $RPM_BUILD_ROOT/%{_bindir}
+install -s ipx-1.0/ipx_configure ipx-1.0/ipx_interface ipx-1.0/ipx_internal_net \
+    ipx-1.0/ipx_route ipx-1.0/ipx_cmd $RPM_BUILD_ROOT/%{_bindir}
 
-install ipx-1.0/ipx_configure.8 ipx-1.0/ipx_interface.8 ipx-1.0/ipx_internal_net.8 ipx-1.0/ipx_route ipx-1.0/ipx_cmd $RPM_BUILD_ROOT%{_mandir}/man8
+install ipx-1.0/ipx_configure.8 ipx-1.0/ipx_interface.8 ipx-1.0/ipx_internal_net.8 \
+    ipx-1.0/ipx_route ipx-1.0/ipx_cmd $RPM_BUILD_ROOT%{_mandir}/man8
 
 ## install PAM
 	install -d $RPM_BUILD_ROOT/lib/security
@@ -195,7 +210,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -f ncpfs.lang
 %defattr(644,root,root,755)
-%doc ABOUT-NLS.gz BUGS.gz Changes.gz FAQ.gz README*.gz ncpfs-*.gz 
+%doc BUGS.gz Changes.gz FAQ.gz README*.gz ncpfs-*.gz 
 %attr(755,root,root) %{_bindir}/[^i]*
 %attr(755,root,root) %{_libdir}/libncp.so*
 %attr(755,root,root) /lib/security/pam_ncp_auth.so
