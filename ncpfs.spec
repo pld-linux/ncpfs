@@ -36,7 +36,7 @@ BuildRequires:	gettext-devel
 BuildRequires:	libtool
 BuildRequires:	pam-devel
 BuildRequires:	php-devel
-Requires:	ipxutils
+%{?with_ipx:Requires:	ipxutils}
 #Requires:	iconv
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
