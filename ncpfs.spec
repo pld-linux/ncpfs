@@ -266,8 +266,8 @@ cd ../..
 	--enable-trace \
 	--enable-udp \
 	--enable-versions \
-	--enable-warnings 
-	
+	--enable-warnings
+
 %{__make} OPT_FLAGS="%{rpmcflags} -w"
 %{__make} -C ipxdump OPT_FLAGS="%{rpmcflags} -w"
 
