@@ -19,7 +19,7 @@ Summary(tr):	Linux iГin Netware istemcisi destek yazЩlЩmlarЩ
 Summary(uk):	Утил╕ти для файлово╖ системи ncpfs, кл╕╓нта NetWare для Linux
 Name:		ncpfs
 Version:	2.2.4
-Release:	3%{!?with_ipx:noipx}
+Release:	4%{!?with_ipx:noipx}
 Epoch:		1
 License:	GPL
 Group:		Networking/Utilities
@@ -263,6 +263,7 @@ IPX="--disable-ipx --disable-ipx-tools"
 
 ./conf
 %configure \
+	--disable-function-sections \
 	--disable-rpath \
 	$IPX \
 	--enable-kernel \
