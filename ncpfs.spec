@@ -4,8 +4,11 @@
 # - fix -devel Group
 # - review php-auth_nds Summary and %%description
 # - register php module in php.ini like other modules from php.spec (?)
-%bcond_without php
-%bcond_without ipx
+#
+# Conditional build:
+%bcond_without php	# don't build PHP module
+%bcond_without ipx	# don't build ipx utils
+#
 Summary:	Support Utilities for ncpfs, the free netware client for Linux
 Summary(de):	Support-Dienstprogramme für ncpfs, den kostenlosen Netware-Client
 Summary(es):	Utilitarios de soporte para ncpfs, que es el cliente Linux free para netware
@@ -27,8 +30,11 @@ Patch0:		%{name}-lang.patch
 Patch1:		%{name}-nwsfind.patch
 Patch2:		%{name}-ac.patch
 Patch3:		%{name}-sbindir.patch
+BuildRequires:	autoconf
+BuildRequires:	automake
 BuildRequires:	glibc-devel
 BuildRequires:	gettext-devel
+BuildRequires:	libtool
 BuildRequires:	pam-devel
 BuildRequires:	php-devel
 Requires:	ipxutils
@@ -275,15 +281,19 @@ IPX="--disable-ipx --disable-ipx-tools"
 	--enable-versions \
 	--enable-warnings
 
-%{__make} OPT_FLAGS="%{rpmcflags} -w"
-%{__make} -C ipxdump OPT_FLAGS="%{rpmcflags} -w"
+%{__make} \
+	OPT_FLAGS="%{rpmcflags} -w"
+
+%{__make} -C ipxdump \
+	OPT_FLAGS="%{rpmcflags} -w"
 
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{/etc/rc.d/init.d,%{_includedir},/lib/security} \
 	$RPM_BUILD_ROOT{%{_sbindir},/usr/lib/php}
 
-%{__make} install DESTDIR=$RPM_BUILD_ROOT
+%{__make} install \
+	DESTDIR=$RPM_BUILD_ROOT
 
 ln -s $(cd $RPM_BUILD_ROOT%{_libdir}; ls libncp.so.*.*) $RPM_BUILD_ROOT%{_libdir}/libncp.so
 cp -a include/ncp $RPM_BUILD_ROOT%{_includedir}
@@ -314,8 +324,8 @@ rm -rf $RPM_BUILD_ROOT
 
 %files devel
 %defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/libncp.so
 %{_includedir}/ncp
-%{_libdir}/libncp.so
 
 %files -n pam_ncp_auth
 %defattr(644,root,root,755)
