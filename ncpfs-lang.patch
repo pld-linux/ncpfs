@@ -55,7 +55,7 @@ diff -Nur ncpfs-2.2.0.16.org/po/pl.po ncpfs-2.2.0.16/po/pl.po
 +#: ipx-1.0/ipx_configure.c:86 ipx-1.0/ipx_interface.c:241 util/ipx_probe.c:190
 +#: util/ipx_probe.c:356
 +msgid "Probably you have no IPX support in your kernel\n"
-+msgstr "Prawdopodobnie protokó³ IPX nie jest wsspierany przez Twój kernel\n"
++msgstr "Prawdopodobnie protokó³ IPX nie jest wspierany przez Twój kernel\n"
 +
 +#: ipx-1.0/ipx_configure.c:110 ipx-1.0/ipx_configure.c:129
 +#: ipx-1.0/ipx_configure.c:142 ipx-1.0/ipx_interface.c:291
@@ -90,10 +90,10 @@ diff -Nur ncpfs-2.2.0.16.org/po/pl.po ncpfs-2.2.0.16/po/pl.po
 +"Usage: %s delall\n"
 +"Usage: %s check device frame_type\n"
 +msgstr ""
-+"Wywo³anie: %s add [-p] u¿¹dzenie typ_ramki [numer_sieci[:node]]\n"
-+"Wywo³anie: %s del u¿¹dzenie typ_ramki\n"
++"Wywo³anie: %s add [-p] urz±dzenie typ_ramki [numer_sieci[:node]]\n"
++"Wywo³anie: %s del urz±dzenie typ_ramki\n"
 +"Wywo³anie: %s delall\n"
-+"Wywo³anie: %s check u¿¹dzeinie typ_ramki\n"
++"Wywo³anie: %s check urz±dzenie typ_ramki\n"
 +
 +#: ipx-1.0/ipx_interface.c:85
 +#, c-format
@@ -130,17 +130,17 @@ diff -Nur ncpfs-2.2.0.16.org/po/pl.po ncpfs-2.2.0.16/po/pl.po
 +#: ipx-1.0/ipx_interface.c:414 ipx-1.0/ipx_interface.c:475
 +#, c-format
 +msgid "%s: No such device (%s).\n"
-+msgstr "%s: Brak urz¹dzenia (%s).\n"
++msgstr "%s: Brak urz±dzenia (%s).\n"
 +
 +#: ipx-1.0/ipx_interface.c:278
 +#, c-format
 +msgid "%s: Requested device (%s) is down.\n"
-+msgstr "%s: Wymagane urz¹dzenie (%s) jest nieaktywne.\n"
++msgstr "%s: Wymagane urz±dzenie (%s) jest nieaktywne.\n"
 +
 +#: ipx-1.0/ipx_interface.c:282
 +#, c-format
 +msgid "%s: Invalid device (%s).\n"
-+msgstr "%s: Niew³asciwe urz¹dzenie (%s).\n"
++msgstr "%s: Niew³a¶ciwe urz±dzenie (%s).\n"
 +
 +#: ipx-1.0/ipx_interface.c:287
 +#, c-format
@@ -180,7 +180,7 @@ diff -Nur ncpfs-2.2.0.16.org/po/pl.po ncpfs-2.2.0.16/po/pl.po
 +#: ipx-1.0/ipx_internal_net.c:88 ipx-1.0/ipx_route.c:109
 +#, c-format
 +msgid "%s: Invalid value in node, must be hex digits.\n"
-+msgstr "%s: Niepoprawna wartosæ w ...., musi byæ wartosci¹ szesnastkow¹.\n"
++msgstr "%s: Niepoprawna warto¶æ w ...., musi byæ warto¶ci± szesnastkow±.\n"
 +
 +#: ipx-1.0/ipx_internal_net.c:104
 +#, c-format
@@ -233,7 +233,7 @@ diff -Nur ncpfs-2.2.0.16.org/po/pl.po ncpfs-2.2.0.16/po/pl.po
 +
 +#: lib/ncplib.c:633
 +msgid "ncpfs: conn already locked!\n"
-+msgstr "ncpfs: conn ju¿ lablokowany!\n"
++msgstr "ncpfs: conn ju¿ zablokowany!\n"
 +
 +#: lib/ncplib.c:748 lib/ncplib.c:788
 +#, c-format
@@ -313,7 +313,7 @@ diff -Nur ncpfs-2.2.0.16.org/po/pl.po ncpfs-2.2.0.16/po/pl.po
 +#. -301
 +#: lib/ncplib.c:4852
 +msgid "Not enough memory"
-+msgstr "Zbyt ma³o pamieci"
++msgstr "Zbyt ma³o pamiêci"
 +
 +#. -302
 +#: lib/ncplib.c:4854
@@ -396,7 +396,7 @@ diff -Nur ncpfs-2.2.0.16.org/po/pl.po ncpfs-2.2.0.16/po/pl.po
 +#. -330
 +#: lib/ncplib.c:4888
 +msgid "Invalid server response"
-+msgstr "B³êdna odpowiedx serwera"
++msgstr "B³êdna odpowied¼ serwera"
 +
 +#. -331
 +#: lib/ncplib.c:4890
@@ -413,7 +413,7 @@ diff -Nur ncpfs-2.2.0.16.org/po/pl.po ncpfs-2.2.0.16/po/pl.po
 +#. -338
 +#: lib/ncplib.c:4896
 +msgid "Invalid password characters"
-+msgstr "Niw³a¶ciwy znak w ha¶le"
++msgstr "Niew³a¶ciwy znak w ha¶le"
 +
 +#. ...
 +#. -340
@@ -463,7 +463,7 @@ diff -Nur ncpfs-2.2.0.16.org/po/pl.po ncpfs-2.2.0.16/po/pl.po
 +
 +#: lib/ncplib.c:4942
 +msgid "User name is not specified"
-+msgstr "Nazwa urzytkownika nie podana"
++msgstr "Nazwa u¿ytkownika nie podana"
 +
 +#: lib/ncplib.c:4944
 +msgid "Server not found"
