@@ -22,6 +22,7 @@ Summary(uk):	Утил╕ти для файлово╖ системи ncpfs, кл╕╓нта NetWare для Linux
 Name:		ncpfs
 Version:	2.2.3
 Release:	0.2%{!?with_ipx:noipx}
+Epoch:		1
 License:	GPL
 Group:		Networking/Utilities
 Source0:	ftp://platan.vc.cvut.cz/pub/linux/ncpfs/%{name}-%{version}.tar.gz
@@ -111,17 +112,17 @@ Ncpfs - це файлова система поверх протоколу Novell NetWare(TM) NCP. За
 програму плюс ╕нш╕ ╕нструменти для конф╕гурування та використання
 файлово╖ системи ncpfs.
 
-%package -n pam_ncp_auth
+%package -n pam-pam_ncp_auth
 Summary:	PAM module for authenticate using using login/password stored on Netware server
 Summary(pl):	ModuЁ PAM uwierzytelniaj╠cy poprzez login i hasЁo trzymane na serwerze Netware
 Group:		Networking/Utilities
 Requires:	%{name} = %{version}
 
-%description -n pam_ncp_auth
+%description -n pam-pam_ncp_auth
 The pam_ncp_auth module is PAM module for authenticate using
 login/password stored on Netware server.
 
-%description -n pam_ncp_auth -l pl
+%description -n pam-pam_ncp_auth -l pl
 ModuЁ pam_ncp_auth to moduЁ PAM sЁu©╠cy do uwierzytelniania przy
 u©yciu loginu i hasЁa przechowywanych na serwerze Netware.
 
@@ -327,7 +328,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libncp.so
 %{_includedir}/ncp
 
-%files -n pam_ncp_auth
+%files -n pam-pam_ncp_auth
 %defattr(644,root,root,755)
 %doc contrib/pam/README
 %attr(755,root,root) /lib/security/pam_ncp_auth.so
