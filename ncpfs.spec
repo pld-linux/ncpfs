@@ -5,7 +5,7 @@ Summary(tr):	Linux için Netware istemcisi destek yazýlýmlarý
 Summary(pl):	Darmowy klient Netware dla Linuxa wraz z dodatkowymi programami
 Name:		ncpfs
 Version:	2.2.0.18
-Release:	5
+Release:	6
 License:	GPL
 Group:		Networking/Utilities
 Group(de):	Netzwerkwesen/Werkzeuge
@@ -15,10 +15,11 @@ Patch0:		%{name}-lang.patch
 Patch1:		%{name}-largekeys.patch.gz
 Patch2:		%{name}-DESTDIR.patch
 Patch3:		ftp://platan.vc.cvut.cz/pub/linux/ncpfs/%{name}-%{version}/ncp-pam-update.diff.gz
-Requires:	ipxutils
 BuildRequires:	glibc-devel
 BuildRequires:	gettext-devel
 BuildRequires:	pam-devel
+Requires:	ipxutils
+Requires:	iconv
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_sbindir	/sbin
