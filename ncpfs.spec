@@ -122,8 +122,8 @@ hatalarýný ayýklamak için kullanýlabilecek bir dizi uygulama içermektedir.
 	--enable-warnings \
 	--enable-nls 
 
-make OPT_FLAGS="$RPM_OPT_FLAGS -w" 
-make -C ipxdump OPT_FLAGS="$RPM_OPT_FLAGS -w"
+%{__make} OPT_FLAGS="$RPM_OPT_FLAGS -w" 
+%{__make} -C ipxdump OPT_FLAGS="$RPM_OPT_FLAGS -w"
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -135,10 +135,10 @@ install -d $RPM_BUILD_ROOT/lib
 install -d $RPM_BUILD_ROOT%{_mandir}/{man1,man5,man8}
 
 ## instal intl
-make prefix=$RPM_BUILD_ROOT%{_prefix} -C intl install  
+%{__make} prefix=$RPM_BUILD_ROOT%{_prefix} -C intl install  
 
 ## install po
-make prefix=$RPM_BUILD_ROOT%{_prefix} -C po install
+%{__make} prefix=$RPM_BUILD_ROOT%{_prefix} -C po install
 
 ## install lib
 install -s lib/libncp.so.2.3.0 $RPM_BUILD_ROOT%{_libdir}
