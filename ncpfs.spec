@@ -18,6 +18,7 @@ Patch3:		ftp://platan.vc.cvut.cz/pub/linux/ncpfs/%{name}-%{version}/ncp-pam-upda
 Requires:	ipxutils
 BuildRequires:	glibc-devel
 BuildRequires:	gettext-devel
+BuildRequires:	pam-devel
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_sbindir	/sbin
