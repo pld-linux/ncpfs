@@ -20,8 +20,6 @@ Patch1:		%name-ncplib.patch
 Patch2:		%name-largekeys.patch.gz
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define	_prefix	/usr
-
 %description
 This package contains tools to help configure and use the ncpfs filesysten,
 which is a linux filesystem which understands the NCP protocol. This
@@ -29,6 +27,18 @@ protocol is used by Novell NetWare clients use to talk to NetWare servers.
 
 INFO:
 Recompoile this package if ANY changes in kernel was made.
+
+%description -l de
+Dieses Paket enthält Tools zum Konfigurieren und Einsatz 
+des ncpfs-Dateisystems, einem Linux-Dateisystem, das das NCP-Protokoll
+versteht. Dieses Protokoll wird von Novell NetWare-Clients zur Kommunikation
+mit NetWare-Servern verwendet.
+
+%description -l fr
+Ce package contient des outils pour aider a configuer et à utiliser le
+système de fichiers ncpfs, qui est un système de fichiers Linux adapté
+au protocole NCP. Ce protocole est utilisé par les clients Novell NetWare
+pour communiquer avec les serveurs NetWare.
 
 %description -l pl
 Pakiet zawiera narzêdzia pomocne w konfigurowaniu i u¿ywaniu systemu
@@ -53,12 +63,16 @@ Wymagane zale¿no¶ci w j±drze systemu:
 Od Autora SPECa:
 ZALECA SIÊ rekompilacje przy _ka¿dorazowej_ rekompilacji kernela.
 
+%description -l tr
+Bu paket Linux'un Novell'in NCP protokolunu kullanabilmesi için gereken
+yardýmcý yazýlýmlarý içermektedir.
+
 %package ipxutils
 Summary:	Utilities for IPX configuration
 Summary(de):	Utilities für IPX-Konfiguration 
 Summary(fr):	Utilitaires pour la configuration IPX
-Summary(tr):	IPX yapýlandýrma yazýlýmlarý
 Summary(pl):	Narzêdzia do konfigurowania IPX
+Summary(tr):	IPX yapýlandýrma yazýlýmlarý
 Group:		Networking/Utilities
 Group(pl):	Sieciowe/Narzêdzia
 Version:	1.0
@@ -74,34 +88,18 @@ Dieses Paket enthält Dienstprogramme zum Konfigurieren und Debuggen
 von IPX-Schnittstellen und -Netzwerken unter Linux. IPX ist das von 
 NetWare zur Datenübertragung verwendete Low-Level-Protokoll.
 
-%description -l de
-Dieses Paket enthält Tools zum Konfigurieren und Einsatz 
-des ncpfs-Dateisystems, einem Linux-Dateisystem, das das NCP-Protokoll
-versteht. Dieses Protokoll wird von Novell NetWare-Clients zur Kommunikation
-mit NetWare-Servern verwendet.
-
 %description -l fr ipxutils
 Ce package contient les utilitaires nécessires à pour la configuration
 et le déboggage des réseaux et interfaces IPX sous Linux. IPX est un
 protocole de bas niveau utilisé par NetWare pour transférer des données.
 
-%description -l fr
-Ce package contient des outils pour aider a configuer et à utiliser le
-système de fichiers ncpfs, qui est un système de fichiers Linux adapté
-au protocole NCP. Ce protocole est utilisé par les clients Novell NetWare
-pour communiquer avec les serveurs NetWare.
+%description -l pl ipxutils
+Pakiet zawiera narzêdzia niezbêdne do konfigurowania interfejsów i sieci
+IPX pod Linuxem. Protoko³u IPX u¿ywa Netware do przesy³ania danych.
 
 %description -l tr ipxutils
 Bu paket NetWare tarafýndan kullanýlan IPX protokolünü yapýlandýrmak ve
 hatalarýný ayýklamak için kullanýlabilecek bir dizi uygulama içermektedir.
-
-%description -l tr
-Bu paket Linux'un Novell'in NCP protokolunu kullanabilmesi için gereken
-yardýmcý yazýlýmlarý içermektedir.
-
-%description -l pl ipxutils
-Pakiet zawiera narzêdzia niezbêdne do konfigurowania interfejsów i sieci
-IPX pod Linuxem. Protoko³u IPX u¿ywa Netware do przesy³ania danych.
 
 %prep
 %setup -q
@@ -178,7 +176,7 @@ install -s ipxdump/ipxdump ipxdump/ipxparse $RPM_BUILD_ROOT%{_bindir}
 
 (cd $RPM_BUILD_ROOT%{_mandir}/man8 ; mv ipx_cmd ipx_cmd.8 ; mv ipx_route ipx_route.8)
 
-gzip -9nf ABOUT-NLS BUGS Changes FAQ README* ncpfs-* \
+gzip -9nf BUGS Changes FAQ README* ncpfs-* \
 	$RPM_BUILD_ROOT%{_mandir}/man[158]/*
 
 %find_lang ncpfs
@@ -186,23 +184,13 @@ gzip -9nf ABOUT-NLS BUGS Changes FAQ README* ncpfs-* \
 # install ncpfs init scripts
 install %{SOURCE1} $RPM_BUILD_ROOT/etc/rc.d/init.d/ncpfs
 
-# make links
-(cd $RPM_BUILD_ROOT/etc/rc.d/rc0.d; ln -sf ../init.d/ncpfs K62ncpfs)
-(cd $RPM_BUILD_ROOT/etc/rc.d/rc1.d; ln -sf ../init.d/ncpfs K62ncpfs)
-(cd $RPM_BUILD_ROOT/etc/rc.d/rc2.d; ln -sf ../init.d/ncpfs K62ncpfs)
-(cd $RPM_BUILD_ROOT/etc/rc.d/rc3.d; ln -sf ../init.d/ncpfs S62ncpfs)
-(cd $RPM_BUILD_ROOT/etc/rc.d/rc4.d; ln -sf ../init.d/ncpfs S62ncpfs)
-(cd $RPM_BUILD_ROOT/etc/rc.d/rc5.d; ln -sf ../init.d/ncpfs S62ncpfs)
-(cd $RPM_BUILD_ROOT/etc/rc.d/rc6.d; ln -sf ../init.d/ncpfs K62ncpfs)
-
 cd $RPM_BUILD_ROOT/sbin
 ln -sf ../usr/bin/ncpmount mount.ncp
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post -p /sbin/ldconfig
-
+%post   -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
 
 %files -f ncpfs.lang
@@ -214,7 +202,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) /sbin/nwmsg
 %attr(755,root,root) /sbin/mount.ncp
 %attr(755,root,root) /etc/rc.d/init.d/ncpfs
-%attr(755,root,root) /etc/rc.d/rc?.d/?62ncpfs
 
 %{_mandir}/man8/[^i]*
 %{_mandir}/man1/*
