@@ -13,7 +13,7 @@ Copyright:   GPL
 Source0: 	%name-%version.tgz
 Source1:	pam-ncplogin.tar.gz
 Group:       Networking/Utilities
-Group(pl):   Sieci/U¿ytki
+Group(pl):   Sieciowe/U¿ytki
 Requires:    %name-ipxutils
 Prereq:	     /sbin/ldconfig
 Buildroot:   /tmp/%{name}-%{version}-root
@@ -37,7 +37,7 @@ Summary(fr):	Utilitaires pour la configuration IPX
 Summary(tr):	IPX yapýlandýrma yazýlýmlarý
 Summary(pl):	Narzêdzia do konfigurowania IPX
 Group:		Networking/Utilities
-Group:		Sieci/U¿ytki
+Group(pl):	Sieciowe/U¿ytki
 Version:	1.0
 Release:	1
 
