@@ -27,6 +27,7 @@ Patch3:		%{name}-sbindir.patch
 BuildRequires:	glibc-devel
 BuildRequires:	gettext-devel
 BuildRequires:	pam-devel
+BuildRequires:	php-devel
 Requires:	ipxutils
 #Requires:	iconv
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
