@@ -126,8 +126,8 @@ gettextize --copy --force
 	--enable-nls \
 	--disable-versions
 
-%{__make} OPT_FLAGS="%{!?debug:$RPM_OPT_FLAGS}%{?debug:-O0 -g} -w" 
-%{__make} -C ipxdump OPT_FLAGS="%{!?debug:$RPM_OPT_FLAGS}%{?debug:-O0 -g} -w"
+%{__make} OPT_FLAGS="%{rpmcflags} -w" 
+%{__make} -C ipxdump OPT_FLAGS="%{rpmcflags} -w"
 
 %install
 rm -rf $RPM_BUILD_ROOT
