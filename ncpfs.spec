@@ -186,7 +186,7 @@ ipxutils ¥Ñ¥Ã¥±¡¼¥¸¤Ï¡¢Linux ¤Ç IPX
 
 %description -n ipxutils -l pl
 Pakiet zawiera narzêdzia niezbêdne do konfigurowania interfejsów i
-sieci IPX pod Linuxem. Protoko³u IPX u¿ywa Netware do przesy³ania
+sieci IPX pod Linuksem. Protoko³u IPX u¿ywa Netware do przesy³ania
 danych.
 
 %description -n ipxutils -l pt_BR
