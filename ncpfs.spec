@@ -8,14 +8,13 @@ Version:     2.2.0.16
 Release:     1
 Copyright:   GPL
 #ftp:	     //platan.vc.cvut.cz
-#path0:		/pub/linux/ncpfs/ncpfs-2.2.0.16
-#path1:		/pub/linux/ncpfs/pam/
-Source0: 	%name-%version.tgz
-Source1:	pam-ncplogin.tar.gz
+#path:		/pub/linux/ncpfs/ncpfs-2.2.0.16
+Source: 	%name-%version.tgz
 Group:       Networking/Utilities
 Group(pl):   Sieciowe/U¿ytki
 Requires:    %name-ipxutils
 Prereq:	     /sbin/ldconfig
+Patch:		%name-lang.patch
 Buildroot:   /tmp/%{name}-%{version}-root
 
 %define	_prefix	/usr
@@ -82,6 +81,7 @@ IPX pod Linuxem. Protoko³u IPX u¿ywa Netware do przesy³ania danych.
 
 %prep
 %setup -q
+%patch -p1
 
 %build
 ./configure %{_target_platform} \
