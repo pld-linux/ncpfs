@@ -188,10 +188,3 @@ ln -sf ../usr/bin/ncpmount mount.ncp
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/ipx*
 %attr(644,root, man) %{_mandir}/man8/ipx*
-
-%changelog
-* Fri Jul  2 1999 Wojciech "Sas" Ciêciwa <cieciwa@alpha.zarz.agh.edu.pl>
-  [2.2.0.16-1]
-- updatted to last version,
-- added pam support,
-- build RPM based on sppec from PLD (ver. 2.2.0-1d).
