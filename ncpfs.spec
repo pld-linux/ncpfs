@@ -85,11 +85,8 @@ IPX pod Linuxem. Protoko³u IPX u¿ywa Netware do przesy³ania danych.
 
 %build
 ./conf
-./configure %{_target_platform} \
-	--prefix=%{_prefix} \
+%configure \
 	--enable-pam \
-	--infodir=%{_prefix}/share/info \
-	--mandir=%{_prefix}/share/man \
 	--enable-mount-v3 \
 	--enable-mount-v2 \
 	--enable-nds \
@@ -98,9 +95,6 @@ IPX pod Linuxem. Protoko³u IPX u¿ywa Netware do przesy³ania danych.
 
 make OPT_FLAGS="$RPM_OPT_FLAGS -w" 
 make -C ipxdump OPT_FLAGS="$RPM_OPT_FLAGS -w"
-
-%clean
-rm -rf $RPM_BUILD_ROOT
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -138,9 +132,6 @@ install man/*.1 $RPM_BUILD_ROOT%{_mandir}/man1
 install man/*.5 $RPM_BUILD_ROOT%{_mandir}/man5
 install man/*.8 $RPM_BUILD_ROOT%{_mandir}/man8
 
-## bzipped man pages
-bzip2 -9 $RPM_BUILD_ROOT%{_mandir}/man[158]/*
-
 ## install ipx-1.0
 
 install -s ipx-1.0/ipx_configure ipx-1.0/ipx_interface ipx-1.0/ipx_internal_net ipx-1.0/ipx_route ipx-1.0/ipx_cmd $RPM_BUILD_ROOT/%{_bindir}
@@ -153,14 +144,18 @@ install contrib/pam/pam_ncp_auth.so $RPM_BUILD_ROOT/lib/security
 
 install -s ipxdump/ipxdump ipxdump/ipxparse $RPM_BUILD_ROOT%{_bindir}
 
-chmod 755 $RPM_BUILD_ROOT%{_libdir}/*.so.*
+(cd $RPM_BUILD_ROOT%{_mandir}/man8 ; mv ipx_cmd ipx_cmd.8 ; mv ipx_route ipx_route.8)
 
-bzip2 -9 ABOUT-NLS BUGS Changes FAQ README* ncpfs-* 
+gzip -9nf ABOUT-NLS BUGS Changes FAQ README* ncpfs-* \
+	$RPM_BUILD_ROOT%{_mandir}/man[158]/*
 
 %find_lang ncpfs
 
 cd $RPM_BUILD_ROOT/sbin
 ln -sf ../usr/bin/ncpmount mount.ncp
+
+%clean
+rm -rf $RPM_BUILD_ROOT
 
 %post -p /sbin/ldconfig
 
@@ -168,19 +163,17 @@ ln -sf ../usr/bin/ncpmount mount.ncp
 
 %files -f ncpfs.lang
 %defattr(644,root,root,755)
-%doc ABOUT-NLS.bz2 BUGS.bz2 Changes.bz2 FAQ.bz2 README*.bz2 ncpfs-*.bz2 
-
+%doc ABOUT-NLS.gz BUGS.gz Changes.gz FAQ.gz README*.gz ncpfs-*.gz 
 %attr(755,root,root) %{_bindir}/[^i]*
 %attr(755,root,root) %{_libdir}/libncp.so*
 %attr(755,root,root) /lib/security/pam_ncp_auth.so
 %attr(755,root,root) /sbin/nwmsg
-%attr(  -,root,root) /sbin/mount.ncp
-
-%attr(644,root, man) %{_mandir}/man8/[^i]*
-%attr(644,root, man) %{_mandir}/man1/*
-%attr(644,root, man) %{_mandir}/man5/*
+%attr(755,root,root) /sbin/mount.ncp
+%{_mandir}/man8/[^i]*
+%{_mandir}/man1/*
+%{_mandir}/man5/*
 
 %files ipxutils
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/ipx*
-%attr(644,root, man) %{_mandir}/man8/ipx*
+%{_mandir}/man8/ipx*
