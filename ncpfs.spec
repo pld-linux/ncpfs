@@ -20,6 +20,7 @@ Release:	0.1
 License:	GPL
 Group:		Networking/Utilities
 Source0:	ftp://platan.vc.cvut.cz/pub/linux/ncpfs/%{name}-%{version}.tar.gz
+# Source0-md5:	963d9df652e101e6e87c27502c1c4890
 Patch0:		%{name}-lang.patch
 Patch1:		%{name}-nwsfind.patch
 Patch2:		%{name}-ac.patch
