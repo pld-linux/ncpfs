@@ -1,0 +1,36 @@
+--- ncpfs-2.2.0.18/configure.in.wiget	Mon Mar 25 14:26:01 2002
++++ ncpfs-2.2.0.18/configure.in	Mon Mar 25 14:30:21 2002
+@@ -318,27 +318,27 @@
+ dnl net/if is required by IPX tools
+ dnl currently code does not work without net/if.h
+ AC_CHECK_HEADER(net/if.h,
+-  [ncp_net_if_h="#include <net/if.h>"],
++  [ncp_net_if_h="#include <net/if.h>"],[
+   AC_CHECK_HEADER(linux/if.h,
+     [ncp_net_if_h="#include <linux/if.h>"],
+     [ncp_net_if_h="/* No interfaces support... */"
+      AC_DEFINE(NO_NET_IF_SUPPORT)
+-     AC_MSG_WARN(Neither <net/if.h> nor <linux/if.h> does exist, only partial make configured)]
+-  )
++     AC_MSG_WARN([Neither <net/if.h> nor <linux/if.h> does exist, only partial make configured])]
++  )]
+ )
+ AC_SUBST(ncp_net_if_h)
+ 
+ dnl net/route is required for now in ncplib
+ dnl it should not be required for IP-only
+ AC_CHECK_HEADER(net/route.h,
+-  [ncp_net_route_h="#include <net/route.h>"],
++  [ncp_net_route_h="#include <net/route.h>"],[
+   AC_CHECK_HEADER(linux/route.h,
+     [ncp_net_route_h="#include <linux/route.h>"],
+     [ncp_net_route_h="/* No route support... */"
+      AC_DEFINE(NO_NET_ROUTE_SUPPORT)
+      dnl In future, {net|linux}/route.h should be required only by ipx code
+-     AC_MSG_ERROR(Neither <net/route.h> nor <linux/route.h> does exist)]
+-  )
++     AC_MSG_ERROR([Neither <net/route.h> nor <linux/route.h> does exist])]
++  )]
+ )
+ AC_SUBST(ncp_net_route_h)
+ 
