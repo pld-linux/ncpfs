@@ -17,7 +17,7 @@ BuildRequires:	glibc-devel
 Prereq:		/sbin/ldconfig
 Patch:		%name-lang.patch
 Patch1:		%name-ncplib.patch
-Buildroot:	/tmp/%{name}-%{version}-root
+BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define	_prefix	/usr
 
