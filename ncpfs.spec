@@ -1,6 +1,9 @@
 # TODO:
+# - review/update old patches
 # - fix/write from scrach -devel Summary and %%description
 # - fix -devel Group
+# - review php-auth_nds Summary and %%description
+# - register php module in php.ini like other modules from php.spec (?)
 Summary:	Support Utilities for ncpfs, the free netware client for Linux
 Summary(de):	Support-Dienstprogramme für ncpfs, den kostenlosen Netware-Client
 Summary(es):	Utilitarios de soporte para ncpfs, que es el cliente Linux free para netware
@@ -12,11 +15,11 @@ Summary(ru):	õÔÉÌÉÔÙ ÄÌÑ ÆÁÊÌÏ×ÏÊ ÓÉÓÔÅÍÙ ncpfs, ËÌÉÅÎÔÁ NetWare ÄÌÑ Linux
 Summary(tr):	Linux için Netware istemcisi destek yazýlýmlarý
 Summary(uk):	õÔÉÌ¦ÔÉ ÄÌÑ ÆÁÊÌÏ×Ï§ ÓÉÓÔÅÍÉ ncpfs, ËÌ¦¤ÎÔÁ NetWare ÄÌÑ Linux
 Name:		ncpfs
-Version:	2.2.0.19
+Version:	2.2.3
 Release:	0.1
 License:	GPL
 Group:		Networking/Utilities
-Source0:	ftp://platan.vc.cvut.cz/pub/linux/ncpfs/%{name}-%{version}/%{name}-%{version}.tar.gz
+Source0:	ftp://platan.vc.cvut.cz/pub/linux/ncpfs/%{name}-%{version}.tar.gz
 Patch0:		%{name}-lang.patch
 Patch1:		%{name}-nwsfind.patch
 Patch2:		%{name}-ac.patch
@@ -106,6 +109,16 @@ Requires:	%{name} = %{version}
 
 %description -n pam_ncp_auth
 The pam_ncp_auth module is PAM module for authenticate using
+login/password stored on Netware server.
+
+%package -n php-auth_nds
+Summary:	PHP module for authenticate using using login/password stored on Netware server
+Summary(pl):	Narzêdzia do konfigurowania IPX
+Group:		Networking/Utilities
+Requires:	%{name} = %{version}
+
+%description -n php-auth_nds
+The php_auth_nds module is PHP module for authenticate using
 login/password stored on Netware server.
 
 %package -n ipxutils
@@ -212,12 +225,19 @@ necessários para desenvolver programas que usam o NCPfs.
 
 %prep
 %setup -q
-%patch0 -p1
-%patch1 -p1
-%patch2 -p1
+# need update
+#%%patch0 -p1
+#%%patch1 -p1
+#%%patch2 -p1
 %patch3 -p1
 
 %build
+cd contrib/php
+%{__libtoolize}
+%{__aclocal}
+%{__autoconf}
+cd ../..
+
 ./conf
 %configure \
 	--disable-rpath \
@@ -229,6 +249,7 @@ necessários para desenvolver programas que usam o NCPfs.
 	--enable-nds \
 	--enable-nls \
 	--enable-pam \
+	--enable-php \
 	--enable-reentrant \
 	--enable-signatures \
 	--enable-trace \
@@ -242,12 +263,14 @@ necessários para desenvolver programas que usam o NCPfs.
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{/etc/rc.d/init.d,%{_includedir},/lib/security} \
-	$RPM_BUILD_ROOT%{_sbindir}
+	$RPM_BUILD_ROOT{%{_sbindir},/usr/lib/php}
 
 %{__make} install DESTDIR=$RPM_BUILD_ROOT
 
 ln -s $(cd $RPM_BUILD_ROOT%{_libdir}; ls libncp.so.*.*) $RPM_BUILD_ROOT%{_libdir}/libncp.so
 cp -a include/ncp $RPM_BUILD_ROOT%{_includedir}
+
+install -m755 contrib/php/modules/php_auth_nds.so $RPM_BUILD_ROOT/usr/lib/php/
 
 rm -f $RPM_BUILD_ROOT%{_mandir}/man8/mount.ncp.8*
 echo '.so ncpmount.8' > $RPM_BUILD_ROOT%{_mandir}/man8/mount.ncp.8
@@ -280,6 +303,10 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc contrib/pam/README
 %attr(755,root,root) /lib/security/pam_ncp_auth.so
+
+%files -n php-auth_nds
+%defattr(644,root,root,755)
+%attr(755,root,root) /usr/lib/php/*.so
 
 %files -n ipxutils
 %defattr(644,root,root,755)
