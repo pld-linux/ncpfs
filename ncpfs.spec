@@ -1,10 +1,10 @@
 # TODO:
 # - fix/write from scrach -devel Summary and %%description
 # - fix -devel Group
-Summary:	Support Utilities for ncpfs, the free netware client for Linux.
+Summary:	Support Utilities for ncpfs, the free netware client for Linux
 Summary(de):	Support-Dienstprogramme für ncpfs, den kostenlosen Netware-Client
 Summary(es):	Utilitarios de soporte para ncpfs, que es el cliente Linux free para netware
-Summary(fr):	Gestionnaires pour ncpfs, le client Netware libre pour Linux.
+Summary(fr):	Gestionnaires pour ncpfs, le client Netware libre pour Linux
 Summary(ja):	ncpfs ¥Õ¥¡¥¤¥ë¥·¥¹¥Æ¥à¥æ¡¼¥Æ¥£¥ê¥Æ¥£¡¢Linux ÍÑ NetWare ¥¯¥é¥¤¥¢¥ó¥È¡£
 Summary(pl):	Darmowy klient Netware dla Linuksa wraz z dodatkowymi programami
 Summary(pt_BR):	Utilitários de suporte para ncpfs, que é o cliente Linux free para netware
