@@ -77,7 +77,7 @@ login/password stored on Netware server.
 
 %package -n ipxutils
 Summary:	Utilities for IPX configuration
-Summary(de):	Utilities für IPX-Konfiguration 
+Summary(de):	Utilities für IPX-Konfiguration
 Summary(fr):	Utilitaires pour la configuration IPX
 Summary(ja):	IPX ¥¤¥ó¥¿¥Õ¥§¥¤¥¹¤È¥Í¥Ã¥È¥ï¡¼¥¯¤ÎÀßÄê¤È¥Ç¥Ð¥Ã¥°¤Î¤¿¤á¤Î¥Ä¡¼¥ë¡£
 Summary(pl):	Narzêdzia do konfigurowania IPX
@@ -90,12 +90,12 @@ This package includes utilities necessary for configuring and
 debugging IPX interfaces and networks under Linux. IPX is the
 low-level protocol used by NetWare to transfer data.
 
-%description -l de -n ipxutils
+%description -n ipxutils -l de
 Dieses Paket enthält Dienstprogramme zum Konfigurieren und Debuggen
 von IPX-Schnittstellen und -Netzwerken unter Linux. IPX ist das von
 NetWare zur Datenübertragung verwendete Low-Level-Protokoll.
 
-%description -l fr -n ipxutils
+%description -n ipxutils -l fr
 Ce package contient les utilitaires nécessires à pour la configuration
 et le déboggage des réseaux et interfaces IPX sous Linux. IPX est un
 protocole de bas niveau utilisé par NetWare pour transférer des
@@ -110,12 +110,12 @@ ipxutils ¥Ñ¥Ã¥±¡¼¥¸¤Ï¡¢Linux ¤Ç IPX
 ¥Í¥Ã¥È¥ï¡¼¥¯¤Ç IPX ÀßÄê¤ò¤¹¤ëÉ¬Í×¤¬¤¢¤ì¤Ð¡¢ipxutils
 ¤ò¥¤¥ó¥¹¥È¡¼¥ë¤·¤Þ¤·¤ç¤¦¡£
 
-%description -l pl -n ipxutils
+%description -n ipxutils -l pl
 Pakiet zawiera narzêdzia niezbêdne do konfigurowania interfejsów i
 sieci IPX pod Linuxem. Protoko³u IPX u¿ywa Netware do przesy³ania
 danych.
 
-%description -l tr -n ipxutils
+%description -n ipxutils -l tr
 Bu paket NetWare tarafýndan kullanýlan IPX protokolünü yapýlandýrmak
 ve hatalarýný ayýklamak için kullanýlabilecek bir dizi uygulama
 içermektedir.
@@ -145,7 +145,7 @@ gettextize --copy --force
 	--enable-nls \
 	--disable-versions
 
-%{__make} OPT_FLAGS="%{rpmcflags} -w" 
+%{__make} OPT_FLAGS="%{rpmcflags} -w"
 %{__make} -C ipxdump OPT_FLAGS="%{rpmcflags} -w"
 
 %install
@@ -166,7 +166,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -f %{name}.lang
 %defattr(644,root,root,755)
-%doc BUGS.gz Changes.gz FAQ.gz README*.gz ncpfs-*.gz 
+%doc BUGS.gz Changes.gz FAQ.gz README*.gz ncpfs-*.gz
 %attr(755,root,root) %{_bindir}/[^i]*
 %attr(755,root,root) %{_sbindir}/*
 %attr(755,root,root) %{_libdir}/libncp.so*
