@@ -19,13 +19,13 @@ Summary(ru):	Утилиты для файловой системы ncpfs, клиента NetWare для Linux
 Summary(tr):	Linux iГin Netware istemcisi destek yazЩlЩmlarЩ
 Summary(uk):	Утил╕ти для файлово╖ системи ncpfs, кл╕╓нта NetWare для Linux
 Name:		ncpfs
-Version:	2.2.3
-Release:	0.3%{!?with_ipx:noipx}
+Version:	2.2.4
+Release:	1%{!?with_ipx:noipx}
 Epoch:		1
 License:	GPL
 Group:		Networking/Utilities
 Source0:	ftp://platan.vc.cvut.cz/pub/linux/ncpfs/%{name}-%{version}.tar.gz
-# Source0-md5:	963d9df652e101e6e87c27502c1c4890
+# Source0-md5:	5fd2ec0680ba7e66df142637e17a5ac9
 Patch0:		%{name}-lang.patch
 Patch1:		%{name}-nwsfind.patch
 Patch2:		%{name}-ac.patch
@@ -302,6 +302,9 @@ install -m755 contrib/php/modules/php_auth_nds.so $RPM_BUILD_ROOT/usr/lib/php
 
 rm -f $RPM_BUILD_ROOT%{_mandir}/man8/mount.ncp.8*
 echo '.so ncpmount.8' > $RPM_BUILD_ROOT%{_mandir}/man8/mount.ncp.8
+
+rm -rf $RPM_BUILD_ROOT%{_mandir}/man1/pqrm.1.gz
+(cd $RPM_BUILD_ROOT%{_mandir}/man1; ln -sf nwpqjob.1 pqrm.1)
 
 %find_lang %{name}
 
