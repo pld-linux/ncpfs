@@ -12,18 +12,15 @@ Summary(ru):	õÔÉÌÉÔÙ ÄÌÑ ÆÁÊÌÏ×ÏÊ ÓÉÓÔÅÍÙ ncpfs, ËÌÉÅÎÔÁ NetWare ÄÌÑ Linux
 Summary(tr):	Linux için Netware istemcisi destek yazýlýmlarý
 Summary(uk):	õÔÉÌ¦ÔÉ ÄÌÑ ÆÁÊÌÏ×Ï§ ÓÉÓÔÅÍÉ ncpfs, ËÌ¦¤ÎÔÁ NetWare ÄÌÑ Linux
 Name:		ncpfs
-Version:	2.2.0.18
-Release:	11
+Version:	2.2.0.19
+Release:	0.1
 License:	GPL
 Group:		Networking/Utilities
-Source0:	ftp://platan.vc.cvut.cz/pub/linux/ncpfs/%{name}-%{version}/%{name}-%{version}.tgz
+Source0:	ftp://platan.vc.cvut.cz/pub/linux/ncpfs/%{name}-%{version}/%{name}-%{version}.tar.gz
 Patch0:		%{name}-lang.patch
-Patch1:		%{name}-largekeys.patch.gz
-Patch2:		%{name}-DESTDIR.patch
-Patch3:		ftp://platan.vc.cvut.cz/pub/linux/ncpfs/%{name}-%{version}/ncp-pam-update.diff.gz
-Patch4:		%{name}-nwsfind.patch
-Patch5:		%{name}-ac.patch
-Patch6:		%{name}-sbindir.patch
+Patch1:		%{name}-nwsfind.patch
+Patch2:		%{name}-ac.patch
+Patch3:		%{name}-sbindir.patch
 BuildRequires:	glibc-devel
 BuildRequires:	gettext-devel
 BuildRequires:	pam-devel
@@ -216,42 +213,44 @@ necessários para desenvolver programas que usam o NCPfs.
 %prep
 %setup -q
 %patch0 -p1
-%patch1 -p0
+%patch1 -p1
 %patch2 -p1
-%patch3 -p0
-%patch4 -p1
-%patch5 -p1
-%patch6 -p1
+%patch3 -p1
 
 %build
-%{__gettextize}
 ./conf
 %configure \
-	--enable-pam \
-	--enable-mount-v3 \
-	--enable-mount-v2 \
-	--enable-nds \
-	--enable-udp \
+	--disable-rpath \
 	--enable-ipx \
-	--enable-signatures \
+	--enable-ipx-tools \
 	--enable-kernel \
-	--enable-reentrant \
-	--enable-trace \
-	--enable-warnings \
+	--enable-mount-v2 \
+	--enable-mount-v3 \
+	--enable-nds \
 	--enable-nls \
-	--disable-versions
-
+	--enable-pam \
+	--enable-reentrant \
+	--enable-signatures \
+	--enable-trace \
+	--enable-udp \
+	--enable-versions \
+	--enable-warnings 
+	
 %{__make} OPT_FLAGS="%{rpmcflags} -w"
 %{__make} -C ipxdump OPT_FLAGS="%{rpmcflags} -w"
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{/etc/rc.d/init.d,%{_includedir}}
+install -d $RPM_BUILD_ROOT{/etc/rc.d/init.d,%{_includedir},/lib/security} \
+	$RPM_BUILD_ROOT%{_sbindir}
 
 %{__make} install DESTDIR=$RPM_BUILD_ROOT
 
-install lib/libncp.so $RPM_BUILD_ROOT%{_libdir}
+ln -s $(cd $RPM_BUILD_ROOT%{_libdir}; ls libncp.so.*.*) $RPM_BUILD_ROOT%{_libdir}/libncp.so
 cp -a include/ncp $RPM_BUILD_ROOT%{_includedir}
+
+rm -f $RPM_BUILD_ROOT%{_mandir}/man8/mount.ncp.8*
+echo '.so ncpmount.8' > $RPM_BUILD_ROOT%{_mandir}/man8/mount.ncp.8
 
 %find_lang %{name}
 
