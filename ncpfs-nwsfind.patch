@@ -1,15 +1,15 @@
---- ncpfs-2.2.0.18/lib/Makefile.in.wiget	Mon Mar 25 14:15:20 2002
-+++ ncpfs-2.2.0.18/lib/Makefile.in	Mon Mar 25 14:15:59 2002
-@@ -58,9 +58,9 @@
+--- ncpfs-2.2.0.19/lib/Makefile.in.wiget	Mon Jan 21 01:31:27 2002
++++ ncpfs-2.2.0.19/lib/Makefile.in	Thu Dec 12 19:50:16 2002
+@@ -67,9 +67,9 @@
  
- BASE_CFLAGS = -DHAVE_CONFIG_H -DMAKE_NCPLIB -D_GNU_SOURCE 
- NDS_CFLAGS = $(BASE_CFLAGS) -DPORTABLE -DUPTON
--CFLAGS_ncplib.o  = -DNWSFIND=\"$(bindir)/nwsfind\"
--CFLAGS_ncplib.do = -DNWSFIND=\"$(bindir)/nwsfind\"
--CFLAGS_ncplib.to = -DNWSFIND=\"$(bindir)/nwsfind\"
-+CFLAGS_ncplib.o  = -DNWSFIND=\"$(sbindir)/nwsfind\"
-+CFLAGS_ncplib.do = -DNWSFIND=\"$(sbindir)/nwsfind\"
-+CFLAGS_ncplib.to = -DNWSFIND=\"$(sbindir)/nwsfind\"
- 
- STATIC_CFLAGS    = $(CFLAGS) $(CCFLAGS) @FFUNCTION_SECTIONS@$(REENTRANT_CFLAGS)
- STATIC_SU_CFLAGS = $(CFLAGS) $(CCFLAGS) @FFUNCTION_SECTIONS@$(REENTRANT_CFLAGS) -D__MAKE_SULIB__
+ BASE_CFLAGS := -DHAVE_CONFIG_H -DMAKE_NCPLIB -D_GNU_SOURCE 
+ NDS_CFLAGS := $(BASE_CFLAGS) -DPORTABLE -DUPTON
+-CFLAGS_ncplib.o   := -DNWSFIND=\"$(bindir)/nwsfind\"
+-CFLAGS_ncplib.do  := -DNWSFIND=\"$(bindir)/nwsfind\"
+-CFLAGS_ncplib.to  := -DNWSFIND=\"$(bindir)/nwsfind\"
++CFLAGS_ncplib.o   := -DNWSFIND=\"$(sbindir)/nwsfind\"
++CFLAGS_ncplib.do  := -DNWSFIND=\"$(sbindir)/nwsfind\"
++CFLAGS_ncplib.to  := -DNWSFIND=\"$(sbindir)/nwsfind\"
+ CFLAGS_cfgfile.o  := -DGLOBALCFGFILE=\"$(sysconfdir)/ncpfs.conf\"
+ CFLAGS_cfgfile.do := -DGLOBALCFGFILE=\"$(sysconfdir)/ncpfs.conf\"
+ CFLAGS_cfgfile.to := -DGLOBALCFGFILE=\"$(sysconfdir)/ncpfs.conf\"

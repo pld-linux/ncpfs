@@ -1,6 +1,6 @@
---- ncpfs-2.2.0.18/configure.in.wiget	Mon Mar 25 14:26:01 2002
-+++ ncpfs-2.2.0.18/configure.in	Mon Mar 25 14:30:21 2002
-@@ -318,27 +318,27 @@
+--- ncpfs-2.2.0.19/configure.ac.wiget	Thu Dec 12 19:55:14 2002
++++ ncpfs-2.2.0.19/configure.ac	Thu Dec 12 20:03:06 2002
+@@ -325,27 +325,27 @@
  dnl net/if is required by IPX tools
  dnl currently code does not work without net/if.h
  AC_CHECK_HEADER(net/if.h,
@@ -9,10 +9,9 @@
    AC_CHECK_HEADER(linux/if.h,
      [ncp_net_if_h="#include <linux/if.h>"],
      [ncp_net_if_h="/* No interfaces support... */"
-      AC_DEFINE(NO_NET_IF_SUPPORT)
--     AC_MSG_WARN(Neither <net/if.h> nor <linux/if.h> does exist, only partial make configured)]
+      AC_DEFINE(NO_NET_IF_SUPPORT, 1, [neither net/if.h nor linux/if.h was found, so ipx_* will not build...])
+      AC_MSG_WARN(Neither <net/if.h> nor <linux/if.h> does exist, only partial make configured)]
 -  )
-+     AC_MSG_WARN([Neither <net/if.h> nor <linux/if.h> does exist, only partial make configured])]
 +  )]
  )
  AC_SUBST(ncp_net_if_h)
@@ -25,11 +24,10 @@
    AC_CHECK_HEADER(linux/route.h,
      [ncp_net_route_h="#include <linux/route.h>"],
      [ncp_net_route_h="/* No route support... */"
-      AC_DEFINE(NO_NET_ROUTE_SUPPORT)
+      AC_DEFINE(NO_NET_ROUTE_SUPPORT, 1, [neither net/route.h nor linux/route.h was found ...])
       dnl In future, {net|linux}/route.h should be required only by ipx code
--     AC_MSG_ERROR(Neither <net/route.h> nor <linux/route.h> does exist)]
+      AC_MSG_ERROR(Neither <net/route.h> nor <linux/route.h> does exist)]
 -  )
-+     AC_MSG_ERROR([Neither <net/route.h> nor <linux/route.h> does exist])]
 +  )]
  )
  AC_SUBST(ncp_net_route_h)
