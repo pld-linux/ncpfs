@@ -5,7 +5,7 @@ Summary(tr):	Linux için Netware istemcisi destek yazýlýmlarý
 Summary(pl):	Darmowy klient Netware dla Linuxa wraz z dodatkowymi programami
 Name:		ncpfs
 Version:	2.2.0.17
-Release:	3
+Release:	5
 Copyright:	GPL
 Source:		ftp://platan.vc.cvut.cz/pub/linux/%{name}/%{name}-%{version}/%name-%version.tgz
 Source1:	ncpfs.init
@@ -16,6 +16,7 @@ Requires:	pam
 BuildRequires:	glibc-devel
 Prereq:		/sbin/ldconfig
 Patch:		%name-lang.patch
+Patch1:		%name-ncplib.patch
 Buildroot:	/tmp/%{name}-%{version}-root
 
 %define	_prefix	/usr
@@ -39,7 +40,7 @@ Summary(pl):	Narzêdzia do konfigurowania IPX
 Group:		Networking/Utilities
 Group(pl):	Sieciowe/U¿ytki
 Version:	1.0
-Release:	1
+Release:	%{release}
 
 %description ipxutils
 This package includes utilities necessary for configuring and debugging
@@ -83,6 +84,7 @@ IPX pod Linuxem. Protoko³u IPX u¿ywa Netware do przesy³ania danych.
 %prep
 %setup -q
 %patch -p1
+%patch1 -p0
 
 %build
 ./conf
@@ -91,6 +93,11 @@ IPX pod Linuxem. Protoko³u IPX u¿ywa Netware do przesy³ania danych.
 	--enable-mount-v3 \
 	--enable-mount-v2 \
 	--enable-nds \
+	--enable-ipx \
+	--enable-signatures \
+	--enable-kernel \
+	--enable-reentrant \
+	--enable-trace \
 	--enable-warnings \
 	--enable-nls 
 
