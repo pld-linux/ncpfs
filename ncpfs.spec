@@ -5,7 +5,7 @@ Summary(tr):	Linux için Netware istemcisi destek yazýlýmlarý
 Summary(pl):	Darmowy klient Netware dla Linuxa wraz z dodatkowymi programami
 Name:		ncpfs
 Version:	2.2.0.17
-Release:	5
+Release:	6
 Copyright:	GPL
 Source:		ftp://platan.vc.cvut.cz/pub/linux/%{name}/%{name}-%{version}/%name-%version.tgz
 Source1:	ncpfs.init
@@ -26,10 +26,31 @@ This package contains tools to help configure and use the ncpfs filesysten,
 which is a linux filesystem which understands the NCP protocol. This
 protocol is used by Novell NetWare clients use to talk to NetWare servers. 
 
+INFO:
+Recompoile this package if ANY changes in kernel was made.
+
 %description -l pl
 Pakiet zawiera narzêdzia pomocne w konfigurowaniu i u¿ywaniu systemu
 plików ncpfs. Dziêki ncpfs mo¿liwe jest pod³±czanie wolumenów serwerów
 Netware i modyfikowanie ich zawarto¶ci.
+
+Wymagane zale¿no¶ci w j±drze systemu:
+[...]
+<M> NCP filesystem support (to mount NetWare volumes)
+[*]    Packet signatures
+[*]    Proprietary file locking
+[*]    Clear remove/delete inhibit when needed
+[*]    Use NFS namespace if available
+[*]    Use LONG (OS/2) namespace if available
+[*]       Lowercase DOS filenames
+[*]    Allow mounting of volume subdirectories
+[*]    Use Native Language Support
+[*]    Enable symbolic links and execute flags
+
+[...]
+
+Od Autora SPECa:
+ZALECA SIÊ rekompilacje przy _ka¿dorazowej_ rekompilacji kernela.
 
 %package ipxutils
 Summary:	Utilities for IPX configuration
