@@ -6,7 +6,7 @@ Summary(de):	Support-Dienstprogramme für ncpfs, den kostenlosen Netware-Client
 Summary(es):	Utilitarios de soporte para ncpfs, que es el cliente Linux free para netware
 Summary(fr):	Gestionnaires pour ncpfs, le client Netware libre pour Linux.
 Summary(ja):	ncpfs ¥Õ¥¡¥¤¥ë¥·¥¹¥Æ¥à¥æ¡¼¥Æ¥£¥ê¥Æ¥£¡¢Linux ÍÑ NetWare ¥¯¥é¥¤¥¢¥ó¥È¡£
-Summary(pl):	Darmowy klient Netware dla Linuxa wraz z dodatkowymi programami
+Summary(pl):	Darmowy klient Netware dla Linuksa wraz z dodatkowymi programami
 Summary(pt_BR):	Utilitários de suporte para ncpfs, que é o cliente Linux free para netware
 Summary(ru):	õÔÉÌÉÔÙ ÄÌÑ ÆÁÊÌÏ×ÏÊ ÓÉÓÔÅÍÙ ncpfs, ËÌÉÅÎÔÁ NetWare ÄÌÑ Linux
 Summary(tr):	Linux için Netware istemcisi destek yazılımları
