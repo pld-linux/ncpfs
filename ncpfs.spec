@@ -4,8 +4,8 @@
 # - register php module in php.ini like other modules from php.spec (?)
 #
 # Conditional build:
-%bcond_without php	# don't build PHP module
-%bcond_without ipx	# don't build ipx utils
+%bcond_without	php	# don't build PHP module
+%bcond_without	ipx	# don't build ipxutils
 #
 Summary:	Support Utilities for ncpfs, the free netware client for Linux
 Summary(de):	Support-Dienstprogramme für ncpfs, den kostenlosen Netware-Client
