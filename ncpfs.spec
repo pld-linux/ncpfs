@@ -1,21 +1,23 @@
-Summary:     Support Utilities for ncpfs, the free netware client for Linux.
-Summary(de): Support-Dienstprogramme für ncpfs, den kostenlosen Netware-Client
-Summary(fr): Gestionnaires pour ncpfs, le client Netware libre pour Linux.
-Summary(tr): Linux için Netware istemcisi destek yazýlýmlarý
-Summary(pl): Darmowy klient Netware dla Linuxa wraz z dodatkowymi programami
-Name:        ncpfs
-Version:     2.2.0.16
-Release:     1
-Copyright:   GPL
-#ftp:	     //platan.vc.cvut.cz
+Summary:	Support Utilities for ncpfs, the free netware client for Linux.
+Summary(de):	Support-Dienstprogramme für ncpfs, den kostenlosen Netware-Client
+Summary(fr):	Gestionnaires pour ncpfs, le client Netware libre pour Linux.
+Summary(tr):	Linux için Netware istemcisi destek yazýlýmlarý
+Summary(pl):	Darmowy klient Netware dla Linuxa wraz z dodatkowymi programami
+Name:		ncpfs
+Version:	2.2.0.16
+Release:	2
+Copyright:	GPL
+#ftp:		//platan.vc.cvut.cz
 #path:		/pub/linux/ncpfs/ncpfs-2.2.0.16
 Source: 	%name-%version.tgz
-Group:       Networking/Utilities
-Group(pl):   Sieciowe/U¿ytki
-Requires:    %name-ipxutils
-Prereq:	     /sbin/ldconfig
+Group:		Networking/Utilities
+Group(pl):	Sieciowe/U¿ytki
+Requires:	%name-ipxutils
+Requires:	pam
+BuildRequires:	glibc-devel
+Prereq:		/sbin/ldconfig
 Patch:		%name-lang.patch
-Buildroot:   /tmp/%{name}-%{version}-root
+Buildroot:	/tmp/%{name}-%{version}-root
 
 %define	_prefix	/usr
 
@@ -84,6 +86,7 @@ IPX pod Linuxem. Protoko³u IPX u¿ywa Netware do przesy³ania danych.
 %patch -p1
 
 %build
+autoconf
 ./configure %{_target_platform} \
 	--prefix=%{_prefix} \
 	--enable-pam \
