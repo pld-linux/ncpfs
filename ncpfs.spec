@@ -20,7 +20,7 @@ Summary(tr):	Linux için Netware istemcisi destek yazýlýmlarý
 Summary(uk):	õÔÉÌ¦ÔÉ ÄÌÑ ÆÁÊÌÏ×Ï§ ÓÉÓÔÅÍÉ ncpfs, ËÌ¦¤ÎÔÁ NetWare ÄÌÑ Linux
 Name:		ncpfs
 Version:	2.2.4
-Release:	1%{!?with_ipx:noipx}
+Release:	2%{!?with_ipx:noipx}
 Epoch:		1
 License:	GPL
 Group:		Networking/Utilities
@@ -35,7 +35,7 @@ BuildRequires:	automake
 BuildRequires:	gettext-devel
 BuildRequires:	libtool
 BuildRequires:	pam-devel
-BuildRequires:	php-devel
+%{?with_php:BuildRequires:	php-devel}
 %{?with_ipx:Requires:	ipxutils}
 #Requires:	iconv
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -298,7 +298,9 @@ install -d $RPM_BUILD_ROOT{/etc/rc.d/init.d,%{_includedir},/%{_lib}/security} \
 ln -s $(cd $RPM_BUILD_ROOT%{_libdir}; ls libncp.so.*.*) $RPM_BUILD_ROOT%{_libdir}/libncp.so
 cp -a include/ncp $RPM_BUILD_ROOT%{_includedir}
 
+%if %{with php}
 install -m755 contrib/php/modules/php_auth_nds.so $RPM_BUILD_ROOT/usr/%{_lib}/php
+%endif
 
 rm -f $RPM_BUILD_ROOT%{_mandir}/man8/mount.ncp.8*
 echo '.so ncpmount.8' > $RPM_BUILD_ROOT%{_mandir}/man8/mount.ncp.8
@@ -335,9 +337,11 @@ rm -rf $RPM_BUILD_ROOT
 %doc contrib/pam/README
 %attr(755,root,root) /%{_lib}/security/pam_ncp_auth.so
 
+%if %{with php}
 %files -n php-auth_nds
 %defattr(644,root,root,755)
 %attr(755,root,root) /usr/%{_lib}/php/*.so
+%endif
 
 %if %{with ipx}
 %files -n ipxutils
