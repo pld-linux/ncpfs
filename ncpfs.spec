@@ -9,7 +9,7 @@ Summary(pl):	Darmowy klient Netware dla Linuxa wraz z dodatkowymi programami
 Summary(tr):	Linux için Netware istemcisi destek yazýlýmlarý
 Name:		ncpfs
 Version:	2.2.0.18
-Release:	8.1
+Release:	8.2
 License:	GPL
 Group:		Networking/Utilities
 Source0:	ftp://platan.vc.cvut.cz/pub/linux/ncpfs/%{name}-%{version}/%{name}-%{version}.tgz
@@ -88,6 +88,7 @@ Summary(ja):	IPX ¥¤¥ó¥¿¥Õ¥§¥¤¥¹¤È¥Í¥Ã¥È¥ï¡¼¥¯¤ÎÀßÄê¤È¥Ç¥Ð¥Ã¥°¤Î¤¿¤á¤Î¥Ä¡¼¥ë¡£
 Summary(pl):	Narzêdzia do konfigurowania IPX
 Summary(tr):	IPX yapýlandýrma yazýlýmlarý
 Group:		Networking/Utilities
+Obsoletes:	ipx
 Obsoletes:	ncpfs-ipxutils
 
 %description -n ipxutils
