@@ -5,9 +5,9 @@ Summary(tr):	Linux için Netware istemcisi destek yazýlýmlarý
 Summary(pl):	Darmowy klient Netware dla Linuxa wraz z dodatkowymi programami
 Name:		ncpfs
 Version:	2.2.0.18
-Release:	1
+Release:	4
 License:	GPL
-Source0:	ftp://platan.vc.cvut.cz/pub/linux/%{name}/%{name}-%{version}/%name-%version.tgz
+Source0:	ftp://platan.vc.cvut.cz/pub/linux/%{name}/%{name}-%{version}/%{name}-%{version}.tgz
 Patch0:		%{name}-lang.patch
 Patch1:		%{name}-largekeys.patch.gz
 Patch2:		%{name}-DESTDIR.patch
@@ -49,7 +49,18 @@ Netware i modyfikowanie ich zawarto¶ci.
 Bu paket Linux'un Novell'in NCP protokolunu kullanabilmesi için
 gereken yardýmcý yazýlýmlarý içermektedir.
 
-%package ipxutils
+%package -n pam_ncp_auth
+Summary:	PAM module for authenticate using using login/password stored on Netware server
+Summary(pl):	Narzêdzia do konfigurowania IPX
+Group:		Networking/Utilities
+Group(pl):	Sieciowe/Narzêdzia
+Requires:	%{name} = %{version}
+
+%description -n pam_ncp_auth
+The pam_ncp_auth module is PAM module for authenticate using login/password
+stored on Netware server.
+
+%package -n ipxutils
 Summary:	Utilities for IPX configuration
 Summary(de):	Utilities für IPX-Konfiguration 
 Summary(fr):	Utilitaires pour la configuration IPX
@@ -57,31 +68,30 @@ Summary(pl):	Narzêdzia do konfigurowania IPX
 Summary(tr):	IPX yapýlandýrma yazýlýmlarý
 Group:		Networking/Utilities
 Group(pl):	Sieciowe/Narzêdzia
-Version:	1.0
-Release:	%{release}
+Obsoletes:	ncpfs-ipxutils
 
-%description ipxutils
+%description -n ipxutils
 This package includes utilities necessary for configuring and
 debugging IPX interfaces and networks under Linux. IPX is the
 low-level protocol used by NetWare to transfer data.
 
-%description -l de ipxutils
+%description -l de -n ipxutils
 Dieses Paket enthält Dienstprogramme zum Konfigurieren und Debuggen
 von IPX-Schnittstellen und -Netzwerken unter Linux. IPX ist das von
 NetWare zur Datenübertragung verwendete Low-Level-Protokoll.
 
-%description -l fr ipxutils
+%description -l fr -n ipxutils
 Ce package contient les utilitaires nécessires à pour la configuration
 et le déboggage des réseaux et interfaces IPX sous Linux. IPX est un
 protocole de bas niveau utilisé par NetWare pour transférer des
 données.
 
-%description -l pl ipxutils
+%description -l pl -n ipxutils
 Pakiet zawiera narzêdzia niezbêdne do konfigurowania interfejsów i
 sieci IPX pod Linuxem. Protoko³u IPX u¿ywa Netware do przesy³ania
 danych.
 
-%description -l tr ipxutils
+%description -l tr -n ipxutils
 Bu paket NetWare tarafýndan kullanýlan IPX protokolünü yapýlandýrmak
 ve hatalarýný ayýklamak için kullanýlabilecek bir dizi uygulama
 içermektedir.
@@ -121,7 +131,7 @@ install -d $RPM_BUILD_ROOT/etc/rc.d/init.d
 
 make install DESTDIR=$RPM_BUILD_ROOT
 
-gzip -9nf BUGS Changes FAQ README* ncpfs-* \
+gzip -9nf BUGS Changes FAQ README* ncpfs-* contrib/pam/README \
 	$RPM_BUILD_ROOT%{_mandir}/man[158]/*
 
 %find_lang %{name}
@@ -138,13 +148,17 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/[^i]*
 %attr(755,root,root) %{_sbindir}/*
 %attr(755,root,root) %{_libdir}/libncp.so*
-%attr(755,root,root) /lib/security/pam_ncp_auth.so
 
 %{_mandir}/man8/[^i]*
 %{_mandir}/man1/*
 %{_mandir}/man5/*
 
-%files ipxutils
+%files -n pam_ncp_auth
+%defattr(644,root,root,755)
+%doc contrib/pam/*.gz
+%attr(755,root,root) /lib/security/pam_ncp_auth.so
+
+%files -n ipxutils
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/ipx*
 %{_mandir}/man8/ipx*
