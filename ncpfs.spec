@@ -9,7 +9,7 @@ Summary(pl):	Darmowy klient Netware dla Linuxa wraz z dodatkowymi programami
 Summary(tr):	Linux için Netware istemcisi destek yazýlýmlarý
 Name:		ncpfs
 Version:	2.2.0.18
-Release:	8
+Release:	8.1
 License:	GPL
 Group:		Networking/Utilities
 Source0:	ftp://platan.vc.cvut.cz/pub/linux/ncpfs/%{name}-%{version}/%{name}-%{version}.tgz
