@@ -103,7 +103,7 @@ Ncpfs - √≈ ∆¡ Ãœ◊¡ ”…”‘≈Õ¡ –œ◊≈“» –“œ‘œÀœÃ’ Novell NetWare(TM) NCP. ˙¡
 
 %package -n pam_ncp_auth
 Summary:	PAM module for authenticate using using login/password stored on Netware server
-Summary(pl):	NarzÍdzia do konfigurowania IPX
+Summary(pl):	Modu≥ PAM uwierzytelniaj±cy poprzez login i has≥o trzymane na serwerze Netware
 Group:		Networking/Utilities
 Requires:	%{name} = %{version}
 
@@ -111,15 +111,24 @@ Requires:	%{name} = %{version}
 The pam_ncp_auth module is PAM module for authenticate using
 login/password stored on Netware server.
 
+%description -n pam_ncp_auth -l pl
+Modu≥ pam_ncp_auth to modu≥ PAM s≥uø±cy do uwierzytelniania przy
+uøyciu loginu i has≥a przechowywanych na serwerze Netware.
+
 %package -n php-auth_nds
 Summary:	PHP module for authenticate using using login/password stored on Netware server
+Summary(pl):	Modu≥ PHP uwierzytelniaj±cy poprzez login i has≥o trzymane na serwerze Netware
 Summary(pl):	NarzÍdzia do konfigurowania IPX
 Group:		Networking/Utilities
 Requires:	%{name} = %{version}
 
 %description -n php-auth_nds
-The php_auth_nds module is PHP module for authenticate using
+The php-auth_nds module is PHP module for authenticate using
 login/password stored on Netware server.
+
+%description -n php-auth_nds -l pl
+Modu≥ php-ncp_auth to modu≥ PHP s≥uø±cy do uwierzytelniania przy
+uøyciu loginu i has≥a przechowywanych na serwerze Netware.
 
 %package -n ipxutils
 Summary:	Utilities for IPX configuration
@@ -286,11 +295,11 @@ rm -rf $RPM_BUILD_ROOT
 %files -f %{name}.lang
 %defattr(644,root,root,755)
 %doc BUGS Changes FAQ README* ncpfs-*
-%attr(755,root,root) %{_bindir}/[^i]*
-%attr(755,root,root) %{_sbindir}/[^i]*
+%attr(755,root,root) %{_bindir}/[!i]*
+%attr(755,root,root) %{_sbindir}/[!i]*
 %attr(755,root,root) %{_libdir}/libncp.so.*
 
-%{_mandir}/man8/[^i]*
+%{_mandir}/man8/[!i]*
 %{_mandir}/man1/*
 %{_mandir}/man5/*
 
