@@ -303,8 +303,8 @@ install -m755 contrib/php/modules/php_auth_nds.so $RPM_BUILD_ROOT/usr/lib/php
 rm -f $RPM_BUILD_ROOT%{_mandir}/man8/mount.ncp.8*
 echo '.so ncpmount.8' > $RPM_BUILD_ROOT%{_mandir}/man8/mount.ncp.8
 
-rm -rf $RPM_BUILD_ROOT%{_mandir}/man1/pqrm.1.gz
-(cd $RPM_BUILD_ROOT%{_mandir}/man1; ln -sf nwpqjob.1 pqrm.1)
+rm -f $RPM_BUILD_ROOT%{_mandir}/man1/pqrm.1*
+echo '.so nwpqjob.1' > $RPM_BUILD_ROOT%{_mandir}/man1/pqrm.1
 
 %find_lang %{name}
 
