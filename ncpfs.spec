@@ -127,11 +127,15 @@ içermektedir.
 
 %package devel
 Summary:	Files for developing NCP-aware software
-Group:		-
+Summary(pl):	Pliki do tworzenia oprogramowania u¿ywaj±cego NCP
+Group:		Development/Libraries
 Requires:	%{name} = %{version}
 
 %description devel
-Files for developing NCP-aware software
+Files for developing NCP-aware software.
+
+%description devel -l pl
+Pliki do tworzenia oprogramowania u¿ywaj±cego NCP.
 
 %prep
 %setup -q
