@@ -14,8 +14,7 @@ Patch1:		%{name}-largekeys.patch.gz
 Patch2:		%{name}-DESTDIR.patch
 Group:		Networking/Utilities
 Group(pl):	Sieciowe/Narzêdzia
-Requires:	%name-ipxutils
-Requires:	pam
+Requires:	%{name}-ipxutils
 BuildRequires:	glibc-devel
 BuildRequires:	gettext-devel
 Prereq:		/sbin/chkconfig
