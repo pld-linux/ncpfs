@@ -1,15 +1,18 @@
 Summary:	Support Utilities for ncpfs, the free netware client for Linux.
 Summary(de):	Support-Dienstprogramme für ncpfs, den kostenlosen Netware-Client
 Summary(fr):	Gestionnaires pour ncpfs, le client Netware libre pour Linux.
-Summary(tr):	Linux için Netware istemcisi destek yazýlýmlarý
+Summary(ja):	ncpfs ¥Õ¥¡¥¤¥ë¥·¥¹¥Æ¥à¥æ¡¼¥Æ¥£¥ê¥Æ¥£¡¢Linux ÍÑ NetWare ¥¯¥é¥¤¥¢¥ó¥È¡£
 Summary(pl):	Darmowy klient Netware dla Linuxa wraz z dodatkowymi programami
+Summary(tr):	Linux için Netware istemcisi destek yazýlýmlarý
 Name:		ncpfs
 Version:	2.2.0.18
-Release:	7
+Release:	8
 License:	GPL
 Group:		Networking/Utilities
 Group(de):	Netzwerkwesen/Werkzeuge
+Group(es):	Red/Utilitarios
 Group(pl):	Sieciowe/Narzêdzia
+Group(pt_BR):	Rede/Utilitários
 Source0:	ftp://platan.vc.cvut.cz/pub/linux/ncpfs/%{name}-%{version}/%{name}-%{version}.tgz
 Patch0:		%{name}-lang.patch
 Patch1:		%{name}-largekeys.patch.gz
@@ -44,6 +47,19 @@ système de fichiers ncpfs, qui est un système de fichiers Linux adapté
 au protocole NCP. Ce protocole est utilisé par les clients Novell
 NetWare pour communiquer avec les serveurs NetWare.
 
+%description -l ja
+ncpfs ¤Ï Novell NetWare(TM) NCP ¤È¤·¤ÆÍý²ò¤µ¤ì¤ë¥Õ¥¡¥¤¥ë¥·¥¹¥Æ¥à¤Ç¤¹¡£
+µ¡Ç½Åª¤Ë¤Ï¡¢NCP ¤Ï¡¢NFS ¤¬ TCP/IP ¤ÎÀ¤³¦¤ÇÍÑ¤¤¤é¤ì¤ë¤è¤¦¤Ë¡¢NetWare ¤Ç
+ÍÑ¤¤¤é¤ì¤Þ¤¹¡£Linux ¥·¥¹¥Æ¥à¤¬ NetWare
+¥Õ¥¡¥¤¥ë¥·¥¹¥Æ¥à¤ò¥Þ¥¦¥ó¥È¤¹¤ë¤Ë¤Ï¡¢
+ÆÃÊÌ¤Ê¥Þ¥¦¥ó¥È¥×¥í¥°¥é¥à¤¬É¬Í×¤Ç¤¹¡£ncpfs
+¥Ñ¥Ã¥±¡¼¥¸¤Ï¤½¤Î¤è¤¦¤Ê¥Þ¥¦¥ó¥È ¥×¥í¥°¥é¥à¤È¡¢ncpfs
+¥Õ¥¡¥¤¥ë¥·¥¹¥Æ¥à¤ÎÀßÄê¤ÈÍøÍÑ¤Î¤¿¤á¤Î¥Ä¡¼¥ë¤ò´Þ¤ß¤Þ¤¹¡£
+
+Novell NetWare ¤Î¥Õ¥¡¥¤¥ë¤«¥µ¡¼¥Ó¥¹¤ò»È¤¦¤¿¤á¤Ë ncpfs
+¥Õ¥¡¥¤¥ë¥·¥¹¥Æ¥à¤ò ÍÑ¤¤¤ëÉ¬Í×¤¬¤¢¤ë¤Ê¤é¡¢ncpfs
+¥Ñ¥Ã¥±¡¼¥¸¤ò¥¤¥ó¥¹¥È¡¼¥ë¤·¤Þ¤·¤ç¤¦¡£
+
 %description -l pl
 Pakiet zawiera narzêdzia pomocne w konfigurowaniu i u¿ywaniu systemu
 plików ncpfs. Dziêki ncpfs mo¿liwe jest pod³±czanie wolumenów serwerów
@@ -58,7 +74,9 @@ Summary:	PAM module for authenticate using using login/password stored on Netwar
 Summary(pl):	Narzêdzia do konfigurowania IPX
 Group:		Networking/Utilities
 Group(de):	Netzwerkwesen/Werkzeuge
+Group(es):	Red/Utilitarios
 Group(pl):	Sieciowe/Narzêdzia
+Group(pt_BR):	Rede/Utilitários
 Requires:	%{name} = %{version}
 
 %description -n pam_ncp_auth
@@ -69,11 +87,14 @@ login/password stored on Netware server.
 Summary:	Utilities for IPX configuration
 Summary(de):	Utilities für IPX-Konfiguration 
 Summary(fr):	Utilitaires pour la configuration IPX
+Summary(ja):	IPX ¥¤¥ó¥¿¥Õ¥§¥¤¥¹¤È¥Í¥Ã¥È¥ï¡¼¥¯¤ÎÀßÄê¤È¥Ç¥Ð¥Ã¥°¤Î¤¿¤á¤Î¥Ä¡¼¥ë¡£
 Summary(pl):	Narzêdzia do konfigurowania IPX
 Summary(tr):	IPX yapýlandýrma yazýlýmlarý
 Group:		Networking/Utilities
 Group(de):	Netzwerkwesen/Werkzeuge
+Group(es):	Red/Utilitarios
 Group(pl):	Sieciowe/Narzêdzia
+Group(pt_BR):	Rede/Utilitários
 Obsoletes:	ncpfs-ipxutils
 
 %description -n ipxutils
@@ -91,6 +112,15 @@ Ce package contient les utilitaires nécessires à pour la configuration
 et le déboggage des réseaux et interfaces IPX sous Linux. IPX est un
 protocole de bas niveau utilisé par NetWare pour transférer des
 données.
+
+%description -n ipxutils -l ja
+ipxutils ¥Ñ¥Ã¥±¡¼¥¸¤Ï¡¢Linux ¤Ç IPX
+¥¤¥ó¥¿¥Õ¥§¥¤¥¹¤È¥Í¥Ã¥È¥ï¡¼¥¯¤ÎÀßÄê¤È
+¥Ç¥Ð¥Ã¥°¤ò¤¹¤ë¤¿¤á¤Î¥æ¡¼¥Æ¥£¥ê¥Æ¥£¤ò´Þ¤ß¤Þ¤¹¡£IPX ¤Ï Novell NetWare ¤Î
+¥Õ¥¡¥¤¥ë¥·¥¹¥Æ¥à¤Ç¥Ç¡¼¥¿¤òÅ¾Á÷¤¹¤ë¤Î¤ËÍÑ¤¤¤é¤ì¤ëÄã¥ì¥ô¥§¥ë¥×¥í¥È¥³¥ë¤Ç¤¹¡£
+
+¥Í¥Ã¥È¥ï¡¼¥¯¤Ç IPX ÀßÄê¤ò¤¹¤ëÉ¬Í×¤¬¤¢¤ì¤Ð¡¢ipxutils
+¤ò¥¤¥ó¥¹¥È¡¼¥ë¤·¤Þ¤·¤ç¤¦¡£
 
 %description -l pl -n ipxutils
 Pakiet zawiera narzêdzia niezbêdne do konfigurowania interfejsów i
