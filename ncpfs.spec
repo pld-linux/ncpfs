@@ -1,5 +1,4 @@
 # TODO:
-# - review/update old patches
 # - fix/write from scrach -devel Summary and %%description
 # - fix -devel Group
 # - review php-auth_nds Summary and %%description
@@ -21,7 +20,7 @@ Summary(tr):	Linux iГin Netware istemcisi destek yazЩlЩmlarЩ
 Summary(uk):	Утил╕ти для файлово╖ системи ncpfs, кл╕╓нта NetWare для Linux
 Name:		ncpfs
 Version:	2.2.3
-Release:	0.2%{!?with_ipx:noipx}
+Release:	0.3%{!?with_ipx:noipx}
 Epoch:		1
 License:	GPL
 Group:		Networking/Utilities
@@ -245,10 +244,10 @@ necessАrios para desenvolver programas que usam o NCPfs.
 
 %prep
 %setup -q
-# need update
-#%%patch0 -p1
-#%%patch1 -p1
-#%%patch2 -p1
+
+%patch0 -p1
+%patch1 -p1
+%patch2 -p1
 %patch3 -p1
 
 %build
