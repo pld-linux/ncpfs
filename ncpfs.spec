@@ -1,3 +1,6 @@
+# TODO:
+# - fix/write from scrach -devel Summary and %%description
+# - fix -devel Group
 Summary:	Support Utilities for ncpfs, the free netware client for Linux.
 Summary(de):	Support-Dienstprogramme für ncpfs, den kostenlosen Netware-Client
 Summary(fr):	Gestionnaires pour ncpfs, le client Netware libre pour Linux.
@@ -14,6 +17,8 @@ Patch0:		%{name}-lang.patch
 Patch1:		%{name}-largekeys.patch.gz
 Patch2:		%{name}-DESTDIR.patch
 Patch3:		ftp://platan.vc.cvut.cz/pub/linux/ncpfs/%{name}-%{version}/ncp-pam-update.diff.gz
+Patch4:		%{name}-nwsfind.patch
+Patch5:		%{name}-ac.patch
 BuildRequires:	glibc-devel
 BuildRequires:	gettext-devel
 BuildRequires:	pam-devel
@@ -120,12 +125,22 @@ Bu paket NetWare tarafýndan kullanýlan IPX protokolünü yapýlandýrmak
 ve hatalarýný ayýklamak için kullanýlabilecek bir dizi uygulama
 içermektedir.
 
+%package devel
+Summary:	Files for developing NCP-aware software
+Group:		-
+Requires:	%{name} = %{version}
+
+%description
+Files for developing NCP-aware software
+
 %prep
 %setup -q
 %patch0 -p1
 %patch1 -p0
 %patch2 -p1
 %patch3 -p0
+%patch4 -p1
+%patch5 -p1
 
 %build
 gettextize --copy --force
@@ -150,9 +165,12 @@ gettextize --copy --force
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT/etc/rc.d/init.d
+install -d $RPM_BUILD_ROOT{/etc/rc.d/init.d,%{_includedir}}
 
 %{__make} install DESTDIR=$RPM_BUILD_ROOT
+
+install lib/libncp.so $RPM_BUILD_ROOT%{_libdir}
+cp -a include/ncp $RPM_BUILD_ROOT%{_includedir}
 
 gzip -9nf BUGS Changes FAQ README* ncpfs-* contrib/pam/README
 
@@ -174,6 +192,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man8/[^i]*
 %{_mandir}/man1/*
 %{_mandir}/man5/*
+
+%files devel
+%defattr(644,root,root,755)
+%{_includedir}/ncp
+%{_libdir}/libncp.so
 
 %files -n pam_ncp_auth
 %defattr(644,root,root,755)
