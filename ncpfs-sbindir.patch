@@ -1,0 +1,13 @@
+--- ncpfs-2.2.0.18/ipx-1.0/Makefile.in	Wed Jun 12 09:44:00 2002
++++ ncpfs-2.2.0.18/ipx-1.0/Makefile.in	Wed Jun 12 09:45:36 2002
+@@ -40,8 +40,8 @@
+ distclean: mrproper
+ 
+ install: $(UTILS) $(MAN8GZ) $(UTIIPX)
+-	$(INSTALL) -d $(DESTDIR)$(bindir)
+-	$(INSTALL) $(UTILS) $(UTIIPX) $(DESTDIR)$(bindir)
++	$(INSTALL) -d $(DESTDIR)$(sbindir)
++	$(INSTALL) $(UTILS) $(UTIIPX) $(DESTDIR)$(sbindir)
+ 	$(INSTALL) -d $(DESTDIR)$(mandir)/man8
+ 	$(INSTALL_DATA) $(MAN8SRC) $(DESTDIR)$(mandir)/man8
+ 

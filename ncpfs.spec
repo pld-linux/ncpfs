@@ -23,6 +23,7 @@ Patch2:		%{name}-DESTDIR.patch
 Patch3:		ftp://platan.vc.cvut.cz/pub/linux/ncpfs/%{name}-%{version}/ncp-pam-update.diff.gz
 Patch4:		%{name}-nwsfind.patch
 Patch5:		%{name}-ac.patch
+Patch6:		%{name}-sbindir.patch
 BuildRequires:	glibc-devel
 BuildRequires:	gettext-devel
 BuildRequires:	pam-devel
@@ -220,6 +221,7 @@ necessários para desenvolver programas que usam o NCPfs.
 %patch3 -p0
 %patch4 -p1
 %patch5 -p1
+%patch6 -p1
 
 %build
 gettextize --copy --force
@@ -282,5 +284,5 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n ipxutils
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_bindir}/ipx*
+%attr(755,root,root) %{_sbindir}/ipx*
 %{_mandir}/man8/ipx*
