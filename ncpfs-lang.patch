@@ -1,18 +1,10 @@
-diff -ruN ncpfs-2.2.0.19.orig/configure.ac ncpfs-2.2.0.19/configure.ac
---- ncpfs-2.2.0.19.orig/configure.ac	Sun Jan 20 14:00:10 2002
-+++ ncpfs-2.2.0.19/configure.ac	Thu Dec 12 19:06:03 2002
-@@ -182,7 +182,7 @@
- AC_DEFINE_UNQUOTED(VERSION, ["$PACKAGE_VERSION"], [Package version])
- AC_SUBST(PACKAGE, ["$PACKAGE_NAME"])
- AC_SUBST(VERSION, ["$PACKAGE_VERSION"])
--ALL_LINGUAS="cs de"
-+ALL_LINGUAS="cs de pl"
- AM_GNU_GETTEXT
- localedir="\${prefix}/$DATADIRNAME/locale"
- AC_SUBST(localedir)
-diff -ruN ncpfs-2.2.0.19.orig/po/pl.po ncpfs-2.2.0.19/po/pl.po
---- ncpfs-2.2.0.19.orig/po/pl.po	Thu Jan  1 01:00:00 1970
-+++ ncpfs-2.2.0.19/po/pl.po	Thu Dec 12 19:38:47 2002
+--- ncpfs-2.2.3/po/LINGUAS.orig	2004-01-08 14:23:16.000000000 +0100
++++ ncpfs-2.2.3/po/LINGUAS	2004-01-08 14:23:22.000000000 +0100
+@@ -1 +1 @@
+-cs de
++cs de pl
+--- /dev/null	2003-12-09 09:22:21.000000000 +0100
++++ ncpfs-2.2.3/po/pl.po	2004-01-08 14:47:32.000000000 +0100
 @@ -0,0 +1,4298 @@
 +# SOME DESCRIPTIVE TITLE.
 +# Copyright (C) YEAR Free Software Foundation, Inc.
@@ -107,7 +99,7 @@ diff -ruN ncpfs-2.2.0.19.orig/po/pl.po ncpfs-2.2.0.19/po/pl.po
 +#: ipx-1.0/ipx_route.c:65 ipx-1.0/ipx_route.c:89
 +#, c-format
 +msgid "%s: Inappropriate network number %08lX\n"
-+msgstr "%s: numer sieci %081X\n"
++msgstr "%s: numer sieci %08lX\n"
 +
 +#: ipx-1.0/ipx_interface.c:183 ipx-1.0/ipx_internal_net.c:104
 +#, c-format
@@ -174,7 +166,7 @@ diff -ruN ncpfs-2.2.0.19.orig/po/pl.po ncpfs-2.2.0.19/po/pl.po
 +#: ipx-1.0/ipx_internal_net.c:52
 +#, c-format
 +msgid "%s: Invalid internal network address %s\n"
-+msgstr "%s: Niew³a¶ciwy adres sieci wewnêtrznej.\n"
++msgstr "%s: Niew³a¶ciwy adres sieci wewnêtrznej %s\n"
 +
 +#: ipx-1.0/ipx_internal_net.c:60
 +#, c-format
@@ -239,7 +231,7 @@ diff -ruN ncpfs-2.2.0.19.orig/po/pl.po ncpfs-2.2.0.19/po/pl.po
 +#: ipx-1.0/ipx_route.c:184
 +#, c-format
 +msgid "%s: Route not found for network %08lX.\n"
-+msgstr "%s: Nie znaleziono drogi do sieci %081X.\n"
++msgstr "%s: Nie znaleziono drogi do sieci %08lX.\n"
 +
 +#: ipx-1.0/ipx_route.c:188
 +#, c-format
