@@ -19,6 +19,7 @@ Requires:	pam
 BuildRequires:	glibc-devel
 BuildRequires:	gettext-devel
 Prereq:		/sbin/chkconfig
+Requires:	rc-scripts
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_sbindir	/sbin
