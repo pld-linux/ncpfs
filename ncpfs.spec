@@ -4,12 +4,10 @@ Summary(fr):	Gestionnaires pour ncpfs, le client Netware libre pour Linux.
 Summary(tr):	Linux için Netware istemcisi destek yazýlýmlarý
 Summary(pl):	Darmowy klient Netware dla Linuxa wraz z dodatkowymi programami
 Name:		ncpfs
-Version:	2.2.0.16
-Release:	3
+Version:	2.2.0.17
+Release:	1
 Copyright:	GPL
-#ftp:		//platan.vc.cvut.cz
-#path:		/pub/linux/ncpfs/ncpfs-2.2.0.16
-Source: 	%name-%version.tgz
+Source:		ftp://platan.vc.cvut.cz/pub/linux/%{name}/%{name}-%{version}/%name-%version.tgz
 Group:		Networking/Utilities
 Group(pl):	Sieciowe/U¿ytki
 Requires:	%name-ipxutils
@@ -86,7 +84,7 @@ IPX pod Linuxem. Protoko³u IPX u¿ywa Netware do przesy³ania danych.
 %patch -p1
 
 %build
-autoconf
+./conf
 ./configure %{_target_platform} \
 	--prefix=%{_prefix} \
 	--enable-pam \
@@ -95,6 +93,7 @@ autoconf
 	--enable-mount-v3 \
 	--enable-mount-v2 \
 	--enable-nds \
+	--enable-warnings \
 	--enable-nls 
 
 make OPT_FLAGS="$RPM_OPT_FLAGS -w" 
@@ -173,7 +172,6 @@ ln -sf ../usr/bin/ncpmount mount.ncp
 
 %attr(755,root,root) %{_bindir}/[^i]*
 %attr(755,root,root) %{_libdir}/libncp.so*
-%attr(644,root,root) %{_libdir}/libncp.a
 %attr(755,root,root) /lib/security/pam_ncp_auth.so
 %attr(755,root,root) /sbin/nwmsg
 %attr(  -,root,root) /sbin/mount.ncp
