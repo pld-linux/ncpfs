@@ -43,7 +43,7 @@ diff -Nru ncpfs-2.2.0.18/ipx-1.0/Makefile.in ncpfs-2.2.0.18.new/ipx-1.0/Makefile
 +	$(INSTALL) -d $(DESTDIR)$(bindir)
 +	$(INSTALL) $(UTILS) $(UTIIPX) $(DESTDIR)$(bindir)
 +	$(INSTALL) -d $(DESTDIR)$(mandir)/man8
-+	$(INSTALL_DATA) $(MAN8) $(DESTDIR)$(mandir)/man8
++	$(INSTALL_DATA) $(MAN8SRC) $(DESTDIR)$(mandir)/man8
  
  install-dev:
 diff -Nru ncpfs-2.2.0.18/ipxdump/Makefile.in ncpfs-2.2.0.18.new/ipxdump/Makefile.in
