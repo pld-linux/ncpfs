@@ -1,0 +1,3 @@
+- release 8,
+- fix DESTDIR patch for corrent install man pages for ipx tools,
+- merge ja translations from Kondra.
