@@ -4,6 +4,8 @@
 # - fix -devel Group
 # - review php-auth_nds Summary and %%description
 # - register php module in php.ini like other modules from php.spec (?)
+%bcond_without php
+%bcond_without ipx
 Summary:	Support Utilities for ncpfs, the free netware client for Linux
 Summary(de):	Support-Dienstprogramme fЭr ncpfs, den kostenlosen Netware-Client
 Summary(es):	Utilitarios de soporte para ncpfs, que es el cliente Linux free para netware
@@ -16,7 +18,7 @@ Summary(tr):	Linux iГin Netware istemcisi destek yazЩlЩmlarЩ
 Summary(uk):	Утил╕ти для файлово╖ системи ncpfs, кл╕╓нта NetWare для Linux
 Name:		ncpfs
 Version:	2.2.3
-Release:	0.1
+Release:	0.2%{!?with_ipx:noipx}
 License:	GPL
 Group:		Networking/Utilities
 Source0:	ftp://platan.vc.cvut.cz/pub/linux/ncpfs/%{name}-%{version}.tar.gz
@@ -249,18 +251,23 @@ cd contrib/php
 %{__autoconf}
 cd ../..
 
+%if %{with ipx}
+IPX="--enable-ipx --enable-ipx-tools"
+%else
+IPX="--disable-ipx --disable-ipx-tools"
+%endif
+
 ./conf
 %configure \
 	--disable-rpath \
-	--enable-ipx \
-	--enable-ipx-tools \
+	$IPX \
 	--enable-kernel \
 	--enable-mount-v2 \
 	--enable-mount-v3 \
 	--enable-nds \
 	--enable-nls \
 	--enable-pam \
-	--enable-php \
+	%{?with_php:--enable-php} \
 	--enable-reentrant \
 	--enable-signatures \
 	--enable-trace \
@@ -319,7 +326,9 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %attr(755,root,root) /usr/lib/php/*.so
 
+%if %{with ipx}
 %files -n ipxutils
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_sbindir}/ipx*
 %{_mandir}/man8/ipx*
+%endif
