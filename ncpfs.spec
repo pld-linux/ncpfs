@@ -5,9 +5,10 @@ Summary(tr):	Linux için Netware istemcisi destek yazýlýmlarý
 Summary(pl):	Darmowy klient Netware dla Linuxa wraz z dodatkowymi programami
 Name:		ncpfs
 Version:	2.2.0.17
-Release:	1
+Release:	3
 Copyright:	GPL
 Source:		ftp://platan.vc.cvut.cz/pub/linux/%{name}/%{name}-%{version}/%name-%version.tgz
+Source1:	ncpfs.init
 Group:		Networking/Utilities
 Group(pl):	Sieciowe/U¿ytki
 Requires:	%name-ipxutils
@@ -99,6 +100,7 @@ make -C ipxdump OPT_FLAGS="$RPM_OPT_FLAGS -w"
 %install
 rm -rf $RPM_BUILD_ROOT
 
+install -d $RPM_BUILD_ROOT/etc/rc.d/{init.d,rc{0,1,2,3,4,5,6}.d}
 install -d $RPM_BUILD_ROOT{%{_bindir},%{_libdir}}
 install -d $RPM_BUILD_ROOT/sbin
 install -d $RPM_BUILD_ROOT/lib
@@ -151,6 +153,18 @@ gzip -9nf ABOUT-NLS BUGS Changes FAQ README* ncpfs-* \
 
 %find_lang ncpfs
 
+# install ncpfs init scripts
+install %{SOURCE1} $RPM_BUILD_ROOT/etc/rc.d/init.d/ncpfs
+
+# make links
+(cd $RPM_BUILD_ROOT/etc/rc.d/rc0.d; ln -sf ../init.d/ncpfs K62ncpfs)
+(cd $RPM_BUILD_ROOT/etc/rc.d/rc1.d; ln -sf ../init.d/ncpfs K62ncpfs)
+(cd $RPM_BUILD_ROOT/etc/rc.d/rc2.d; ln -sf ../init.d/ncpfs K62ncpfs)
+(cd $RPM_BUILD_ROOT/etc/rc.d/rc3.d; ln -sf ../init.d/ncpfs S62ncpfs)
+(cd $RPM_BUILD_ROOT/etc/rc.d/rc4.d; ln -sf ../init.d/ncpfs S62ncpfs)
+(cd $RPM_BUILD_ROOT/etc/rc.d/rc5.d; ln -sf ../init.d/ncpfs S62ncpfs)
+(cd $RPM_BUILD_ROOT/etc/rc.d/rc6.d; ln -sf ../init.d/ncpfs K62ncpfs)
+
 cd $RPM_BUILD_ROOT/sbin
 ln -sf ../usr/bin/ncpmount mount.ncp
 
@@ -169,6 +183,9 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) /lib/security/pam_ncp_auth.so
 %attr(755,root,root) /sbin/nwmsg
 %attr(755,root,root) /sbin/mount.ncp
+%attr(755,root,root) /etc/rc.d/init.d/ncpfs
+%attr(755,root,root) /etc/rc.d/rc?.d/?62ncpfs
+
 %{_mandir}/man8/[^i]*
 %{_mandir}/man1/*
 %{_mandir}/man5/*
