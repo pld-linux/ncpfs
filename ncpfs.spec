@@ -33,7 +33,6 @@ Patch2:		%{name}-ac.patch
 Patch3:		%{name}-sbindir.patch
 BuildRequires:	autoconf
 BuildRequires:	automake
-BuildRequires:	glibc-devel
 BuildRequires:	gettext-devel
 BuildRequires:	libtool
 BuildRequires:	pam-devel
@@ -116,7 +115,8 @@ Ncpfs - ÃÅ ÆÁÊÌÏ×Á ÓÉÓÔÅÍÁ ÐÏ×ÅÒÈ ÐÒÏÔÏËÏÌÕ Novell NetWare(TM) NCP. úÁ
 Summary:	PAM module for authenticate using using login/password stored on Netware server
 Summary(pl):	Modu³ PAM uwierzytelniaj±cy poprzez login i has³o trzymane na serwerze Netware
 Group:		Networking/Utilities
-Requires:	%{name} = %{version}
+Requires:	%{name} = %{epoch}:%{version}
+Obsoletes:	pam_ncp_auth
 
 %description -n pam-pam_ncp_auth
 The pam_ncp_auth module is PAM module for authenticate using
@@ -131,7 +131,7 @@ Summary:	PHP module for authenticate using using login/password stored on Netwar
 Summary(pl):	Modu³ PHP uwierzytelniaj±cy poprzez login i has³o trzymane na serwerze Netware
 Summary(pl):	Narzêdzia do konfigurowania IPX
 Group:		Networking/Utilities
-Requires:	%{name} = %{version}
+Requires:	%{name} = %{epoch}:%{version}
 
 %description -n php-auth_nds
 The php-auth_nds module is PHP module for authenticate using
@@ -219,7 +219,7 @@ Summary(pt_BR):	Arquivos de inclusão e bibliotecas para o NCPfs
 Summary(ru):	æÁÊÌÙ ÄÌÑ ÒÁÚÒÁÂÏÔËÉ Ó ÉÓÐÏÌØÚÏ×ÁÎÉÅÍ ÂÉÂÌÉÏÔÅËÉ ncpfs
 Summary(uk):	æÁÊÌÉ ÄÌÑ ÒÏÚÒÏÂËÉ Ú ×ÉËÏÒÉÓÔÁÎÎÑÍ Â¦ÂÌ¦ÏÔÅËÉ ncpfs
 Group:		Development/Libraries
-Requires:	%{name} = %{version}
+Requires:	%{name} = %{epoch}:%{version}
 
 %description devel
 Files for developing NCP-aware software.
@@ -299,7 +299,7 @@ install -d $RPM_BUILD_ROOT{/etc/rc.d/init.d,%{_includedir},/lib/security} \
 ln -s $(cd $RPM_BUILD_ROOT%{_libdir}; ls libncp.so.*.*) $RPM_BUILD_ROOT%{_libdir}/libncp.so
 cp -a include/ncp $RPM_BUILD_ROOT%{_includedir}
 
-install -m755 contrib/php/modules/php_auth_nds.so $RPM_BUILD_ROOT/usr/lib/php/
+install -m755 contrib/php/modules/php_auth_nds.so $RPM_BUILD_ROOT/usr/lib/php
 
 rm -f $RPM_BUILD_ROOT%{_mandir}/man8/mount.ncp.8*
 echo '.so ncpmount.8' > $RPM_BUILD_ROOT%{_mandir}/man8/mount.ncp.8
