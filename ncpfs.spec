@@ -5,7 +5,7 @@ Summary(tr):	Linux için Netware istemcisi destek yazýlýmlarý
 Summary(pl):	Darmowy klient Netware dla Linuxa wraz z dodatkowymi programami
 Name:		ncpfs
 Version:	2.2.0.16
-Release:	2
+Release:	3
 Copyright:	GPL
 #ftp:		//platan.vc.cvut.cz
 #path:		/pub/linux/ncpfs/ncpfs-2.2.0.16
@@ -92,6 +92,9 @@ autoconf
 	--enable-pam \
 	--infodir=%{_prefix}/share/info \
 	--mandir=%{_prefix}/share/man \
+	--enable-mount-v3 \
+	--enable-mount-v2 \
+	--enable-nds \
 	--enable-nls 
 
 make OPT_FLAGS="$RPM_OPT_FLAGS -w" 
@@ -136,6 +139,9 @@ install man/*.1 $RPM_BUILD_ROOT%{_mandir}/man1
 install man/*.5 $RPM_BUILD_ROOT%{_mandir}/man5
 install man/*.8 $RPM_BUILD_ROOT%{_mandir}/man8
 
+## bzipped man pages
+bzip2 -9 $RPM_BUILD_ROOT%{_mandir}/man[158]/*
+
 ## install ipx-1.0
 
 install -s ipx-1.0/ipx_configure ipx-1.0/ipx_interface ipx-1.0/ipx_internal_net ipx-1.0/ipx_route ipx-1.0/ipx_cmd $RPM_BUILD_ROOT/%{_bindir}
@@ -152,9 +158,6 @@ chmod 755 $RPM_BUILD_ROOT%{_libdir}/*.so.*
 
 bzip2 -9 ABOUT-NLS BUGS Changes FAQ README* ncpfs-* 
 
-## bzipped man pages
-bzip2 -9 $RPM_BUILD_ROOT%{_mandir}/man[158]/*
-
 %find_lang ncpfs
 
 cd $RPM_BUILD_ROOT/sbin
@@ -170,6 +173,7 @@ ln -sf ../usr/bin/ncpmount mount.ncp
 
 %attr(755,root,root) %{_bindir}/[^i]*
 %attr(755,root,root) %{_libdir}/libncp.so*
+%attr(644,root,root) %{_libdir}/libncp.a
 %attr(755,root,root) /lib/security/pam_ncp_auth.so
 %attr(755,root,root) /sbin/nwmsg
 %attr(  -,root,root) /sbin/mount.ncp
