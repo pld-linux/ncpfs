@@ -18,7 +18,7 @@ Requires:	%name-ipxutils
 Requires:	pam
 BuildRequires:	glibc-devel
 BuildRequires:	gettext-devel
-Prereq:		/sbin/ldconfig
+Prereq:		/sbin/chkconfig
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_sbindir	/sbin
@@ -135,7 +135,22 @@ gzip -9nf BUGS Changes FAQ README* ncpfs-* \
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post   -p /sbin/ldconfig
+%post
+/sbin/ldconfig
+/sbin/chkconfig --add xntpd
+
+if [ -f /var/lock/subsystem/ncpfs ]; then
+	/etc/rc.d/init.d/ncpfs restart >&2
+else
+	echo "Run \"/etc/rc.d/init.d/ncpfs start\" to start ncpfs daemon."
+fi
+    
+%preun
+if [ "$1" = "0" ]; then
+	/sbin/chkconfig --del ncpfs
+	/etc/rc.d/init.d/ncpfs stop >&2
+fi
+
 %postun -p /sbin/ldconfig
 
 %files -f ncpfs.lang
