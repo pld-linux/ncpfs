@@ -82,13 +82,6 @@ IPX pod Linuxem. Protoko³u IPX u¿ywa Netware do przesy³ania danych.
 
 %prep
 %setup -q
-#%patch0 -p1
-#%patch1 -p1 
-#%patch2 -p1 
-#%patch3 -p0 
-#%patch4 -p1 
-
-#rm -f sutil/ncplib.h
 
 %build
 ./configure %{_target_platform} \
@@ -111,8 +104,6 @@ install -d $RPM_BUILD_ROOT{%{_bindir},%{_libdir}}
 install -d $RPM_BUILD_ROOT/sbin
 install -d $RPM_BUILD_ROOT/lib
 install -d $RPM_BUILD_ROOT%{_mandir}/{man1,man5,man8}
-
-#make prefix=$RPM_BUILD_ROOT%{_prefix} install DESTDIR=$RPM_BUILD_ROOT%{_prefix}
 
 ## instal intl
 make prefix=$RPM_BUILD_ROOT%{_prefix} -C intl install  
