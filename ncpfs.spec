@@ -5,7 +5,7 @@ Summary(tr):	Linux için Netware istemcisi destek yazýlýmlarý
 Summary(pl):	Darmowy klient Netware dla Linuxa wraz z dodatkowymi programami
 Name:		ncpfs
 Version:	2.2.0.17
-Release:	6
+Release:	7
 Copyright:	GPL
 Source:		ftp://platan.vc.cvut.cz/pub/linux/%{name}/%{name}-%{version}/%name-%version.tgz
 Source1:	ncpfs.init
@@ -15,8 +15,9 @@ Requires:	%name-ipxutils
 Requires:	pam
 BuildRequires:	glibc-devel
 Prereq:		/sbin/ldconfig
-Patch:		%name-lang.patch
+Patch0:		%name-lang.patch
 Patch1:		%name-ncplib.patch
+Patch2:		%name-largekeys.patch.gz
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define	_prefix	/usr
@@ -106,6 +107,7 @@ IPX pod Linuxem. Protoko³u IPX u¿ywa Netware do przesy³ania danych.
 %setup -q
 %patch -p1
 %patch1 -p0
+%patch2 -p1
 
 %build
 ./conf
