@@ -8,7 +8,6 @@ Version:	2.2.0.18
 Release:	1
 License:	GPL
 Source0:	ftp://platan.vc.cvut.cz/pub/linux/%{name}/%{name}-%{version}/%name-%version.tgz
-Source1:	%{name}.init
 Patch0:		%{name}-lang.patch
 Patch1:		%{name}-largekeys.patch.gz
 Patch2:		%{name}-DESTDIR.patch
@@ -17,8 +16,6 @@ Group(pl):	Sieciowe/Narzêdzia
 Requires:	%{name}-ipxutils
 BuildRequires:	glibc-devel
 BuildRequires:	gettext-devel
-Prereq:		/sbin/chkconfig
-Requires:	rc-scripts
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_sbindir	/sbin
@@ -124,43 +121,24 @@ install -d $RPM_BUILD_ROOT/etc/rc.d/init.d
 
 make install DESTDIR=$RPM_BUILD_ROOT
 
-# install ncpfs init scripts
-install %{SOURCE1} $RPM_BUILD_ROOT/etc/rc.d/init.d/ncpfs
-
 gzip -9nf BUGS Changes FAQ README* ncpfs-* \
 	$RPM_BUILD_ROOT%{_mandir}/man[158]/*
 
-%find_lang ncpfs
+%find_lang %{name}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post
-/sbin/ldconfig
-/sbin/chkconfig --add xntpd
-
-if [ -f /var/lock/subsystem/ncpfs ]; then
-	/etc/rc.d/init.d/ncpfs restart >&2
-else
-	echo "Run \"/etc/rc.d/init.d/ncpfs start\" to start ncpfs daemon."
-fi
-    
-%preun
-if [ "$1" = "0" ]; then
-	/sbin/chkconfig --del ncpfs
-	/etc/rc.d/init.d/ncpfs stop >&2
-fi
-
+%post   -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
 
-%files -f ncpfs.lang
+%files -f %{name}.lang
 %defattr(644,root,root,755)
 %doc BUGS.gz Changes.gz FAQ.gz README*.gz ncpfs-*.gz 
 %attr(755,root,root) %{_bindir}/[^i]*
 %attr(755,root,root) %{_sbindir}/*
 %attr(755,root,root) %{_libdir}/libncp.so*
 %attr(755,root,root) /lib/security/pam_ncp_auth.so
-%attr(755,root,root) /etc/rc.d/init.d/ncpfs
 
 %{_mandir}/man8/[^i]*
 %{_mandir}/man1/*
