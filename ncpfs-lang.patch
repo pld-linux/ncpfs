@@ -150,7 +150,7 @@ diff -Nur ncpfs-2.2.0.16.org/po/pl.po ncpfs-2.2.0.16/po/pl.po
 +#: ipx-1.0/ipx_interface.c:321
 +#, c-format
 +msgid "%s: Unable to open \"%s.\"\n"
-+msgstr "%s: Otwarcie niemo磧iwe \"%s.\"\n""
++msgstr "%s: Otwarcie niemo磧iwe \"%s.\"\n"
 +
 +#: ipx-1.0/ipx_interface.c:361 ipx-1.0/ipx_interface.c:418
 +#: ipx-1.0/ipx_interface.c:479
@@ -243,7 +243,7 @@ diff -Nur ncpfs-2.2.0.16.org/po/pl.po ncpfs-2.2.0.16/po/pl.po
 +#: lib/ncplib.c:1251 lib/ncplib.c:2999 sutil/ncpmount.c:1315
 +#: sutil/ncpmount.c:1335
 +msgid "Your password has expired\n"
-+msgstr "Twoje has這 wygas這!\n"
++msgstr "Twoje has這 wygas這\n"
 +
 +#: lib/ncplib.c:1254
 +#, c-format
