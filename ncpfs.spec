@@ -9,10 +9,6 @@ Version:	2.2.0.18
 Release:	8
 License:	GPL
 Group:		Networking/Utilities
-Group(de):	Netzwerkwesen/Werkzeuge
-Group(es):	Red/Utilitarios
-Group(pl):	Sieciowe/Narzêdzia
-Group(pt_BR):	Rede/Utilitários
 Source0:	ftp://platan.vc.cvut.cz/pub/linux/ncpfs/%{name}-%{version}/%{name}-%{version}.tgz
 Patch0:		%{name}-lang.patch
 Patch1:		%{name}-largekeys.patch.gz
@@ -73,10 +69,6 @@ gereken yardýmcý yazýlýmlarý içermektedir.
 Summary:	PAM module for authenticate using using login/password stored on Netware server
 Summary(pl):	Narzêdzia do konfigurowania IPX
 Group:		Networking/Utilities
-Group(de):	Netzwerkwesen/Werkzeuge
-Group(es):	Red/Utilitarios
-Group(pl):	Sieciowe/Narzêdzia
-Group(pt_BR):	Rede/Utilitários
 Requires:	%{name} = %{version}
 
 %description -n pam_ncp_auth
@@ -91,10 +83,6 @@ Summary(ja):	IPX ¥¤¥ó¥¿¥Õ¥§¥¤¥¹¤È¥Í¥Ã¥È¥ï¡¼¥¯¤ÎÀßÄê¤È¥Ç¥Ð¥Ã¥°¤Î¤¿¤á¤Î¥Ä¡¼¥ë¡£
 Summary(pl):	Narzêdzia do konfigurowania IPX
 Summary(tr):	IPX yapýlandýrma yazýlýmlarý
 Group:		Networking/Utilities
-Group(de):	Netzwerkwesen/Werkzeuge
-Group(es):	Red/Utilitarios
-Group(pl):	Sieciowe/Narzêdzia
-Group(pt_BR):	Rede/Utilitários
 Obsoletes:	ncpfs-ipxutils
 
 %description -n ipxutils
