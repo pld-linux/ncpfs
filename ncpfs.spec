@@ -1,6 +1,5 @@
 # TODO:
 # - fix/write from scrach -devel Summary and %%description
-# - fix -devel Group
 # - review php-auth_nds Summary and %%description
 # - register php module in php.ini like other modules from php.spec (?)
 #
@@ -20,7 +19,7 @@ Summary(tr):	Linux iГin Netware istemcisi destek yazЩlЩmlarЩ
 Summary(uk):	Утил╕ти для файлово╖ системи ncpfs, кл╕╓нта NetWare для Linux
 Name:		ncpfs
 Version:	2.2.4
-Release:	2%{!?with_ipx:noipx}
+Release:	3%{!?with_ipx:noipx}
 Epoch:		1
 License:	GPL
 Group:		Networking/Utilities
@@ -244,7 +243,6 @@ necessАrios para desenvolver programas que usam o NCPfs.
 
 %prep
 %setup -q
-
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
@@ -272,7 +270,7 @@ IPX="--disable-ipx --disable-ipx-tools"
 	--enable-mount-v3 \
 	--enable-nds \
 	--enable-nls \
-	--enable-pam \
+	--enable-pam=/%{_lib}/security \
 	%{?with_php:--enable-php} \
 	--enable-reentrant \
 	--enable-signatures \
