@@ -5,14 +5,16 @@ Summary(tr):	Linux için Netware istemcisi destek yazýlýmlarý
 Summary(pl):	Darmowy klient Netware dla Linuxa wraz z dodatkowymi programami
 Name:		ncpfs
 Version:	2.2.0.18
-Release:	4
+Release:	5
 License:	GPL
-Source0:	ftp://platan.vc.cvut.cz/pub/linux/%{name}/%{name}-%{version}/%{name}-%{version}.tgz
+Group:		Networking/Utilities
+Group(de):	Netzwerkwesen/Werkzeuge
+Group(pl):	Sieciowe/Narzêdzia
+Source0:	ftp://platan.vc.cvut.cz/pub/linux/ncpfs/%{name}-%{version}/%{name}-%{version}.tgz
 Patch0:		%{name}-lang.patch
 Patch1:		%{name}-largekeys.patch.gz
 Patch2:		%{name}-DESTDIR.patch
-Group:		Networking/Utilities
-Group(pl):	Sieciowe/Narzêdzia
+Patch3:		ftp://platan.vc.cvut.cz/pub/linux/ncpfs/%{name}-%{version}/ncp-pam-update.diff.gz
 Requires:	ipxutils
 BuildRequires:	glibc-devel
 BuildRequires:	gettext-devel
@@ -53,12 +55,13 @@ gereken yardýmcý yazýlýmlarý içermektedir.
 Summary:	PAM module for authenticate using using login/password stored on Netware server
 Summary(pl):	Narzêdzia do konfigurowania IPX
 Group:		Networking/Utilities
+Group(de):	Netzwerkwesen/Werkzeuge
 Group(pl):	Sieciowe/Narzêdzia
 Requires:	%{name} = %{version}
 
 %description -n pam_ncp_auth
-The pam_ncp_auth module is PAM module for authenticate using login/password
-stored on Netware server.
+The pam_ncp_auth module is PAM module for authenticate using
+login/password stored on Netware server.
 
 %package -n ipxutils
 Summary:	Utilities for IPX configuration
@@ -67,6 +70,7 @@ Summary(fr):	Utilitaires pour la configuration IPX
 Summary(pl):	Narzêdzia do konfigurowania IPX
 Summary(tr):	IPX yapýlandýrma yazýlýmlarý
 Group:		Networking/Utilities
+Group(de):	Netzwerkwesen/Werkzeuge
 Group(pl):	Sieciowe/Narzêdzia
 Obsoletes:	ncpfs-ipxutils
 
@@ -101,6 +105,7 @@ içermektedir.
 %patch0 -p1
 %patch1 -p0
 %patch2 -p1
+%patch3 -p0
 
 %build
 gettextize --copy --force
@@ -120,14 +125,14 @@ gettextize --copy --force
 	--enable-nls \
 	--disable-versions
 
-%{__make} OPT_FLAGS="$RPM_OPT_FLAGS -w" 
-%{__make} -C ipxdump OPT_FLAGS="$RPM_OPT_FLAGS -w"
+%{__make} OPT_FLAGS="%{!?debug:$RPM_OPT_FLAGS}%{?debug:-O0 -g} -w" 
+%{__make} -C ipxdump OPT_FLAGS="%{!?debug:$RPM_OPT_FLAGS}%{?debug:-O0 -g} -w"
 
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT/etc/rc.d/init.d
 
-make install DESTDIR=$RPM_BUILD_ROOT
+%{__make} install DESTDIR=$RPM_BUILD_ROOT
 
 gzip -9nf BUGS Changes FAQ README* ncpfs-* contrib/pam/README
 
