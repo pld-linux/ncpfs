@@ -10,7 +10,7 @@ Copyright:	GPL
 Source:		ftp://platan.vc.cvut.cz/pub/linux/%{name}/%{name}-%{version}/%name-%version.tgz
 Source1:	ncpfs.init
 Group:		Networking/Utilities
-Group(pl):	Sieciowe/U¿ytki
+Group(pl):	Sieciowe/Narzêdzia
 Requires:	%name-ipxutils
 Requires:	pam
 BuildRequires:	glibc-devel
@@ -60,7 +60,7 @@ Summary(fr):	Utilitaires pour la configuration IPX
 Summary(tr):	IPX yapýlandýrma yazýlýmlarý
 Summary(pl):	Narzêdzia do konfigurowania IPX
 Group:		Networking/Utilities
-Group(pl):	Sieciowe/U¿ytki
+Group(pl):	Sieciowe/Narzêdzia
 Version:	1.0
 Release:	%{release}
 
