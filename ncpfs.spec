@@ -6,9 +6,12 @@ Summary(pl):	Darmowy klient Netware dla Linuxa wraz z dodatkowymi programami
 Name:		ncpfs
 Version:	2.2.0.18
 Release:	1
-Copyright:	GPL
-Source:		ftp://platan.vc.cvut.cz/pub/linux/%{name}/%{name}-%{version}/%name-%version.tgz
-Source1:	ncpfs.init
+License:	GPL
+Source0:	ftp://platan.vc.cvut.cz/pub/linux/%{name}/%{name}-%{version}/%name-%version.tgz
+Source1:	%{name}.init
+Patch0:		%{name}-lang.patch
+Patch1:		%{name}-largekeys.patch.gz
+Patch2:		%{name}-DESTDIR.patch
 Group:		Networking/Utilities
 Group(pl):	Sieciowe/Narzêdzia
 Requires:	%name-ipxutils
@@ -16,66 +19,38 @@ Requires:	pam
 BuildRequires:	glibc-devel
 BuildRequires:	gettext-devel
 Prereq:		/sbin/ldconfig
-Patch0:		%name-lang.patch
-Patch1:		%name-largekeys.patch.gz
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%description
-This package contains tools to help configure and use the ncpfs filesysten,
-which is a linux filesystem which understands the NCP protocol. This
-protocol is used by Novell NetWare clients use to talk to NetWare servers. 
+%define		_sbindir	/sbin
 
-INFO:
-Recompoile this package if ANY changes in kernel was made.
+%description
+This package contains tools to help configure and use the ncpfs
+filesysten, which is a linux filesystem which understands the NCP
+protocol. This protocol is used by Novell NetWare clients use to talk
+to NetWare servers.
+
+INFO: Recompoile this package if ANY changes in kernel was made.
 
 %description -l de
-Dieses Paket enthält Tools zum Konfigurieren und Einsatz 
-des ncpfs-Dateisystems, einem Linux-Dateisystem, das das NCP-Protokoll
-versteht. Dieses Protokoll wird von Novell NetWare-Clients zur Kommunikation
-mit NetWare-Servern verwendet.
+Dieses Paket enthält Tools zum Konfigurieren und Einsatz des
+ncpfs-Dateisystems, einem Linux-Dateisystem, das das NCP-Protokoll
+versteht. Dieses Protokoll wird von Novell NetWare-Clients zur
+Kommunikation mit NetWare-Servern verwendet.
 
 %description -l fr
 Ce package contient des outils pour aider a configuer et à utiliser le
 système de fichiers ncpfs, qui est un système de fichiers Linux adapté
-au protocole NCP. Ce protocole est utilisé par les clients Novell NetWare
-pour communiquer avec les serveurs NetWare.
+au protocole NCP. Ce protocole est utilisé par les clients Novell
+NetWare pour communiquer avec les serveurs NetWare.
 
 %description -l pl
 Pakiet zawiera narzêdzia pomocne w konfigurowaniu i u¿ywaniu systemu
 plików ncpfs. Dziêki ncpfs mo¿liwe jest pod³±czanie wolumenów serwerów
 Netware i modyfikowanie ich zawarto¶ci.
 
-Wymagane zale¿no¶ci w j±drze systemu:
-
-[...]
-Networking option
-
-<M> The IPX protocol
-<Y> IPX: Full internal IPX network
-
-[...]
-
-Filesystems -> Network File systems
-
-<M> NCP filesystem support (to mount NetWare volumes)
-[*]    Packet signatures
-[*]    Proprietary file locking
-[*]    Clear remove/delete inhibit when needed
-[*]    Use NFS namespace if available
-[*]    Use LONG (OS/2) namespace if available
-[*]       Lowercase DOS filenames
-[*]    Allow mounting of volume subdirectories
-[*]    Use Native Language Support
-[*]    Enable symbolic links and execute flags
-
-[...]
-
-Od Autora SPECa:
-ZALECA SIÊ rekompilacje przy _ka¿dorazowej_ rekompilacji kernela.
-
 %description -l tr
-Bu paket Linux'un Novell'in NCP protokolunu kullanabilmesi için gereken
-yardýmcý yazýlýmlarý içermektedir.
+Bu paket Linux'un Novell'in NCP protokolunu kullanabilmesi için
+gereken yardýmcý yazýlýmlarý içermektedir.
 
 %package ipxutils
 Summary:	Utilities for IPX configuration
@@ -89,34 +64,40 @@ Version:	1.0
 Release:	%{release}
 
 %description ipxutils
-This package includes utilities necessary for configuring and debugging
-IPX interfaces and networks under Linux. IPX is the low-level protocol
-used by NetWare to transfer data.
+This package includes utilities necessary for configuring and
+debugging IPX interfaces and networks under Linux. IPX is the
+low-level protocol used by NetWare to transfer data.
 
 %description -l de ipxutils
 Dieses Paket enthält Dienstprogramme zum Konfigurieren und Debuggen
-von IPX-Schnittstellen und -Netzwerken unter Linux. IPX ist das von 
+von IPX-Schnittstellen und -Netzwerken unter Linux. IPX ist das von
 NetWare zur Datenübertragung verwendete Low-Level-Protokoll.
 
 %description -l fr ipxutils
 Ce package contient les utilitaires nécessires à pour la configuration
 et le déboggage des réseaux et interfaces IPX sous Linux. IPX est un
-protocole de bas niveau utilisé par NetWare pour transférer des données.
+protocole de bas niveau utilisé par NetWare pour transférer des
+données.
 
 %description -l pl ipxutils
-Pakiet zawiera narzêdzia niezbêdne do konfigurowania interfejsów i sieci
-IPX pod Linuxem. Protoko³u IPX u¿ywa Netware do przesy³ania danych.
+Pakiet zawiera narzêdzia niezbêdne do konfigurowania interfejsów i
+sieci IPX pod Linuxem. Protoko³u IPX u¿ywa Netware do przesy³ania
+danych.
 
 %description -l tr ipxutils
-Bu paket NetWare tarafýndan kullanýlan IPX protokolünü yapýlandýrmak ve
-hatalarýný ayýklamak için kullanýlabilecek bir dizi uygulama içermektedir.
+Bu paket NetWare tarafýndan kullanýlan IPX protokolünü yapýlandýrmak
+ve hatalarýný ayýklamak için kullanýlabilecek bir dizi uygulama
+içermektedir.
 
 %prep
 %setup -q
-%patch -p1
+%patch0 -p1
 %patch1 -p0
+%patch2 -p1
 
 %build
+gettextize --copy --force
+LDFLAGS="-s"; export LDFLAGS
 ./conf
 %configure \
 	--enable-pam \
@@ -139,69 +120,17 @@ hatalarýný ayýklamak için kullanýlabilecek bir dizi uygulama içermektedir.
 %install
 rm -rf $RPM_BUILD_ROOT
 
-install -d $RPM_BUILD_ROOT/etc/rc.d/{init.d,rc{0,1,2,3,4,5,6}.d}
-install -d $RPM_BUILD_ROOT{%{_bindir},%{_libdir}}
-install -d $RPM_BUILD_ROOT/sbin
-install -d $RPM_BUILD_ROOT/lib
-install -d $RPM_BUILD_ROOT%{_mandir}/{man1,man5,man8}
+install -d $RPM_BUILD_ROOT/etc/rc.d/init.d
 
-## instal intl
-%{__make} prefix=$RPM_BUILD_ROOT%{_prefix} -C intl install  
+make install DESTDIR=$RPM_BUILD_ROOT
 
-## install po
-%{__make} prefix=$RPM_BUILD_ROOT%{_prefix} -C po install
-
-## install lib
-install -s lib/libncp.so.2.3.0 $RPM_BUILD_ROOT%{_libdir}
-
-## install sutil
-install -s sutil/nwsfind sutil/ncpmount sutil/ncpumount $RPM_BUILD_ROOT%{_bindir}
-
-## instal util 
-
-for i in slist pqlist nwfsinfo pserver nprint nsend nwpasswd \
-    nwbols nwbocreate nwborm nwboprops pqstat pqrm nwbpcreate nwbprm nwbpvalues \
-    nwbpadd nwbpset nwgrant nwrevoke nwuserlist nwauth nwfstime nwvolinfo \
-    nwtrustee nwdir nwfsctrl nwdpvalues ncopy nwtrustee2 nwpurge nwrights; do
-	install -s util/$i $RPM_BUILD_ROOT%{_bindir}
-done	
-
-install -s util/nwmsg $RPM_BUILD_ROOT/sbin
-
-#make prefix=$RPM_BUILD_ROOT%{_prefix} -C util install
-
-## install man
-
-install man/*.1 $RPM_BUILD_ROOT%{_mandir}/man1
-install man/*.5 $RPM_BUILD_ROOT%{_mandir}/man5
-install man/*.8 $RPM_BUILD_ROOT%{_mandir}/man8
-
-## install ipx-1.0
-
-install -s ipx-1.0/ipx_configure ipx-1.0/ipx_interface ipx-1.0/ipx_internal_net \
-    ipx-1.0/ipx_route ipx-1.0/ipx_cmd $RPM_BUILD_ROOT/%{_bindir}
-
-install ipx-1.0/ipx_configure.8 ipx-1.0/ipx_interface.8 ipx-1.0/ipx_internal_net.8 \
-    ipx-1.0/ipx_route ipx-1.0/ipx_cmd $RPM_BUILD_ROOT%{_mandir}/man8
-
-## install PAM
-	install -d $RPM_BUILD_ROOT/lib/security
-install contrib/pam/pam_ncp_auth.so $RPM_BUILD_ROOT/lib/security
-
-install -s ipxdump/ipxdump ipxdump/ipxparse $RPM_BUILD_ROOT%{_bindir}
-
-(cd $RPM_BUILD_ROOT%{_mandir}/man8 ; mv ipx_cmd ipx_cmd.8 ; mv ipx_route ipx_route.8)
+# install ncpfs init scripts
+install %{SOURCE1} $RPM_BUILD_ROOT/etc/rc.d/init.d/ncpfs
 
 gzip -9nf BUGS Changes FAQ README* ncpfs-* \
 	$RPM_BUILD_ROOT%{_mandir}/man[158]/*
 
 %find_lang ncpfs
-
-# install ncpfs init scripts
-install %{SOURCE1} $RPM_BUILD_ROOT/etc/rc.d/init.d/ncpfs
-
-cd $RPM_BUILD_ROOT/sbin
-ln -sf ../usr/bin/ncpmount mount.ncp
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -213,10 +142,9 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc BUGS.gz Changes.gz FAQ.gz README*.gz ncpfs-*.gz 
 %attr(755,root,root) %{_bindir}/[^i]*
+%attr(755,root,root) %{_sbindir}/*
 %attr(755,root,root) %{_libdir}/libncp.so*
 %attr(755,root,root) /lib/security/pam_ncp_auth.so
-%attr(755,root,root) /sbin/nwmsg
-%attr(755,root,root) /sbin/mount.ncp
 %attr(755,root,root) /etc/rc.d/init.d/ncpfs
 
 %{_mandir}/man8/[^i]*
