@@ -114,7 +114,7 @@ Ncpfs - ÃÅ ÆÁÊÌÏ×Á ÓÉÓÔÅÍÁ ÐÏ×ÅÒÈ ÐÒÏÔÏËÏÌÕ Novell NetWare(TM) NCP. úÁ
 Summary:	PAM module for authenticate using using login/password stored on Netware server
 Summary(pl):	Modu³ PAM uwierzytelniaj±cy poprzez login i has³o trzymane na serwerze Netware
 Group:		Networking/Utilities
-Requires:	%{name} = %{epoch}:%{version}
+Requires:	%{name} = %{epoch}:%{version}-%{release}
 Obsoletes:	pam_ncp_auth
 
 %description -n pam-pam_ncp_auth
@@ -130,7 +130,7 @@ Summary:	PHP module for authenticate using using login/password stored on Netwar
 Summary(pl):	Modu³ PHP uwierzytelniaj±cy poprzez login i has³o trzymane na serwerze Netware
 Summary(pl):	Narzêdzia do konfigurowania IPX
 Group:		Networking/Utilities
-Requires:	%{name} = %{epoch}:%{version}
+Requires:	%{name} = %{epoch}:%{version}-%{release}
 
 %description -n php-auth_nds
 The php-auth_nds module is PHP module for authenticate using
@@ -218,7 +218,7 @@ Summary(pt_BR):	Arquivos de inclusão e bibliotecas para o NCPfs
 Summary(ru):	æÁÊÌÙ ÄÌÑ ÒÁÚÒÁÂÏÔËÉ Ó ÉÓÐÏÌØÚÏ×ÁÎÉÅÍ ÂÉÂÌÉÏÔÅËÉ ncpfs
 Summary(uk):	æÁÊÌÉ ÄÌÑ ÒÏÚÒÏÂËÉ Ú ×ÉËÏÒÉÓÔÁÎÎÑÍ Â¦ÂÌ¦ÏÔÅËÉ ncpfs
 Group:		Development/Libraries
-Requires:	%{name} = %{epoch}:%{version}
+Requires:	%{name} = %{epoch}:%{version}-%{release}
 
 %description devel
 Files for developing NCP-aware software.
@@ -289,8 +289,8 @@ IPX="--disable-ipx --disable-ipx-tools"
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{/etc/rc.d/init.d,%{_includedir},/lib/security} \
-	$RPM_BUILD_ROOT{%{_sbindir},/usr/lib/php}
+install -d $RPM_BUILD_ROOT{/etc/rc.d/init.d,%{_includedir},/%{_lib}/security} \
+	$RPM_BUILD_ROOT{%{_sbindir},/usr/%{_lib}/php}
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
@@ -298,7 +298,7 @@ install -d $RPM_BUILD_ROOT{/etc/rc.d/init.d,%{_includedir},/lib/security} \
 ln -s $(cd $RPM_BUILD_ROOT%{_libdir}; ls libncp.so.*.*) $RPM_BUILD_ROOT%{_libdir}/libncp.so
 cp -a include/ncp $RPM_BUILD_ROOT%{_includedir}
 
-install -m755 contrib/php/modules/php_auth_nds.so $RPM_BUILD_ROOT/usr/lib/php
+install -m755 contrib/php/modules/php_auth_nds.so $RPM_BUILD_ROOT/usr/%{_lib}/php
 
 rm -f $RPM_BUILD_ROOT%{_mandir}/man8/mount.ncp.8*
 echo '.so ncpmount.8' > $RPM_BUILD_ROOT%{_mandir}/man8/mount.ncp.8
@@ -333,11 +333,11 @@ rm -rf $RPM_BUILD_ROOT
 %files -n pam-pam_ncp_auth
 %defattr(644,root,root,755)
 %doc contrib/pam/README
-%attr(755,root,root) /lib/security/pam_ncp_auth.so
+%attr(755,root,root) /%{_lib}/security/pam_ncp_auth.so
 
 %files -n php-auth_nds
 %defattr(644,root,root,755)
-%attr(755,root,root) /usr/lib/php/*.so
+%attr(755,root,root) /usr/%{_lib}/php/*.so
 
 %if %{with ipx}
 %files -n ipxutils
