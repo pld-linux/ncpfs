@@ -130,7 +130,7 @@ Summary:	Files for developing NCP-aware software
 Group:		-
 Requires:	%{name} = %{version}
 
-%description
+%description devel
 Files for developing NCP-aware software
 
 %prep
