@@ -18,13 +18,13 @@ Summary(ru):	Утилиты для файловой системы ncpfs, клиента NetWare для Linux
 Summary(tr):	Linux iГin Netware istemcisi destek yazЩlЩmlarЩ
 Summary(uk):	Утил╕ти для файлово╖ системи ncpfs, кл╕╓нта NetWare для Linux
 Name:		ncpfs
-Version:	2.2.4
-Release:	4%{!?with_ipx:noipx}
+Version:	2.2.5
+Release:	1%{!?with_ipx:noipx}
 Epoch:		1
 License:	GPL
 Group:		Networking/Utilities
 Source0:	ftp://platan.vc.cvut.cz/pub/linux/ncpfs/%{name}-%{version}.tar.gz
-# Source0-md5:	5fd2ec0680ba7e66df142637e17a5ac9
+# Source0-md5:	51c5bcf15d46d68047c094cff6a41fef
 Patch0:		%{name}-lang.patch
 Patch1:		%{name}-nwsfind.patch
 Patch2:		%{name}-ac.patch
@@ -35,7 +35,7 @@ BuildRequires:	gettext-devel
 BuildRequires:	libtool
 BuildRequires:	pam-devel
 %{?with_php:BuildRequires:	php-devel}
-%{?with_ipx:Requires:	ipxutils}
+%{?with_ipx:Requires:	ipxutils = %{epoch}:%{version}-%{release}}
 #Requires:	iconv
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -255,17 +255,17 @@ cd contrib/php
 %{__autoconf}
 cd ../..
 
-%if %{with ipx}
-IPX="--enable-ipx --enable-ipx-tools"
-%else
-IPX="--disable-ipx --disable-ipx-tools"
-%endif
-
 ./conf
 %configure \
 	--disable-function-sections \
 	--disable-rpath \
-	$IPX \
+%if %{with ipx}
+	--enable-ipx \
+	--enable-ipx-tools \
+%else
+	--disable-ipx \
+	--disable-ipx-tools \
+%endif
 	--enable-kernel \
 	--enable-mount-v2 \
 	--enable-mount-v3 \
