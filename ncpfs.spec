@@ -14,6 +14,7 @@ Group(pl):	Sieciowe/Narzêdzia
 Requires:	%name-ipxutils
 Requires:	pam
 BuildRequires:	glibc-devel
+BuildRequires:	gettext-devel
 Prereq:		/sbin/ldconfig
 Patch0:		%name-lang.patch
 Patch1:		%name-largekeys.patch.gz
