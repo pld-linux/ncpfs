@@ -13,7 +13,7 @@ Summary(tr):	Linux iГin Netware istemcisi destek yazЩlЩmlarЩ
 Summary(uk):	Утил╕ти для файлово╖ системи ncpfs, кл╕╓нта NetWare для Linux
 Name:		ncpfs
 Version:	2.2.0.18
-Release:	10
+Release:	11
 License:	GPL
 Group:		Networking/Utilities
 Source0:	ftp://platan.vc.cvut.cz/pub/linux/ncpfs/%{name}-%{version}/%{name}-%{version}.tgz
@@ -224,7 +224,7 @@ necessАrios para desenvolver programas que usam o NCPfs.
 %patch6 -p1
 
 %build
-gettextize --copy --force
+%{__gettextize}
 ./conf
 %configure \
 	--enable-pam \
@@ -265,7 +265,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc BUGS Changes FAQ README* ncpfs-*
 %attr(755,root,root) %{_bindir}/[^i]*
-%attr(755,root,root) %{_sbindir}/*
+%attr(755,root,root) %{_sbindir}/[^i]*
 %attr(755,root,root) %{_libdir}/libncp.so*
 
 %{_mandir}/man8/[^i]*
