@@ -18,13 +18,13 @@ Summary(ru):	Утилиты для файловой системы ncpfs, клиента NetWare для Linux
 Summary(tr):	Linux iГin Netware istemcisi destek yazЩlЩmlarЩ
 Summary(uk):	Утил╕ти для файлово╖ системи ncpfs, кл╕╓нта NetWare для Linux
 Name:		ncpfs
-Version:	2.2.5
+Version:	2.2.6
 Release:	1%{!?with_ipx:noipx}
 Epoch:		1
 License:	GPL
 Group:		Networking/Utilities
 Source0:	ftp://platan.vc.cvut.cz/pub/linux/ncpfs/%{name}-%{version}.tar.gz
-# Source0-md5:	51c5bcf15d46d68047c094cff6a41fef
+# Source0-md5:	a9ab9f135d504440202069393dd9eb36
 Patch0:		%{name}-lang.patch
 Patch1:		%{name}-nwsfind.patch
 Patch2:		%{name}-ac.patch
