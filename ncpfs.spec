@@ -1,4 +1,5 @@
 # TODO:
+# - update and finish pl.po (lang patch)
 # - fix/write from scrach -devel Summary and %%description
 # - review php-auth_nds Summary and %%description
 # - register php module in php.ini like other modules from php.spec (?)
