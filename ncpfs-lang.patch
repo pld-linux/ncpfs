@@ -1,8 +1,8 @@
---- ncpfs-2.2.3/po/LINGUAS.orig	2004-01-08 14:23:16.000000000 +0100
-+++ ncpfs-2.2.3/po/LINGUAS	2004-01-08 14:23:22.000000000 +0100
+--- ncpfs-2.2.6/po/LINGUAS.orig	2005-01-27 18:35:59.000000000 +0100
++++ ncpfs-2.2.6/po/LINGUAS	2005-06-13 10:29:29.000000000 +0200
 @@ -1 +1 @@
--cs de
-+cs de pl
+-cs de es fr hu it ja pt_BR zh_CN zh_TW
++cs de es fr hu it ja pl pt_BR zh_CN zh_TW
 --- /dev/null	2003-12-09 09:22:21.000000000 +0100
 +++ ncpfs-2.2.3/po/pl.po	2004-01-08 14:47:32.000000000 +0100
 @@ -0,0 +1,4298 @@
