@@ -299,7 +299,7 @@ ln -s $(cd $RPM_BUILD_ROOT%{_libdir}; ls libncp.so.*.*) $RPM_BUILD_ROOT%{_libdir
 cp -a include/ncp $RPM_BUILD_ROOT%{_includedir}
 
 %if %{with php}
-install -m755 contrib/php/modules/php_auth_nds.so $RPM_BUILD_ROOT/usr/%{_lib}/php
+install contrib/php/modules/php_auth_nds.so $RPM_BUILD_ROOT/usr/%{_lib}/php
 %endif
 
 rm -f $RPM_BUILD_ROOT%{_mandir}/man8/mount.ncp.8*
