@@ -9,15 +9,15 @@
 %bcond_without	ipx	# don't build ipxutils
 #
 Summary:	Support Utilities for ncpfs, the free netware client for Linux
-Summary(de):	Support-Dienstprogramme fЭr ncpfs, den kostenlosen Netware-Client
-Summary(es):	Utilitarios de soporte para ncpfs, que es el cliente Linux free para netware
-Summary(fr):	Gestionnaires pour ncpfs, le client Netware libre pour Linux
-Summary(ja):	ncpfs ╔у╔║╔╓╔К╔╥╔╧╔ф╔Ю╔Ф║╪╔ф╔ё╔Й╔ф╔ё║╒Linux мя NetWare ╔╞╔И╔╓╔╒╔С╔х║ё
-Summary(pl):	Darmowy klient Netware dla Linuksa wraz z dodatkowymi programami
-Summary(pt_BR):	UtilitАrios de suporte para ncpfs, que И o cliente Linux free para netware
-Summary(ru):	Утилиты для файловой системы ncpfs, клиента NetWare для Linux
-Summary(tr):	Linux iГin Netware istemcisi destek yazЩlЩmlarЩ
-Summary(uk):	Утил╕ти для файлово╖ системи ncpfs, кл╕╓нта NetWare для Linux
+Summary(de.UTF-8):   Support-Dienstprogramme fц╪r ncpfs, den kostenlosen Netware-Client
+Summary(es.UTF-8):   Utilitarios de soporte para ncpfs, que es el cliente Linux free para netware
+Summary(fr.UTF-8):   Gestionnaires pour ncpfs, le client Netware libre pour Linux
+Summary(ja.UTF-8):   ncpfs Ц┐∙Ц┌║Ц┌╓Ц┐╚Ц┌╥Ц┌╧Ц┐├Ц┐═Ц┐╕Ц┐╪Ц┐├Ц┌ёЦ┐╙Ц┐├Ц┌ёЦ─│Linux Г■╗ NetWare Ц┌╞Ц┐╘Ц┌╓Ц┌╒Ц┐ЁЦ┐┬Ц─┌
+Summary(pl.UTF-8):   Darmowy klient Netware dla Linuksa wraz z dodatkowymi programami
+Summary(pt_BR.UTF-8):   Utilitц║rios de suporte para ncpfs, que ц╘ o cliente Linux free para netware
+Summary(ru.UTF-8):   пёя┌п╦п╩п╦я┌я▀ п╢п╩я▐ я└п╟п╧п╩п╬п╡п╬п╧ я│п╦я│я┌п╣п╪я▀ ncpfs, п╨п╩п╦п╣п╫я┌п╟ NetWare п╢п╩я▐ Linux
+Summary(tr.UTF-8):   Linux iц╖in Netware istemcisi destek yazд╠lд╠mlarд╠
+Summary(uk.UTF-8):   пёя┌п╦п╩я√я┌п╦ п╢п╩я▐ я└п╟п╧п╩п╬п╡п╬я≈ я│п╦я│я┌п╣п╪п╦ ncpfs, п╨п╩я√я■п╫я┌п╟ NetWare п╢п╩я▐ Linux
 Name:		ncpfs
 Version:	2.2.6
 Release:	1%{!?with_ipx:noipx}
@@ -48,71 +48,71 @@ filesysten, which is a linux filesystem which understands the NCP
 protocol. This protocol is used by Novell NetWare clients use to talk
 to NetWare servers.
 
-%description -l de
-Dieses Paket enthДlt Tools zum Konfigurieren und Einsatz des
+%description -l de.UTF-8
+Dieses Paket enthц╓lt Tools zum Konfigurieren und Einsatz des
 ncpfs-Dateisystems, einem Linux-Dateisystem, das das NCP-Protokoll
 versteht. Dieses Protokoll wird von Novell NetWare-Clients zur
 Kommunikation mit NetWare-Servern verwendet.
 
-%description -l es
+%description -l es.UTF-8
 Este paquete contiene herramientas para ayudar a configurar y usar el
 sistema de archivos ncpfs, que es un sistema de archivos Linux capaz
 de entender el protocolo NCP. Este es el protocolo que los clientes
 Novell NetWare usan para "conversar" con servidores NetWare.
 
-%description -l fr
-Ce package contient des outils pour aider a configuer et Ю utiliser le
-systХme de fichiers ncpfs, qui est un systХme de fichiers Linux adaptИ
-au protocole NCP. Ce protocole est utilisИ par les clients Novell
+%description -l fr.UTF-8
+Ce package contient des outils pour aider a configuer et ц═ utiliser le
+systц╗me de fichiers ncpfs, qui est un systц╗me de fichiers Linux adaptц╘
+au protocole NCP. Ce protocole est utilisц╘ par les clients Novell
 NetWare pour communiquer avec les serveurs NetWare.
 
-%description -l ja
-ncpfs ╓о Novell NetWare(TM) NCP ╓х╓╥╓фмЩ╡Р╓╣╓Л╓К╔у╔║╔╓╔К╔╥╔╧╔ф╔Ю╓г╓╧║ё
-╣║г╫е╙╓к╓о║╒NCP ╓о║╒NFS ╓╛ TCP/IP ╓ню╓Ё╕╓гмя╓╓╓И╓Л╓К╓Х╓╕╓к║╒NetWare ╓г
-мя╓╓╓И╓Л╓ч╓╧║ёLinux ╔╥╔╧╔ф╔Ю╓╛ NetWare
-╔у╔║╔╓╔К╔╥╔╧╔ф╔Ю╓Р╔ч╔╕╔С╔х╓╧╓К╓к╓о║╒
-фцйл╓й╔ч╔╕╔С╔х╔в╔М╔╟╔И╔Ю╓╛и╛мв╓г╓╧║ёncpfs
-╔я╔ц╔╠║╪╔╦╓о╓╫╓н╓Х╓╕╓й╔ч╔╕╔С╔х ╔в╔М╔╟╔И╔Ю╓х║╒ncpfs
-╔у╔║╔╓╔К╔╥╔╧╔ф╔Ю╓нюъдЙ╓хмЬмя╓н╓©╓А╓н╔д║╪╔К╓Р╢ч╓ъ╓ч╓╧║ё
+%description -l ja.UTF-8
+ncpfs Ц│╞ Novell NetWare(TM) NCP Ц│╗Ц│≈Ц│╕Г░├Х╖ёЦ│∙Ц┌▄Ц┌▀Ц┐∙Ц┌║Ц┌╓Ц┐╚Ц┌╥Ц┌╧Ц┐├Ц┐═Ц│╖Ц│≥Ц─┌
+Ф╘÷Х┐╫Г └Ц│╚Ц│╞Ц─│NCP Ц│╞Ц─│NFS Ц│▄ TCP/IP Ц│╝Д╦√Г∙▄Ц│╖Г■╗Ц│└Ц┌┴Ц┌▄Ц┌▀Ц┌┬Ц│├Ц│╚Ц─│NetWare Ц│╖
+Г■╗Ц│└Ц┌┴Ц┌▄Ц│╬Ц│≥Ц─┌Linux Ц┌╥Ц┌╧Ц┐├Ц┐═Ц│▄ NetWare
+Ц┐∙Ц┌║Ц┌╓Ц┐╚Ц┌╥Ц┌╧Ц┐├Ц┐═Ц┌▓Ц┐·Ц┌╕Ц┐ЁЦ┐┬Ц│≥Ц┌▀Ц│╚Ц│╞Ц─│
+Г┴╧Е┬╔Ц│╙Ц┐·Ц┌╕Ц┐ЁЦ┐┬Ц┐≈Ц┐╜Ц┌╟Ц┐╘Ц┐═Ц│▄Е©┘Х╕│Ц│╖Ц│≥Ц─┌ncpfs
+Ц┐▒Ц┐┐Ц┌╠Ц┐╪Ц┌╦Ц│╞Ц│²Ц│╝Ц┌┬Ц│├Ц│╙Ц┐·Ц┌╕Ц┐ЁЦ┐┬ Ц┐≈Ц┐╜Ц┌╟Ц┐╘Ц┐═Ц│╗Ц─│ncpfs
+Ц┐∙Ц┌║Ц┌╓Ц┐╚Ц┌╥Ц┌╧Ц┐├Ц┐═Ц│╝Х╗╜Е╝ Ц│╗Е┬╘Г■╗Ц│╝Ц│÷Ц┌│Ц│╝Ц┐└Ц┐╪Ц┐╚Ц┌▓Е░╚Ц│©Ц│╬Ц│≥Ц─┌
 
-Novell NetWare ╓н╔у╔║╔╓╔К╓╚╔╣║╪╔с╔╧╓Р╩х╓╕╓©╓А╓к ncpfs
-╔у╔║╔╓╔К╔╥╔╧╔ф╔Ю╓Р мя╓╓╓Ки╛мв╓╛╓╒╓К╓й╓И║╒ncpfs
-╔я╔ц╔╠║╪╔╦╓Р╔╓╔С╔╧╔х║╪╔К╓╥╓ч╓╥╓Г╓╕║ё
+Novell NetWare Ц│╝Ц┐∙Ц┌║Ц┌╓Ц┐╚Ц│▀Ц┌╣Ц┐╪Ц┐⌠Ц┌╧Ц┌▓Д╫©Ц│├Ц│÷Ц┌│Ц│╚ ncpfs
+Ц┐∙Ц┌║Ц┌╓Ц┐╚Ц┌╥Ц┌╧Ц┐├Ц┐═Ц┌▓ Г■╗Ц│└Ц┌▀Е©┘Х╕│Ц│▄Ц│┌Ц┌▀Ц│╙Ц┌┴Ц─│ncpfs
+Ц┐▒Ц┐┐Ц┌╠Ц┐╪Ц┌╦Ц┌▓Ц┌╓Ц┐ЁЦ┌╧Ц┐┬Ц┐╪Ц┐╚Ц│≈Ц│╬Ц│≈Ц┌┤Ц│├Ц─┌
 
-%description -l pl
-Pakiet zawiera narzЙdzia pomocne w konfigurowaniu i u©ywaniu systemu
-plikСw ncpfs. DziЙki ncpfs mo©liwe jest podЁ╠czanie wolumenСw serwerСw
-Netware i modyfikowanie ich zawarto╤ci.
+%description -l pl.UTF-8
+Pakiet zawiera narzд≥dzia pomocne w konfigurowaniu i uе╪ywaniu systemu
+plikцЁw ncpfs. Dziд≥ki ncpfs moе╪liwe jest podе┌д┘czanie wolumenцЁw serwerцЁw
+Netware i modyfikowanie ich zawartoе⌡ci.
 
-%description -l pt_BR
-Este pacote contИm ferramentas para ajudar a configurar e usar o
-sistema de arquivos ncpfs, que И um sistema de arquivos Linux que
-entende o protocolo NCP. Esse И o protocolo que os clientes Novell
+%description -l pt_BR.UTF-8
+Este pacote contц╘m ferramentas para ajudar a configurar e usar o
+sistema de arquivos ncpfs, que ц╘ um sistema de arquivos Linux que
+entende o protocolo NCP. Esse ц╘ o protocolo que os clientes Novell
 NetWare usam para "conversar" com servidores NetWare.
 
-%description -l ru
-Ncpfs - это файловая система поверх протокола Novell NetWare(TM) NCP.
-Функционально, NCP играет в NetWare ту же роль, что NFS в мире TCP/IP.
-Для того, чтобы система Linux смонтировала файловую систему NetWare,
-ей нужна специальная программа монтирования. Пакет ncpfs содержит
-такую программу плюс другие инструменты для конфигурирования и
-использования файловой системы ncpfs.
+%description -l ru.UTF-8
+Ncpfs - я█я┌п╬ я└п╟п╧п╩п╬п╡п╟я▐ я│п╦я│я┌п╣п╪п╟ п©п╬п╡п╣я─я┘ п©я─п╬я┌п╬п╨п╬п╩п╟ Novell NetWare(TM) NCP.
+п╓я┐п╫п╨я├п╦п╬п╫п╟п╩я▄п╫п╬, NCP п╦пЁя─п╟п╣я┌ п╡ NetWare я┌я┐ п╤п╣ я─п╬п╩я▄, я┤я┌п╬ NFS п╡ п╪п╦я─п╣ TCP/IP.
+п■п╩я▐ я┌п╬пЁп╬, я┤я┌п╬п╠я▀ я│п╦я│я┌п╣п╪п╟ Linux я│п╪п╬п╫я┌п╦я─п╬п╡п╟п╩п╟ я└п╟п╧п╩п╬п╡я┐я▌ я│п╦я│я┌п╣п╪я┐ NetWare,
+п╣п╧ п╫я┐п╤п╫п╟ я│п©п╣я├п╦п╟п╩я▄п╫п╟я▐ п©я─п╬пЁя─п╟п╪п╪п╟ п╪п╬п╫я┌п╦я─п╬п╡п╟п╫п╦я▐. п÷п╟п╨п╣я┌ ncpfs я│п╬п╢п╣я─п╤п╦я┌
+я┌п╟п╨я┐я▌ п©я─п╬пЁя─п╟п╪п╪я┐ п©п╩я▌я│ п╢я─я┐пЁп╦п╣ п╦п╫я│я┌я─я┐п╪п╣п╫я┌я▀ п╢п╩я▐ п╨п╬п╫я└п╦пЁя┐я─п╦я─п╬п╡п╟п╫п╦я▐ п╦
+п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦я▐ я└п╟п╧п╩п╬п╡п╬п╧ я│п╦я│я┌п╣п╪я▀ ncpfs.
 
-%description -l tr
-Bu paket Linux'un Novell'in NCP protokolunu kullanabilmesi iГin
-gereken yardЩmcЩ yazЩlЩmlarЩ iГermektedir.
+%description -l tr.UTF-8
+Bu paket Linux'un Novell'in NCP protokolunu kullanabilmesi iц╖in
+gereken yardд╠mcд╠ yazд╠lд╠mlarд╠ iц╖ermektedir.
 
-%description -l uk
-Ncpfs - це файлова система поверх протоколу Novell NetWare(TM) NCP. За
-функц╕ями, NCP в╕д╕гра╓ в NetWare ту ж роль, що NFS у св╕т╕ TCP/IP.
-Для того, щоб система Linux змонтувала файлову систему NetWare, ╖й
-потр╕бна спец╕альна програма монтування. Пакет ncpfs м╕стить таку
-програму плюс ╕нш╕ ╕нструменти для конф╕гурування та використання
-файлово╖ системи ncpfs.
+%description -l uk.UTF-8
+Ncpfs - я├п╣ я└п╟п╧п╩п╬п╡п╟ я│п╦я│я┌п╣п╪п╟ п©п╬п╡п╣я─я┘ п©я─п╬я┌п╬п╨п╬п╩я┐ Novell NetWare(TM) NCP. п≈п╟
+я└я┐п╫п╨я├я√я▐п╪п╦, NCP п╡я√п╢я√пЁя─п╟я■ п╡ NetWare я┌я┐ п╤ я─п╬п╩я▄, я┴п╬ NFS я┐ я│п╡я√я┌я√ TCP/IP.
+п■п╩я▐ я┌п╬пЁп╬, я┴п╬п╠ я│п╦я│я┌п╣п╪п╟ Linux п╥п╪п╬п╫я┌я┐п╡п╟п╩п╟ я└п╟п╧п╩п╬п╡я┐ я│п╦я│я┌п╣п╪я┐ NetWare, я≈п╧
+п©п╬я┌я─я√п╠п╫п╟ я│п©п╣я├я√п╟п╩я▄п╫п╟ п©я─п╬пЁя─п╟п╪п╟ п╪п╬п╫я┌я┐п╡п╟п╫п╫я▐. п÷п╟п╨п╣я┌ ncpfs п╪я√я│я┌п╦я┌я▄ я┌п╟п╨я┐
+п©я─п╬пЁя─п╟п╪я┐ п©п╩я▌я│ я√п╫я┬я√ я√п╫я│я┌я─я┐п╪п╣п╫я┌п╦ п╢п╩я▐ п╨п╬п╫я└я√пЁя┐я─я┐п╡п╟п╫п╫я▐ я┌п╟ п╡п╦п╨п╬я─п╦я│я┌п╟п╫п╫я▐
+я└п╟п╧п╩п╬п╡п╬я≈ я│п╦я│я┌п╣п╪п╦ ncpfs.
 
 %package -n pam-pam_ncp_auth
 Summary:	PAM module for authenticate using using login/password stored on Netware server
-Summary(pl):	ModuЁ PAM uwierzytelniaj╠cy poprzez login i hasЁo trzymane na serwerze Netware
+Summary(pl.UTF-8):   Moduе┌ PAM uwierzytelniajд┘cy poprzez login i hasе┌o trzymane na serwerze Netware
 Group:		Networking/Utilities
 Requires:	%{name} = %{epoch}:%{version}-%{release}
 Obsoletes:	pam_ncp_auth
@@ -121,14 +121,14 @@ Obsoletes:	pam_ncp_auth
 The pam_ncp_auth module is PAM module for authenticate using
 login/password stored on Netware server.
 
-%description -n pam-pam_ncp_auth -l pl
-ModuЁ pam_ncp_auth to moduЁ PAM sЁu©╠cy do uwierzytelniania przy
-u©yciu loginu i hasЁa przechowywanych na serwerze Netware.
+%description -n pam-pam_ncp_auth -l pl.UTF-8
+Moduе┌ pam_ncp_auth to moduе┌ PAM sе┌uе╪д┘cy do uwierzytelniania przy
+uе╪yciu loginu i hasе┌a przechowywanych na serwerze Netware.
 
 %package -n php-auth_nds
 Summary:	PHP module for authenticate using using login/password stored on Netware server
-Summary(pl):	ModuЁ PHP uwierzytelniaj╠cy poprzez login i hasЁo trzymane na serwerze Netware
-Summary(pl):	NarzЙdzia do konfigurowania IPX
+Summary(pl.UTF-8):   Moduе┌ PHP uwierzytelniajд┘cy poprzez login i hasе┌o trzymane na serwerze Netware
+Summary(pl.UTF-8):   Narzд≥dzia do konfigurowania IPX
 Group:		Networking/Utilities
 Requires:	%{name} = %{epoch}:%{version}-%{release}
 
@@ -136,21 +136,21 @@ Requires:	%{name} = %{epoch}:%{version}-%{release}
 The php-auth_nds module is PHP module for authenticate using
 login/password stored on Netware server.
 
-%description -n php-auth_nds -l pl
-ModuЁ php-ncp_auth to moduЁ PHP sЁu©╠cy do uwierzytelniania przy
-u©yciu loginu i hasЁa przechowywanych na serwerze Netware.
+%description -n php-auth_nds -l pl.UTF-8
+Moduе┌ php-ncp_auth to moduе┌ PHP sе┌uе╪д┘cy do uwierzytelniania przy
+uе╪yciu loginu i hasе┌a przechowywanych na serwerze Netware.
 
 %package -n ipxutils
 Summary:	Utilities for IPX configuration
-Summary(de):	Utilities fЭr IPX-Konfiguration
-Summary(es):	Utilitarios para configuraciСn IPX
-Summary(fr):	Utilitaires pour la configuration IPX
-Summary(ja):	IPX ╔╓╔С╔©╔у╔╖╔╓╔╧╓х╔м╔ц╔х╔О║╪╔╞╓нюъдЙ╓х╔г╔п╔ц╔╟╓н╓©╓А╓н╔д║╪╔К║ё
-Summary(pl):	NarzЙdzia do konfigurowania IPX
-Summary(pt_BR):	UtilitАrios para configuraГЦo IPX
-Summary(ru):	Утилиты для конфигурирования и отладки IPX интерфейсов и сетей
-Summary(tr):	IPX yapЩlandЩrma yazЩlЩmlarЩ
-Summary(uk):	Утил╕ти для конф╕гурування ╕ в╕дладки IPX ╕нтерфейс╕в та мереж
+Summary(de.UTF-8):   Utilities fц╪r IPX-Konfiguration
+Summary(es.UTF-8):   Utilitarios para configuraciцЁn IPX
+Summary(fr.UTF-8):   Utilitaires pour la configuration IPX
+Summary(ja.UTF-8):   IPX Ц┌╓Ц┐ЁЦ┌©Ц┐∙Ц┌╖Ц┌╓Ц┌╧Ц│╗Ц┐█Ц┐┐Ц┐┬Ц┐╞Ц┐╪Ц┌╞Ц│╝Х╗╜Е╝ Ц│╗Ц┐┤Ц┐░Ц┐┐Ц┌╟Ц│╝Ц│÷Ц┌│Ц│╝Ц┐└Ц┐╪Ц┐╚Ц─┌
+Summary(pl.UTF-8):   Narzд≥dzia do konfigurowania IPX
+Summary(pt_BR.UTF-8):   Utilitц║rios para configuraц╖цёo IPX
+Summary(ru.UTF-8):   пёя┌п╦п╩п╦я┌я▀ п╢п╩я▐ п╨п╬п╫я└п╦пЁя┐я─п╦я─п╬п╡п╟п╫п╦я▐ п╦ п╬я┌п╩п╟п╢п╨п╦ IPX п╦п╫я┌п╣я─я└п╣п╧я│п╬п╡ п╦ я│п╣я┌п╣п╧
+Summary(tr.UTF-8):   IPX yapд╠landд╠rma yazд╠lд╠mlarд╠
+Summary(uk.UTF-8):   пёя┌п╦п╩я√я┌п╦ п╢п╩я▐ п╨п╬п╫я└я√пЁя┐я─я┐п╡п╟п╫п╫я▐ я√ п╡я√п╢п╩п╟п╢п╨п╦ IPX я√п╫я┌п╣я─я└п╣п╧я│я√п╡ я┌п╟ п╪п╣я─п╣п╤
 Group:		Networking/Utilities
 Obsoletes:	ipx
 Obsoletes:	ncpfs-ipxutils
@@ -160,87 +160,87 @@ This package includes utilities necessary for configuring and
 debugging IPX interfaces and networks under Linux. IPX is the
 low-level protocol used by NetWare to transfer data.
 
-%description -n ipxutils -l de
-Dieses Paket enthДlt Dienstprogramme zum Konfigurieren und Debuggen
+%description -n ipxutils -l de.UTF-8
+Dieses Paket enthц╓lt Dienstprogramme zum Konfigurieren und Debuggen
 von IPX-Schnittstellen und -Netzwerken unter Linux. IPX ist das von
-NetWare zur DatenЭbertragung verwendete Low-Level-Protokoll.
+NetWare zur Datenц╪bertragung verwendete Low-Level-Protokoll.
 
-%description -n ipxutils -l es
-Este paquete incluye los utilitarios necesarios a configuraciСn y
-depuraciСn de interfaces y redes IPX en Linux. IPX es el protocolo de
+%description -n ipxutils -l es.UTF-8
+Este paquete incluye los utilitarios necesarios a configuraciцЁn y
+depuraciцЁn de interfaces y redes IPX en Linux. IPX es el protocolo de
 bajo nivel usado por el NetWare para transferir datos.
 
-%description -n ipxutils -l fr
-Ce package contient les utilitaires nИcessires Ю pour la configuration
-et le dИboggage des rИseaux et interfaces IPX sous Linux. IPX est un
-protocole de bas niveau utilisИ par NetWare pour transfИrer des
-donnИes.
+%description -n ipxutils -l fr.UTF-8
+Ce package contient les utilitaires nц╘cessires ц═ pour la configuration
+et le dц╘boggage des rц╘seaux et interfaces IPX sous Linux. IPX est un
+protocole de bas niveau utilisц╘ par NetWare pour transfц╘rer des
+donnц╘es.
 
-%description -n ipxutils -l ja
-ipxutils ╔я╔ц╔╠║╪╔╦╓о║╒Linux ╓г IPX
-╔╓╔С╔©╔у╔╖╔╓╔╧╓х╔м╔ц╔х╔О║╪╔╞╓нюъдЙ╓х
-╔г╔п╔ц╔╟╓Р╓╧╓К╓©╓А╓н╔Ф║╪╔ф╔ё╔Й╔ф╔ё╓Р╢ч╓ъ╓ч╓╧║ёIPX ╓о Novell NetWare ╓н
-╔у╔║╔╓╔К╔╥╔╧╔ф╔Ю╓г╔г║╪╔©╓Ре╬аВ╓╧╓К╓н╓кмя╓╓╓И╓Л╓КдЦ╔Л╔Т╔╖╔К╔в╔М╔х╔Ё╔К╓г╓╧║ё
+%description -n ipxutils -l ja.UTF-8
+ipxutils Ц┐▒Ц┐┐Ц┌╠Ц┐╪Ц┌╦Ц│╞Ц─│Linux Ц│╖ IPX
+Ц┌╓Ц┐ЁЦ┌©Ц┐∙Ц┌╖Ц┌╓Ц┌╧Ц│╗Ц┐█Ц┐┐Ц┐┬Ц┐╞Ц┐╪Ц┌╞Ц│╝Х╗╜Е╝ Ц│╗
+Ц┐┤Ц┐░Ц┐┐Ц┌╟Ц┌▓Ц│≥Ц┌▀Ц│÷Ц┌│Ц│╝Ц┐╕Ц┐╪Ц┐├Ц┌ёЦ┐╙Ц┐├Ц┌ёЦ┌▓Е░╚Ц│©Ц│╬Ц│≥Ц─┌IPX Ц│╞ Novell NetWare Ц│╝
+Ц┐∙Ц┌║Ц┌╓Ц┐╚Ц┌╥Ц┌╧Ц┐├Ц┐═Ц│╖Ц┐┤Ц┐╪Ц┌©Ц┌▓Х╩╒И─│Ц│≥Ц┌▀Ц│╝Ц│╚Г■╗Ц│└Ц┌┴Ц┌▄Ц┌▀Д╫▌Ц┐╛Ц┐╢Ц┌╖Ц┐╚Ц┐≈Ц┐╜Ц┐┬Ц┌ЁЦ┐╚Ц│╖Ц│≥Ц─┌
 
-╔м╔ц╔х╔О║╪╔╞╓г IPX юъдЙ╓Р╓╧╓Ки╛мв╓╛╓╒╓Л╓п║╒ipxutils
-╓Р╔╓╔С╔╧╔х║╪╔К╓╥╓ч╓╥╓Г╓╕║ё
+Ц┐█Ц┐┐Ц┐┬Ц┐╞Ц┐╪Ц┌╞Ц│╖ IPX Х╗╜Е╝ Ц┌▓Ц│≥Ц┌▀Е©┘Х╕│Ц│▄Ц│┌Ц┌▄Ц│╟Ц─│ipxutils
+Ц┌▓Ц┌╓Ц┐ЁЦ┌╧Ц┐┬Ц┐╪Ц┐╚Ц│≈Ц│╬Ц│≈Ц┌┤Ц│├Ц─┌
 
-%description -n ipxutils -l pl
-Pakiet zawiera narzЙdzia niezbЙdne do konfigurowania interfejsСw i
-sieci IPX pod Linuksem. ProtokoЁu IPX u©ywa Netware do przesyЁania
+%description -n ipxutils -l pl.UTF-8
+Pakiet zawiera narzд≥dzia niezbд≥dne do konfigurowania interfejsцЁw i
+sieci IPX pod Linuksem. Protokoе┌u IPX uе╪ywa Netware do przesyе┌ania
 danych.
 
-%description -n ipxutils -l pt_BR
-Este pacote inclui os utilitАrios necessАrios Ю configuraГЦo e
-depuraГЦo de interfaces e redes IPX no Linux. IPX И o protocolo de
-baixo nМvel usado pelo NetWare para transferir dados.
+%description -n ipxutils -l pt_BR.UTF-8
+Este pacote inclui os utilitц║rios necessц║rios ц═ configuraц╖цёo e
+depuraц╖цёo de interfaces e redes IPX no Linux. IPX ц╘ o protocolo de
+baixo nц╜vel usado pelo NetWare para transferir dados.
 
-%description -n ipxutils -l ru
-Этот пакет содержит утилиты, необходимые для конфигурации и отладки
-IPX интерфейсов и сетей под Linux. IPX - это низкоуровневый протокол,
-ипользуемый NetWare для передачи данных.
+%description -n ipxutils -l ru.UTF-8
+п╜я┌п╬я┌ п©п╟п╨п╣я┌ я│п╬п╢п╣я─п╤п╦я┌ я┐я┌п╦п╩п╦я┌я▀, п╫п╣п╬п╠я┘п╬п╢п╦п╪я▀п╣ п╢п╩я▐ п╨п╬п╫я└п╦пЁя┐я─п╟я├п╦п╦ п╦ п╬я┌п╩п╟п╢п╨п╦
+IPX п╦п╫я┌п╣я─я└п╣п╧я│п╬п╡ п╦ я│п╣я┌п╣п╧ п©п╬п╢ Linux. IPX - я█я┌п╬ п╫п╦п╥п╨п╬я┐я─п╬п╡п╫п╣п╡я▀п╧ п©я─п╬я┌п╬п╨п╬п╩,
+п╦п©п╬п╩я▄п╥я┐п╣п╪я▀п╧ NetWare п╢п╩я▐ п©п╣я─п╣п╢п╟я┤п╦ п╢п╟п╫п╫я▀я┘.
 
-%description -n ipxutils -l tr
-Bu paket NetWare tarafЩndan kullanЩlan IPX protokolЭnЭ yapЩlandЩrmak
-ve hatalarЩnЩ ayЩklamak iГin kullanЩlabilecek bir dizi uygulama
-iГermektedir.
+%description -n ipxutils -l tr.UTF-8
+Bu paket NetWare tarafд╠ndan kullanд╠lan IPX protokolц╪nц╪ yapд╠landд╠rmak
+ve hatalarд╠nд╠ ayд╠klamak iц╖in kullanд╠labilecek bir dizi uygulama
+iц╖ermektedir.
 
-%description -n ipxutils -l uk
-Цей пакет м╕стить утил╕ти, необх╕дн╕ для конф╕гурування та в╕дладки
-IPX ╕нтерфейс╕в та мереж п╕д Linux. IPX - це низькор╕вневий протокол,
-що використову╓ться в NetWare для передач╕ даних.
+%description -n ipxutils -l uk.UTF-8
+п╕п╣п╧ п©п╟п╨п╣я┌ п╪я√я│я┌п╦я┌я▄ я┐я┌п╦п╩я√я┌п╦, п╫п╣п╬п╠я┘я√п╢п╫я√ п╢п╩я▐ п╨п╬п╫я└я√пЁя┐я─я┐п╡п╟п╫п╫я▐ я┌п╟ п╡я√п╢п╩п╟п╢п╨п╦
+IPX я√п╫я┌п╣я─я└п╣п╧я│я√п╡ я┌п╟ п╪п╣я─п╣п╤ п©я√п╢ Linux. IPX - я├п╣ п╫п╦п╥я▄п╨п╬я─я√п╡п╫п╣п╡п╦п╧ п©я─п╬я┌п╬п╨п╬п╩,
+я┴п╬ п╡п╦п╨п╬я─п╦я│я┌п╬п╡я┐я■я┌я▄я│я▐ п╡ NetWare п╢п╩я▐ п©п╣я─п╣п╢п╟я┤я√ п╢п╟п╫п╦я┘.
 
 %package devel
 Summary:	Files for developing NCP-aware software
-Summary(es):	Archivos de inclusiСn y bibliotecas para NCPfs
-Summary(pl):	Pliki do tworzenia oprogramowania u©ywaj╠cego NCP
-Summary(pt_BR):	Arquivos de inclusЦo e bibliotecas para o NCPfs
-Summary(ru):	Файлы для разработки с использованием библиотеки ncpfs
-Summary(uk):	Файли для розробки з використанням б╕бл╕отеки ncpfs
+Summary(es.UTF-8):   Archivos de inclusiцЁn y bibliotecas para NCPfs
+Summary(pl.UTF-8):   Pliki do tworzenia oprogramowania uе╪ywajд┘cego NCP
+Summary(pt_BR.UTF-8):   Arquivos de inclusцёo e bibliotecas para o NCPfs
+Summary(ru.UTF-8):   п╓п╟п╧п╩я▀ п╢п╩я▐ я─п╟п╥я─п╟п╠п╬я┌п╨п╦ я│ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╣п╪ п╠п╦п╠п╩п╦п╬я┌п╣п╨п╦ ncpfs
+Summary(uk.UTF-8):   п╓п╟п╧п╩п╦ п╢п╩я▐ я─п╬п╥я─п╬п╠п╨п╦ п╥ п╡п╦п╨п╬я─п╦я│я┌п╟п╫п╫я▐п╪ п╠я√п╠п╩я√п╬я┌п╣п╨п╦ ncpfs
 Group:		Development/Libraries
 Requires:	%{name} = %{epoch}:%{version}-%{release}
 
 %description devel
 Files for developing NCP-aware software.
 
-%description devel -l es
-Este paquete contiene los archivos de inclusiСn y bibliotecas que se
+%description devel -l es.UTF-8
+Este paquete contiene los archivos de inclusiцЁn y bibliotecas que se
 necesitan para desarrollar programas que usan NCPfs.
 
-%description devel -l pl
-Pliki do tworzenia oprogramowania u©ywaj╠cego NCP.
+%description devel -l pl.UTF-8
+Pliki do tworzenia oprogramowania uе╪ywajд┘cego NCP.
 
-%description devel -l pt_BR
-Este pacote contИm os arquivos de inclusЦo e bibliotecas que sЦo
-necessАrios para desenvolver programas que usam o NCPfs.
+%description devel -l pt_BR.UTF-8
+Este pacote contц╘m os arquivos de inclusцёo e bibliotecas que sцёo
+necessц║rios para desenvolver programas que usam o NCPfs.
 
-%description devel -l ru
-Этот пакет содержит файлы, необходимые для разработки программ с
-использованием библиотеки ncpfs.
+%description devel -l ru.UTF-8
+п╜я┌п╬я┌ п©п╟п╨п╣я┌ я│п╬п╢п╣я─п╤п╦я┌ я└п╟п╧п╩я▀, п╫п╣п╬п╠я┘п╬п╢п╦п╪я▀п╣ п╢п╩я▐ я─п╟п╥я─п╟п╠п╬я┌п╨п╦ п©я─п╬пЁя─п╟п╪п╪ я│
+п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╣п╪ п╠п╦п╠п╩п╦п╬я┌п╣п╨п╦ ncpfs.
 
-%description devel -l uk
-Цей пакет м╕стить файли, необх╕дн╕ для розробки програм з
-використанням б╕бл╕отеки ncpfs.
+%description devel -l uk.UTF-8
+п╕п╣п╧ п©п╟п╨п╣я┌ п╪я√я│я┌п╦я┌я▄ я└п╟п╧п╩п╦, п╫п╣п╬п╠я┘я√п╢п╫я√ п╢п╩я▐ я─п╬п╥я─п╬п╠п╨п╦ п©я─п╬пЁя─п╟п╪ п╥
+п╡п╦п╨п╬я─п╦я│я┌п╟п╫п╫я▐п╪ п╠я√п╠п╩я√п╬я┌п╣п╨п╦ ncpfs.
 
 %prep
 %setup -q
