@@ -9,15 +9,15 @@
 %bcond_without	ipx	# don't build ipxutils
 #
 Summary:	Support Utilities for ncpfs, the free netware client for Linux
-Summary(de.UTF-8):   Support-Dienstprogramme für ncpfs, den kostenlosen Netware-Client
-Summary(es.UTF-8):   Utilitarios de soporte para ncpfs, que es el cliente Linux free para netware
-Summary(fr.UTF-8):   Gestionnaires pour ncpfs, le client Netware libre pour Linux
-Summary(ja.UTF-8):   ncpfs ファイルシステムユーティリティ、Linux 用 NetWare クライアント。
-Summary(pl.UTF-8):   Darmowy klient Netware dla Linuksa wraz z dodatkowymi programami
-Summary(pt_BR.UTF-8):   Utilitários de suporte para ncpfs, que é o cliente Linux free para netware
-Summary(ru.UTF-8):   Утилиты для файловой системы ncpfs, клиента NetWare для Linux
-Summary(tr.UTF-8):   Linux için Netware istemcisi destek yazılımları
-Summary(uk.UTF-8):   Утиліти для файлової системи ncpfs, клієнта NetWare для Linux
+Summary(de.UTF-8):	Support-Dienstprogramme für ncpfs, den kostenlosen Netware-Client
+Summary(es.UTF-8):	Utilitarios de soporte para ncpfs, que es el cliente Linux free para netware
+Summary(fr.UTF-8):	Gestionnaires pour ncpfs, le client Netware libre pour Linux
+Summary(ja.UTF-8):	ncpfs ファイルシステムユーティリティ、Linux 用 NetWare クライアント。
+Summary(pl.UTF-8):	Darmowy klient Netware dla Linuksa wraz z dodatkowymi programami
+Summary(pt_BR.UTF-8):	Utilitários de suporte para ncpfs, que é o cliente Linux free para netware
+Summary(ru.UTF-8):	Утилиты для файловой системы ncpfs, клиента NetWare для Linux
+Summary(tr.UTF-8):	Linux için Netware istemcisi destek yazılımları
+Summary(uk.UTF-8):	Утиліти для файлової системи ncpfs, клієнта NetWare для Linux
 Name:		ncpfs
 Version:	2.2.6
 Release:	1%{!?with_ipx:noipx}
@@ -112,7 +112,7 @@ Ncpfs - це файлова система поверх протоколу Novel
 
 %package -n pam-pam_ncp_auth
 Summary:	PAM module for authenticate using using login/password stored on Netware server
-Summary(pl.UTF-8):   Moduł PAM uwierzytelniający poprzez login i hasło trzymane na serwerze Netware
+Summary(pl.UTF-8):	Moduł PAM uwierzytelniający poprzez login i hasło trzymane na serwerze Netware
 Group:		Networking/Utilities
 Requires:	%{name} = %{epoch}:%{version}-%{release}
 Obsoletes:	pam_ncp_auth
@@ -127,8 +127,8 @@ użyciu loginu i hasła przechowywanych na serwerze Netware.
 
 %package -n php-auth_nds
 Summary:	PHP module for authenticate using using login/password stored on Netware server
-Summary(pl.UTF-8):   Moduł PHP uwierzytelniający poprzez login i hasło trzymane na serwerze Netware
-Summary(pl.UTF-8):   Narzędzia do konfigurowania IPX
+Summary(pl.UTF-8):	Moduł PHP uwierzytelniający poprzez login i hasło trzymane na serwerze Netware
+Summary(pl.UTF-8):	Narzędzia do konfigurowania IPX
 Group:		Networking/Utilities
 Requires:	%{name} = %{epoch}:%{version}-%{release}
 
@@ -142,15 +142,15 @@ użyciu loginu i hasła przechowywanych na serwerze Netware.
 
 %package -n ipxutils
 Summary:	Utilities for IPX configuration
-Summary(de.UTF-8):   Utilities für IPX-Konfiguration
-Summary(es.UTF-8):   Utilitarios para configuración IPX
-Summary(fr.UTF-8):   Utilitaires pour la configuration IPX
-Summary(ja.UTF-8):   IPX インタフェイスとネットワークの設定とデバッグのためのツール。
-Summary(pl.UTF-8):   Narzędzia do konfigurowania IPX
-Summary(pt_BR.UTF-8):   Utilitários para configuração IPX
-Summary(ru.UTF-8):   Утилиты для конфигурирования и отладки IPX интерфейсов и сетей
-Summary(tr.UTF-8):   IPX yapılandırma yazılımları
-Summary(uk.UTF-8):   Утиліти для конфігурування і відладки IPX інтерфейсів та мереж
+Summary(de.UTF-8):	Utilities für IPX-Konfiguration
+Summary(es.UTF-8):	Utilitarios para configuración IPX
+Summary(fr.UTF-8):	Utilitaires pour la configuration IPX
+Summary(ja.UTF-8):	IPX インタフェイスとネットワークの設定とデバッグのためのツール。
+Summary(pl.UTF-8):	Narzędzia do konfigurowania IPX
+Summary(pt_BR.UTF-8):	Utilitários para configuração IPX
+Summary(ru.UTF-8):	Утилиты для конфигурирования и отладки IPX интерфейсов и сетей
+Summary(tr.UTF-8):	IPX yapılandırma yazılımları
+Summary(uk.UTF-8):	Утиліти для конфігурування і відладки IPX інтерфейсів та мереж
 Group:		Networking/Utilities
 Obsoletes:	ipx
 Obsoletes:	ncpfs-ipxutils
@@ -212,11 +212,11 @@ IPX інтерфейсів та мереж під Linux. IPX - це низько
 
 %package devel
 Summary:	Files for developing NCP-aware software
-Summary(es.UTF-8):   Archivos de inclusión y bibliotecas para NCPfs
-Summary(pl.UTF-8):   Pliki do tworzenia oprogramowania używającego NCP
-Summary(pt_BR.UTF-8):   Arquivos de inclusão e bibliotecas para o NCPfs
-Summary(ru.UTF-8):   Файлы для разработки с использованием библиотеки ncpfs
-Summary(uk.UTF-8):   Файли для розробки з використанням бібліотеки ncpfs
+Summary(es.UTF-8):	Archivos de inclusión y bibliotecas para NCPfs
+Summary(pl.UTF-8):	Pliki do tworzenia oprogramowania używającego NCP
+Summary(pt_BR.UTF-8):	Arquivos de inclusão e bibliotecas para o NCPfs
+Summary(ru.UTF-8):	Файлы для разработки с использованием библиотеки ncpfs
+Summary(uk.UTF-8):	Файли для розробки з використанням бібліотеки ncpfs
 Group:		Development/Libraries
 Requires:	%{name} = %{epoch}:%{version}-%{release}
 
