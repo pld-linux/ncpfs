@@ -20,7 +20,7 @@ Summary(tr.UTF-8):	Linux için Netware istemcisi destek yazılımları
 Summary(uk.UTF-8):	Утиліти для файлової системи ncpfs, клієнта NetWare для Linux
 Name:		ncpfs
 Version:	2.2.6
-Release:	1%{!?with_ipx:noipx}
+Release:	2%{!?with_ipx:noipx}
 Epoch:		1
 License:	GPL
 Group:		Networking/Utilities
@@ -30,6 +30,8 @@ Patch0:		%{name}-lang.patch
 Patch1:		%{name}-nwsfind.patch
 Patch2:		%{name}-ac.patch
 Patch3:		%{name}-sbindir.patch
+Patch4:		%{name}-gcc4.patch
+Patch5:		%{name}-syslog.patch
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	gettext-devel
@@ -248,6 +250,8 @@ necessários para desenvolver programas que usam o NCPfs.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch4 -p1
+%patch5 -p1
 
 %build
 cd contrib/php
