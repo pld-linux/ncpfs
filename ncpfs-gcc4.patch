@@ -1,0 +1,61 @@
+diff -Nur ncpfs-2.2.6.orig/lib/ncplib.c ncpfs-2.2.6.chng/lib/ncplib.c
+--- ncpfs-2.2.6.orig/lib/ncplib.c	2005-01-27 18:35:59.000000000 +0100
++++ ncpfs-2.2.6.chng/lib/ncplib.c	2007-03-29 10:02:52.000000000 +0200
+@@ -2408,6 +2408,8 @@
+ 				  uid, 0, err);
+ }
+ 
++static int get_argument(int arg_no, const char **target);
++
+ struct ncp_conn *
+ ncp_initialize_2(int *argc, char **argv, int login_necessary, 
+ 		 int login_type, long *err, int required)
+@@ -2421,7 +2423,7 @@
+ 	int i = 1;
+ 	NWCCODE nwerr;
+ 
+-	static int get_argument(int arg_no, const char **target) {
++	int get_argument(int arg_no, const char **target) {
+ 		int count = 1;
+ 
+ 		if (target != NULL) {
+diff -Nur ncpfs-2.2.6.orig/util/nwpjmv.c ncpfs-2.2.6.chng/util/nwpjmv.c
+--- ncpfs-2.2.6.orig/util/nwpjmv.c	2005-01-27 18:35:59.000000000 +0100
++++ ncpfs-2.2.6.chng/util/nwpjmv.c	2007-03-29 10:08:50.000000000 +0200
+@@ -123,6 +123,7 @@
+ 	return 0;
+ }
+ 
++static void add_string(const char *str);
+ 
+ static void
+ build_command(struct nw_queue *q, struct queue_job *j,
+@@ -131,7 +132,7 @@
+ 	char *s = q->command;
+ 	char *target_end = target + target_size;
+ 
+-	static void add_string(const char *str)
++	void add_string(const char *str)
+ 	{
+ 		int len = strlen(str);
+ 		if (target + len + 1 > target_end)
+diff -Nur ncpfs-2.2.6.orig/util/pserver.c ncpfs-2.2.6.chng/util/pserver.c
+--- ncpfs-2.2.6.orig/util/pserver.c	2005-01-27 18:35:59.000000000 +0100
++++ ncpfs-2.2.6.chng/util/pserver.c	2007-03-29 10:06:24.000000000 +0200
+@@ -145,6 +145,7 @@
+ 	return 0;
+ }
+ 
++static void add_string(const char *str);
+ 
+ static void
+ build_command(struct nw_queue *q, struct queue_job *j,
+@@ -153,7 +154,7 @@
+ 	char *s = q->command;
+ 	char *target_end = target + target_size;
+ 
+-	static void add_string(const char *str)
++	void add_string(const char *str)
+ 	{
+ 		int len = strlen(str);
+ 		if (target + len + 1 > target_end)
