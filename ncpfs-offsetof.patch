@@ -1,0 +1,18 @@
+diff -Nur ncpfs-2.2.6.orig/sutil/ncpm_common.h ncpfs-2.2.6.chng/sutil/ncpm_common.h
+--- ncpfs-2.2.6.orig/sutil/ncpm_common.h	2005-01-27 18:35:59.000000000 +0100
++++ ncpfs-2.2.6.chng/sutil/ncpm_common.h	2007-04-19 10:09:06.000000000 +0200
+@@ -15,6 +15,14 @@
+ 
+ #include "ncpmount.h"       
+ 
++#ifndef offsetof
++#ifdef __compiler_offsetof
++#define offsetof(TYPE,MEMBER) __compiler_offsetof(TYPE,MEMBER)
++#else
++#define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
++#endif
++#endif
++
+ uid_t myuid;
+ uid_t myeuid;
+ char *progname;
