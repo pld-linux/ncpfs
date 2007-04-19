@@ -32,6 +32,7 @@ Patch2:		%{name}-ac.patch
 Patch3:		%{name}-sbindir.patch
 Patch4:		%{name}-gcc4.patch
 Patch5:		%{name}-syslog.patch
+Patch6:		%{name}-offsetof.patch
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	gettext-devel
@@ -252,6 +253,7 @@ necessários para desenvolver programas que usam o NCPfs.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
+%patch6 -p1
 
 %build
 cd contrib/php
