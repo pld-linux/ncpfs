@@ -20,7 +20,7 @@ Summary(tr.UTF-8):	Linux için Netware istemcisi destek yazılımları
 Summary(uk.UTF-8):	Утиліти для файлової системи ncpfs, клієнта NetWare для Linux
 Name:		ncpfs
 Version:	2.2.6
-Release:	2%{!?with_ipx:noipx}
+Release:	3%{!?with_ipx:noipx}
 Epoch:		1
 License:	GPL
 Group:		Networking/Utilities
@@ -33,6 +33,8 @@ Patch3:		%{name}-sbindir.patch
 Patch4:		%{name}-gcc4.patch
 Patch5:		%{name}-syslog.patch
 Patch6:		%{name}-offsetof.patch
+Patch7:		%{name}-ac-php.patch
+Patch8:		%{name}-gettext.patch
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	gettext-devel
@@ -254,6 +256,8 @@ necessários para desenvolver programas que usam o NCPfs.
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
+%patch7 -p1
+%patch8 -p1
 
 %build
 cd contrib/php
@@ -262,7 +266,11 @@ cd contrib/php
 %{__autoconf}
 cd ../..
 
-./conf
+%{__gettextize}
+%{__aclocal}
+%{__autoconf}
+%{__autoheader}
+
 %configure \
 	--disable-function-sections \
 	--disable-rpath \
