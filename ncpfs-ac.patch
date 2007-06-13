@@ -1,20 +1,11 @@
---- ncpfs-2.2.3/configure.ac.orig	2003-03-13 15:54:46.000000000 +0100
-+++ ncpfs-2.2.3/configure.ac	2004-01-08 14:32:35.000000000 +0100
-@@ -380,7 +380,7 @@
- dnl net/if is required by IPX tools
- dnl currently code does not work without net/if.h
- AC_CHECK_HEADER(net/if.h,
--  [ncp_net_if_h="#include <net/if.h>"],
-+  [ncp_net_if_h="#include <net/if.h>"],[
-   [AC_CHECK_HEADER(linux/if.h,
-     [ncp_net_if_h="#include <linux/if.h>"],
-     [ncp_net_if_h="/* No interfaces support... */"
-@@ -393,7 +393,7 @@
- dnl net/route is required for now in ncplib
- dnl it should not be required for IP-only
- AC_CHECK_HEADER(net/route.h,
--  [ncp_net_route_h="#include <net/route.h>"],
-+  [ncp_net_route_h="#include <net/route.h>"],[
-   [AC_CHECK_HEADER(linux/route.h,
-     [ncp_net_route_h="#include <linux/route.h>"],
-     [ncp_net_route_h="/* No route support... */"
+--- ncpfs-2.2.6/configure.ac.orig	2007-06-13 02:34:22.000000000 +0200
++++ ncpfs-2.2.6/configure.ac	2007-06-13 02:55:58.000000000 +0200
+@@ -909,7 +909,7 @@
+ void lsym(void) { };
+ void gsym(void) { };
+ EOF
+-    if ${CC} -shared -Wl,-version-script=conftest.vers -o conftest.so conftest.c -lc >/dev/null 2>&1
++    if ${CC} -shared -Wl,-version-script=conftest.vers -o conftest.so conftest.c -lc -fPIC >/dev/null 2>&1
+     then
+       ncp_cv_versioned_link=yes
+     fi]
