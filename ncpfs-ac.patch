@@ -4,8 +4,8 @@
  void lsym(void) { };
  void gsym(void) { };
  EOF
--    if ${CC} -shared -Wl,-version-script=conftest.vers -o conftest.so conftest.c -lc >/dev/null 2>&1
-+    if ${CC} -shared -Wl,-version-script=conftest.vers -o conftest.so conftest.c -lc -fPIC >/dev/null 2>&1
+-    if ${CC} -shared -Wl,-version-script=conftest.vers -o conftest.${shlibext} conftest.c -lc >/dev/null 2>&1
++    if ${CC} -shared -Wl,-version-script=conftest.vers -o conftest.${shlibext} conftest.c -lc -fPIC >/dev/null 2>&1
      then
        ncp_cv_versioned_link=yes
      fi]
