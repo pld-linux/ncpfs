@@ -1,0 +1,44 @@
+changeset:   420:c7f1c54278c9
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Sat May 28 18:54:50 2005 +0000
+files:       sutil/Makefile.in
+description:
+Fix build failure while building with --disable-kernel.
+
+
+diff -r 56ca340a8425 -r c7f1c54278c9 sutil/Makefile.in
+--- a/sutil/Makefile.in	Sat May 28 18:48:12 2005 +0000
++++ b/sutil/Makefile.in	Sat May 28 18:54:50 2005 +0000
+@@ -36,9 +36,6 @@ CFLAGS_ncpmap.o = -DNCPMAP=1 -DMAKE_NCPL
+ CFLAGS_ncpmap.o = -DNCPMAP=1 -DMAKE_NCPLIB
+ CFLAGS_ncplogin.o = -DMAKE_NCPLIB
+ CFLAGS_ncpm_common.o = -DNWMSG=\"$(sbindir)/nwmsg\"
+-LDFLAGS_ncpmount = ncpm_common.o mount_login.o
+-LDFLAGS_ncplogin = ncpm_common.o mount_login.o
+-LDFLAGS_ncpmap = ncpm_common.o
+ 
+ .PHONY : all install install-dev dep clean mrproper distclean
+ .PHONY : default
+@@ -68,6 +65,10 @@ install-dev:
+ 		| sed 's,\($*\)\.o[ :]*,\1.o \1.do \1.to $@ : ,g' > $@; \
+ 		[ -s $@ ] || rm -f $@
+ 
++ncpmount: ncpm_common.o mount_login.o
++ncplogin: ncpm_common.o mount_login.o
++ncpmap: ncpm_common.o
++
+ ncpmap.o: %.o: ncplogin.c
+ 	$(CC) $(CFLAGS) $(CCFLAGS) $(CFLAGS_$@) -o $@ -c $<
+ 
+@@ -84,8 +85,8 @@ ncpm_common.d mount_login.d: %.d: %.c
+ 		| sed 's,\($*\)\.o[ :]*,\1.o \1.do \1.to $@ : ,g' > $@; \
+ 		[ -s $@ ] || rm -f $@
+ 
+-$(UTILS): %: %.o ../lib/libncp.a ncpm_common.o mount_login.o
+-	$(CC) @GC_SECTIONS@-o $@ $(addsuffix .o,$@) $(LDFLAGS_$@) ../lib/libncp.a ${LIBS}
++$(UTILS): %: %.o ../lib/libncp.a
++	$(CC) @GC_SECTIONS@-o $@ $^ ${LIBS}
+ 
+ ../lib/libncp.a:
+ 	make -C ../lib libncp.a
+

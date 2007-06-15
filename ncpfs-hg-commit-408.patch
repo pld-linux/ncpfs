@@ -1,0 +1,22 @@
+changeset:   408:3ad605e1e151
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Sat May 28 13:36:26 2005 +0000
+files:       contrib/php/php_auth_nds.c
+description:
+There are no localized strings in php_auth_nds, so no need for 
+including <libintl.h>.
+
+
+diff -r 8a41f32f7288 -r 3ad605e1e151 contrib/php/php_auth_nds.c
+--- a/contrib/php/php_auth_nds.c	Sun May 22 23:50:08 2005 +0000
++++ b/contrib/php/php_auth_nds.c	Sat May 28 13:36:26 2005 +0000
+@@ -110,8 +110,6 @@ for more examples see /contrib/php/site
+ #include <wchar.h>
+ #include <string.h>
+ #include <syslog.h>
+-#include <libintl.h>
+-#define _(X) gettext(X)
+ 
+ static int is_member_of_group_bind( char* errstr,NWCONN_HANDLE conn,const char* user,const char* group) {
+ 	int err;
+

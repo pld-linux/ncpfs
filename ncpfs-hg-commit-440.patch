@@ -1,0 +1,66 @@
+changeset:   440:7f46ab032bd8
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Mon Jul 04 00:01:49 2005 +0100
+files:       lib/ndslib.c lib/ndslib_i.h
+description:
+Rename exp argument to n_exp in ndslib.
+
+Rename exp to n_exp (and exp_len to n_exp_len) to get rid
+of warning that exp argument shadows exp() mathematic
+function.  Although we do not use exp() function anywhere,
+it is gcc builtin internal, and exists in the namespace
+since compilation start.
+
+
+diff -r 0ba24cdb345c -r 7f46ab032bd8 lib/ndslib.c
+--- a/lib/ndslib.c	Sun Jul 03 23:57:27 2005 +0100
++++ b/lib/ndslib.c	Mon Jul 04 00:01:49 2005 +0100
+@@ -1825,8 +1825,8 @@ static int ComputeKey(struct keyparam *k
+ 
+ NWDSCCODE __NWGenerateKeyPair(
+ 		size_t		key_len,
+-		const void*	exp,
+-		size_t		exp_len,
++		const void*	n_exp,
++		size_t		n_exp_len,
+ 		void*		pubkey,
+ 		size_t*		pubkey_len,
+ 		void*		privkey,
+@@ -1839,19 +1839,19 @@ NWDSCCODE __NWGenerateKeyPair(
+ 	size_t words; /* netware native units */
+ 
+ 	if (!pubkey || !pubkey_len || !privkey || !privkey_len) return -2;
+-	if (!key_len || !exp || !exp_len) {
+-		exp = def_exp;
+-		exp_len = sizeof(def_exp);
++	if (!key_len || !n_exp || !n_exp_len) {
++		n_exp = def_exp;
++		n_exp_len = sizeof(def_exp);
+ 		key_len = 420;	/* well, at least 620 does work too */
+ 	} else {
+-		if ((key_len > 760) || (key_len < 256) || (key_len & 1) || (exp_len > 16)) {
++		if ((key_len > 760) || (key_len < 256) || (key_len & 1) || (n_exp_len > 16)) {
+ 			return NWE_PARAM_INVALID;
+ 		}
+ 	}
+ 	memset(&kp, 0, sizeof(kp));
+ 	kp.BA = 48;
+ 	kp.BL = key_len;
+-	memcpy(kp.n_exp, exp, exp_len);
++	memcpy(kp.n_exp, n_exp, n_exp_len);
+ 	ncpt_mutex_lock(&mpilock);
+ 	set_precision(bits2units(kp.BL) + SLOP_BITS);
+ 	if ((countbits(kp.n_exp) > kp.BL) || !(kp.n_exp[0] & 1)) {
+diff -r 0ba24cdb345c -r 7f46ab032bd8 lib/ndslib_i.h
+--- a/lib/ndslib_i.h	Sun Jul 03 23:57:27 2005 +0100
++++ b/lib/ndslib_i.h	Mon Jul 04 00:01:49 2005 +0100
+@@ -38,7 +38,7 @@ NWDSCCODE NWDSGetKeys(NWDSContextHandle 
+ /* ctx must be in wchar_t mode */
+ NWDSCCODE __NWDSGetPublicKeyFromConnection(NWDSContextHandle ctx, 
+ 		NWCONN_HANDLE conn, nuint8 **skey);
+-NWDSCCODE __NWGenerateKeyPair(size_t key_len, const void* exp, size_t exp_len,
++NWDSCCODE __NWGenerateKeyPair(size_t key_len, const void* n_exp, size_t n_exp_len,
+ 		void* pubkey, size_t* pubkey_len, 
+ 		void* privkey, size_t* privkey_len);
+ NWDSCCODE __NWEncryptWithSK(const void* hashsrc, size_t hashsrclen, 
+

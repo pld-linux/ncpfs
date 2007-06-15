@@ -1,0 +1,60 @@
+changeset:   442:093f842dbd98
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Mon Jul 11 00:44:36 2005 +0100
+files:       include/ncp/ipxlib.h lib/resolve.c
+description:
+Fix few remaining unsigned char pointer <-> signed char pointer conversion warnings.
+
+
+diff -r fbfcfbb3c88d -r 093f842dbd98 include/ncp/ipxlib.h
+--- a/include/ncp/ipxlib.h	Mon Jul 11 00:42:47 2005 +0100
++++ b/include/ncp/ipxlib.h	Mon Jul 11 00:44:36 2005 +0100
+@@ -94,8 +94,8 @@ struct ipx_rip_packet
+ #define IPX_BROADCAST_NODE "\xff\xff\xff\xff\xff\xff"
+ #define IPX_THIS_NODE      "\0\0\0\0\0\0"
+ #else
+-#define IPX_BROADCAST_NODE ("\xff\xff\xff\xff\xff\xff")
+-#define IPX_THIS_NODE      ("\0\0\0\0\0\0")
++#define IPX_BROADCAST_NODE ((const u_int8_t*)"\xff\xff\xff\xff\xff\xff")
++#define IPX_THIS_NODE      ((const u_int8_t*)"\0\0\0\0\0\0")
+ #endif
+ #define IPX_THIS_NET (0)
+ 
+diff -r fbfcfbb3c88d -r 093f842dbd98 lib/resolve.c
+--- a/lib/resolve.c	Mon Jul 11 00:42:47 2005 +0100
++++ b/lib/resolve.c	Mon Jul 11 00:44:36 2005 +0100
+@@ -429,13 +429,13 @@ static void sap_report(int fd, const str
+ 	}
+ }
+ 
+-static int sap_name_cmp(const unsigned char *my, const unsigned char *net, size_t cmplen) {
++static int sap_name_cmp(const unsigned char *my, const char *net, size_t cmplen) {
+ 	if (memcmp(my, net, cmplen)) {
+ 		size_t ln;
+ 
+ 		/* If it is exact match, allow trailing spaces and garbage after
+ 		   terminating zero. */
+-		ln = strnlen(my, cmplen);
++		ln = strnlen((const char*)my, cmplen);
+ 		if (memcmp(my, net, ln)) {
+ 			return 1;
+ 		}
+@@ -635,7 +635,7 @@ static NWCCODE sap_start(void **prh, UNU
+ 			if (ln >= NW_MAX_SERVER_NAME_LEN) {
+ 				return ENAMETOOLONG;
+ 			}
+-			memcpy_toupper(sap_request + 4, name, ln);
++			memcpy_toupper((char*)sap_request + 4, name, ln);
+ 			if (ln < 48) {
+ 				memset(sap_request + 4 + ln, 0, 48 - ln);
+ 			}
+@@ -650,7 +650,7 @@ static NWCCODE sap_start(void **prh, UNU
+ 			if (ln >= NW_MAX_SERVER_NAME_LEN) {
+ 				return ENAMETOOLONG;
+ 			}
+-			memcpy_toupper(sap_request + 4, name, ln);
++			memcpy_toupper((char*)sap_request + 4, name, ln);
+ 			if (ln <= 32) {
+ 				if (ln < 32) {
+ 					memset(sap_request + 4 + ln, '_', 32 - ln);
+

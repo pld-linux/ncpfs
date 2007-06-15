@@ -1,0 +1,40 @@
+changeset:   452:b2ec015c1689
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Sun Oct 16 04:14:27 2005 +0200
+files:       contrib/ncp_nss_lib/nss_ncp.c
+description:
+Use %zd format when printing size_t arguments.  Revealed on 64bit host.
+
+
+diff -r 4d7bb63d7050 -r b2ec015c1689 contrib/ncp_nss_lib/nss_ncp.c
+--- a/contrib/ncp_nss_lib/nss_ncp.c	Sun Oct 16 04:07:06 2005 +0200
++++ b/contrib/ncp_nss_lib/nss_ncp.c	Sun Oct 16 04:14:27 2005 +0200
+@@ -666,7 +666,7 @@ static void print_nw_user_group_info (st
+ static void print_nw_user_group_info (struct nw_user_group_info ui){
+ 	size_t i;
+ 
+-	printf("%s:%d:%d:%d:",ui.cn,ui.uid,ui.used,ui.alloc);
++	printf("%s:%d:%zd:%zd:",ui.cn,ui.uid,ui.used,ui.alloc);
+ 	for (i=0;i <ui.used;i++)
+ 		printf("%d ",ui.groups[i]);
+ 	printf("\n");
+@@ -1754,15 +1754,15 @@ static void print_nodes(struct TreeNode*
+ 	if (n) {
+ 		print_nodes(n->left,crlf);
+ 		if (crlf)
+-			printf ("%s [%d]\n",n->name,n->cnt);
++			printf ("%s [%zd]\n",n->name,n->cnt);
+ 		else
+-			printf ("%s [%d]",n->name,n->cnt);
++			printf ("%s [%zd]",n->name,n->cnt);
+ 		print_nodes(n->right,crlf);
+ 	}
+ }
+ 
+ static void print_tree(struct ObjectList* t, int crlf) {
+-  printf("total:%d unique:%d\n",t->totalObjects,t->uniqueObjects);
++  printf("total:%zd unique:%zd\n",t->totalObjects,t->uniqueObjects);
+   print_nodes (t->first,crlf);
+ }
+ 
+

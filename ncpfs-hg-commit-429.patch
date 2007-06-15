@@ -1,0 +1,158 @@
+changeset:   429:776dc4052e39
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Sun Jun 05 14:36:28 2005 +0000
+files:       ipxdump/ipxparse.c
+description:
+Remove warnings about shadowing variables in ipxparse.  Also add
+__attribute__((packed)) into ipxparse as needed.
+
+
+diff -r cccdaf2ce097 -r 776dc4052e39 ipxdump/ipxparse.c
+--- a/ipxdump/ipxparse.c	Sun Jun 05 14:35:46 2005 +0000
++++ b/ipxdump/ipxparse.c	Sun Jun 05 14:36:28 2005 +0000
+@@ -636,43 +636,43 @@ handle_ncp(struct sockaddr_ipx *source,
+ 			{
+ 				struct INPUT
+ 				{
+-					u_int16_t proposed_max_size;
+-					u_int8_t security_flag;
+-				}
+-				*i = (struct INPUT *) data;
++					u_int16_t proposed_max_size __attribute__((packed));
++					u_int8_t security_flag __attribute__((packed));
++				} __attribute__((packed))
++				*d = (struct INPUT *) data;
+ 
+ 				printf("fn: %-3d\n", rq->function);
+ 				printf("Get Big Packet NCP Max Packet Size\n");
+ 				printf("proposed_max_size: %x\n",
+-				       ntohs(i->proposed_max_size));
++				       ntohs(d->proposed_max_size));
+ 				printf("security_flag: %x\n",
+-				       i->security_flag);
++				       d->security_flag);
+ 				break;
+ 			}
+ 		case 101:
+ 			{
+ 				struct INPUT
+ 				{
+-					u_int32_t local_conn_id;
+-					u_int32_t local_max_packet_size;
+-					u_int16_t local_target_socket;
+-					u_int32_t local_max_send_size;
+-					u_int32_t local_max_recv_size;
+-				}
+-				*i = (struct INPUT *) data;
++					u_int32_t local_conn_id __attribute__((packed));
++					u_int32_t local_max_packet_size __attribute__((packed));
++					u_int16_t local_target_socket __attribute__((packed));
++					u_int32_t local_max_send_size __attribute__((packed));
++					u_int32_t local_max_recv_size __attribute__((packed));
++				} __attribute__((packed))
++				*d = (struct INPUT *) data;
+ 
+ 				printf("fn: %-3d\n", rq->function);
+ 				printf("Packet Burst Connection Request\n");
+ 				printf("local_conn_id: %x\n",
+-				       (u_int32_t)ntohl(i->local_conn_id));
++				       (u_int32_t)ntohl(d->local_conn_id));
+ 				printf("local_max_packet_size: %x\n",
+-				       (u_int32_t)ntohl(i->local_max_packet_size));
++				       (u_int32_t)ntohl(d->local_max_packet_size));
+ 				printf("local_target_socket: %x\n",
+-				       (u_int32_t)ntohl(i->local_target_socket));
++				       (u_int32_t)ntohl(d->local_target_socket));
+ 				printf("local_max_send_size: %x\n",
+-				       (u_int32_t)ntohl(i->local_max_send_size));
++				       (u_int32_t)ntohl(d->local_max_send_size));
+ 				printf("local_max_recv_size: %x\n",
+-				       (u_int32_t)ntohl(i->local_max_recv_size));
++				       (u_int32_t)ntohl(d->local_max_recv_size));
+ 			}
+ 			break;
+ 		case 104:
+@@ -700,26 +700,26 @@ handle_ncp(struct sockaddr_ipx *source,
+ 					{
+ 						struct INPUT
+ 						{
+-							u_int8_t subfunction_code;
+-							u_int32_t fragger_handle;
+-							u_int32_t max_fragment_size;
+-							u_int32_t message_size;
+-							u_int32_t fragment_flag;
+-							u_int32_t verb;
+-						}
+-						*i = (struct INPUT *) data;
++							u_int8_t subfunction_code __attribute__((packed));
++							u_int32_t fragger_handle __attribute__((packed));
++							u_int32_t max_fragment_size __attribute__((packed));
++							u_int32_t message_size __attribute__((packed));
++							u_int32_t fragment_flag __attribute__((packed));
++							u_int32_t verb __attribute__((packed));
++						} __attribute__((packed))
++						*d = (struct INPUT *) data;
+ 						printf("Send NDS Fragment Request/Reply\n");
+ 						printf("fragger_handle: %lx\n",
+-						       (unsigned long) i->fragger_handle);
++						       (unsigned long) d->fragger_handle);
+ 						printf("max_fragment_size: %lx\n",
+-						       (unsigned long) i->max_fragment_size);
++						       (unsigned long) d->max_fragment_size);
+ 						printf("message_size: %lx\n",
+-						       (unsigned long) i->message_size);
++						       (unsigned long) d->message_size);
+ 						printf("fragment_flag: %lx\n",
+-						       (unsigned long) i->fragment_flag);
+-						printf("verb: %d\n", i->verb);
+-
+-						switch (i->verb)
++						       (unsigned long) d->fragment_flag);
++						printf("verb: %d\n", d->verb);
++
++						switch (d->verb)
+ 						{
+ 						case 1:
+ 							printf("Resolve Name\n");
+@@ -1001,9 +1001,9 @@ handle_ncp(struct sockaddr_ipx *source,
+ 					{
+ 						struct XDATA
+ 						{
+-							u_int8_t new_directory_handle;
+-							u_int8_t access_rights_mask;
+-						}
++							u_int8_t new_directory_handle __attribute__((packed));
++							u_int8_t access_rights_mask __attribute__((packed));
++						} __attribute__((packed))
+ 						*x = (struct XDATA *) data;
+ 						printf("new_directory_handle: %x\n",
+ 						     x->new_directory_handle);
+@@ -1021,10 +1021,10 @@ handle_ncp(struct sockaddr_ipx *source,
+ 				{
+ 					struct XDATA
+ 					{
+-						u_int16_t accepted_max_size;
+-						u_int16_t echo_socket;
+-						u_int8_t security_flag;
+-					}
++						u_int16_t accepted_max_size __attribute__((packed));
++						u_int16_t echo_socket __attribute__((packed));
++						u_int8_t security_flag __attribute__((packed));
++					} __attribute__((packed))
+ 					*x = (struct XDATA *) data;
+ 					printf("accepted_max_size: %x\n",
+ 					       ntohs(x->accepted_max_size));
+@@ -1038,9 +1038,9 @@ handle_ncp(struct sockaddr_ipx *source,
+ 				{
+ 					struct XDATA
+ 					{
+-						u_int8_t completion_code;
+-						u_int32_t remote_target_id;
+-						u_int32_t remote_max_packet_size;
++						u_int8_t completion_code __attribute__((packed));
++						u_int32_t remote_target_id __attribute__((packed));
++						u_int32_t remote_max_packet_size __attribute__((packed));
+ 					}
+ 					*x = (struct XDATA *) data;
+ 					printf("completion_code: %x\n",
+

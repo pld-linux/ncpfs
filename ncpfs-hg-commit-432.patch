@@ -1,0 +1,83 @@
+changeset:   432:93a411983bcc
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Sun Jul 03 20:34:45 2005 +0100
+files:       contrib/php/libtool
+description:
+Regenerate php's libtool with gcc instead of gcc-4.0
+
+
+diff -r 06020cf028e1 -r 93a411983bcc contrib/php/libtool
+--- a/contrib/php/libtool	Sat Jun 11 19:59:00 2005 +0000
++++ b/contrib/php/libtool	Sun Jul 03 20:34:45 2005 +0100
+@@ -76,10 +76,10 @@ AR_FLAGS="cru"
+ AR_FLAGS="cru"
+ 
+ # A C compiler.
+-LTCC="gcc-4.0"
++LTCC="gcc"
+ 
+ # A language-specific compiler.
+-CC="gcc-4.0"
++CC="gcc"
+ 
+ # Is the compiler the GNU C compiler?
+ with_gcc=yes
+@@ -316,11 +316,10 @@ link_all_deplibs=unknown
+ link_all_deplibs=unknown
+ 
+ # Compile-time system search path for libraries
+-sys_lib_search_path_spec=" /usr/lib/gcc/i486-linux/4.0.1/ /usr/lib/gcc/i486-linux/4.0.1/ /usr/lib/gcc/i486-linux/4.0.1/../../../../i486-linux/lib/i486-linux/4.0.1/ /usr/lib/gcc/i486-linux/4.0.1/../../../../i486-linux/lib/ /usr/lib/gcc/i486-linux/4.0.1/../../../i486-linux/4.0.1/ /usr/lib/gcc/i486-linux/4.0.1/../../../ /lib/i486-linux/4.0.1/ /lib/ /usr/lib/i486-linux/4.0.1/ /usr/lib/"
++sys_lib_search_path_spec=" /usr/lib/gcc-lib/i486-linux-gnu/3.3.6/ /usr/lib/gcc/i486-linux-gnu/3.3.6/ /usr/lib/gcc-lib/i486-linux-gnu/3.3.6/../../../../i486-linux-gnu/lib/i486-linux-gnu/3.3.6/ /usr/lib/gcc-lib/i486-linux-gnu/3.3.6/../../../../i486-linux-gnu/lib/ /usr/lib/gcc-lib/i486-linux-gnu/3.3.6/../../../i486-linux-gnu/3.3.6/ /usr/lib/gcc-lib/i486-linux-gnu/3.3.6/../../../ /lib/i486-linux-gnu/3.3.6/ /lib/ /usr/lib/i486-linux-gnu/3.3.6/ /usr/lib/"
+ 
+ # Run-time system search path for libraries
+ sys_lib_dlsearch_path_spec="/lib /usr/lib /usr/X11R6/lib
+-
+ /usr/lib/libc5-compat
+ /lib/libc5-compat
+ /usr/i486-linuxlibc1/lib
+@@ -6740,7 +6739,7 @@ AR_FLAGS="cru"
+ AR_FLAGS="cru"
+ 
+ # A C compiler.
+-LTCC="gcc-4.0"
++LTCC="gcc"
+ 
+ # A language-specific compiler.
+ CC="g++"
+@@ -6881,11 +6880,11 @@ striplib="strip --strip-unneeded"
+ 
+ # Dependencies to place before the objects being linked to create a
+ # shared library.
+-predep_objects="/usr/lib/gcc-lib/i486-linux/3.3.6/../../../crti.o /usr/lib/gcc-lib/i486-linux/3.3.6/crtbeginS.o"
++predep_objects="/usr/lib/gcc-lib/i486-linux-gnu/3.3.6/../../../crti.o /usr/lib/gcc-lib/i486-linux-gnu/3.3.6/crtbeginS.o"
+ 
+ # Dependencies to place after the objects being linked to create a
+ # shared library.
+-postdep_objects="/usr/lib/gcc-lib/i486-linux/3.3.6/crtendS.o /usr/lib/gcc-lib/i486-linux/3.3.6/../../../crtn.o"
++postdep_objects="/usr/lib/gcc-lib/i486-linux-gnu/3.3.6/crtendS.o /usr/lib/gcc-lib/i486-linux-gnu/3.3.6/../../../crtn.o"
+ 
+ # Dependencies to place before the objects being linked to create a
+ # shared library.
+@@ -6897,7 +6896,7 @@ postdeps="-lstdc++ -lm -lgcc_s -lc -lgcc
+ 
+ # The library search path used internally by the compiler when linking
+ # a shared library.
+-compiler_lib_search_path="-L/usr/lib/gcc-lib/i486-linux/3.3.6 -L/usr/lib/gcc-lib/i486-linux/3.3.6/../../.."
++compiler_lib_search_path="-L/usr/lib/gcc-lib/i486-linux-gnu/3.3.6 -L/usr/lib/gcc-lib/i486-linux-gnu/3.3.6/../../.."
+ 
+ # Method to check whether dependent libraries are shared objects.
+ deplibs_check_method="pass_all"
+@@ -6977,11 +6976,10 @@ link_all_deplibs=unknown
+ link_all_deplibs=unknown
+ 
+ # Compile-time system search path for libraries
+-sys_lib_search_path_spec=" /usr/lib/gcc-lib/i486-linux/3.3.6/ /usr/lib/gcc/i486-linux/3.3.6/ /usr/lib/gcc-lib/i486-linux/3.3.6/../../../../i486-linux/lib/i486-linux/3.3.6/ /usr/lib/gcc-lib/i486-linux/3.3.6/../../../../i486-linux/lib/ /usr/lib/gcc-lib/i486-linux/3.3.6/../../../i486-linux/3.3.6/ /usr/lib/gcc-lib/i486-linux/3.3.6/../../../ /lib/i486-linux/3.3.6/ /lib/ /usr/lib/i486-linux/3.3.6/ /usr/lib/"
++sys_lib_search_path_spec=" /usr/lib/gcc-lib/i486-linux-gnu/3.3.6/ /usr/lib/gcc/i486-linux-gnu/3.3.6/ /usr/lib/gcc-lib/i486-linux-gnu/3.3.6/../../../../i486-linux-gnu/lib/i486-linux-gnu/3.3.6/ /usr/lib/gcc-lib/i486-linux-gnu/3.3.6/../../../../i486-linux-gnu/lib/ /usr/lib/gcc-lib/i486-linux-gnu/3.3.6/../../../i486-linux-gnu/3.3.6/ /usr/lib/gcc-lib/i486-linux-gnu/3.3.6/../../../ /lib/i486-linux-gnu/3.3.6/ /lib/ /usr/lib/i486-linux-gnu/3.3.6/ /usr/lib/"
+ 
+ # Run-time system search path for libraries
+ sys_lib_dlsearch_path_spec="/lib /usr/lib /usr/X11R6/lib
+-
+ /usr/lib/libc5-compat
+ /lib/libc5-compat
+ /usr/i486-linuxlibc1/lib
+

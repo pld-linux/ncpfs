@@ -1,0 +1,146 @@
+changeset:   445:66c5f4287bbb
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Sat Jul 23 21:58:13 2005 +0100
+files:       lib/strops.c
+description:
+Improve ncp_str_to_perms - now it accepts both [RFA] and RFA,
+and you can use both nothing, space and '-' for flags which
+are not set.
+
+
+diff -r 34ddb26e48fa -r 66c5f4287bbb lib/strops.c
+--- a/lib/strops.c	Mon Jul 11 02:36:37 2005 +0100
++++ b/lib/strops.c	Sat Jul 23 21:58:13 2005 +0100
+@@ -44,6 +44,7 @@
+ 
+ #include <string.h>
+ #include <stdarg.h>
++#include <ctype.h>
+ 
+ #include "private/libintl.h"
+ #define _(X) dgettext(NCPFS_PACKAGE, (X))
+@@ -419,56 +420,79 @@ char* ncp_perms_to_str(char r[11], const
+ }
+ 
+ /* The following function converts a rights string of format [SRWCEMFA]
+-   into an integer.  It will tolerate spaces, lower case and repeated 
+-   letters, even if this takes the length well over 10 characters, but 
+-   must be terminated with square brackets.  If such a string containing 
+-   spaces is given as a command line option it will have to be quoted. */
++   or SRWCEMFA into an integer.  It will tolerate spaces, lower case and 
++   repeated letters, even if this takes the length well over 10 characters.
++   For unset rights you can use spaces or dashes.  For no rights you can
++   use either empty string, '-' or '[]' (or their combination, '[-]' or '[ ]'). */
+ 
+ int ncp_str_to_perms(const char *r, u_int16_t *rights)
+ {
+ 	u_int16_t result = 0;
+-
+-	if (*r == '[') {
+-		do {
+-			++r;
+-			switch (*r) {
+-				case ' ' : 
+-				case ']' :
+-					break;
+-				case 's' :
+-				case 'S' : 
+-					result |= NCP_PERM_SUPER; break;
+-				case 'r' :
+-				case 'R' : 
+-					result |= NCP_PERM_READ; break;
+-				case 'w' :
+-				case 'W' : 
+-					result |= NCP_PERM_WRITE; break;
+-				case 'c' :
+-				case 'C' : 
+-					result |= NCP_PERM_CREATE; break;
+-				case 'e' :
+-				case 'E' : 
+-					result |= NCP_PERM_DELETE; break;
+-				case 'm' :
+-				case 'M' : 
+-					result |= NCP_PERM_MODIFY; break;
+-				case 'f' :
+-				case 'F' : 
+-					result |= NCP_PERM_SEARCH; break;
+-				case 'a' :
+-				case 'A' : 
+-					result |= NCP_PERM_OWNER; break;
+-				default :
++	int state = 0;
++
++	while (*r) {
++		int c = *r++;
++		
++		c = toupper(c);
++		if (isspace(c)) {
++			continue;
++		}
++		switch (c) {
++			case '[':
++				if (state != 0) {
+ 					return -1;
+-			}
+-		} while (*r != ']');
+-		/* Now to be generous and ignore trailing spaces */
+-		do { ++r; } while (*r == ' ');
+-		if (*r == '\0') { 
+-			*rights = result; 
+-			return 0;
++				}
++				state = 2;
++				continue;
++			case ']':
++				if (state != 2 && state != 3) {
++					return -1;
++				}
++				state = 4;
++				continue;
++			case '-':
++				break;
++			case 'S':
++				result |= NCP_PERM_SUPER;
++				break;
++			case 'R':
++				result |= NCP_PERM_READ;
++				break;
++			case 'W':
++				result |= NCP_PERM_WRITE;
++				break;
++			case 'C':
++				result |= NCP_PERM_CREATE;
++				break;
++			case 'E':
++				result |= NCP_PERM_DELETE;
++				break;
++			case 'M':
++				result |= NCP_PERM_MODIFY;
++				break;
++			case 'F':
++				result |= NCP_PERM_SEARCH;
++				break;
++			case 'A':
++				result |= NCP_PERM_OWNER;
++				break;
++			default:
++				return -1;
+ 		}
++		state |= 1;
++	}
++	/* These states are illegal:
++	      state == 2   =>     [
++	      state == 3   =>     [SRWCEMFA
++	      state == 5   =>     [SRWCEMFA]SRW
++	   These states are allowed:
++	      state == 0   =>     <whitespaces only>
++	      state == 1   =>     SRWCEMFA
++	      state == 4   =>     [SRWCEMFA]
++	 */
++	if (state == 0 || state == 1 || state == 4) {
++		*rights = result; 
++		return 0;
+ 	}
+ 	return -1;
+ }
+

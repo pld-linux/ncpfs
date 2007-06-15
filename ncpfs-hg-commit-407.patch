@@ -1,0 +1,110 @@
+changeset:   407:8a41f32f7288
+user:        Scott Bentley <bentleys@hhangus.com>
+date:        Sun May 22 23:50:08 2005 +0000
+files:       util/nwsalvage.c
+description:
+Add `-r' option for renaming file while salvaging it.
+
+
+diff -r 6af6a89be103 -r 8a41f32f7288 util/nwsalvage.c
+--- a/util/nwsalvage.c	Sun May 22 23:37:08 2005 +0000
++++ b/util/nwsalvage.c	Sun May 22 23:50:08 2005 +0000
+@@ -35,14 +35,15 @@ static void usage(void) {
+ "\n"
+ "-h              Print this help text.\n"
+ "-s              Silent mode.\n"
+-"-n <namespace>  Namespace for accessing files\n"
++"-n <namespace>  Namespace for accessing files.\n"
+ "                  DOS\n"
+ "                  LONG - Default\n"
+ "                  MAC\n"
+ "                  FTAM\n"
+ "                  NFS\n"
++"-r <newname>    Rename the salvaged file.  255 chars max."
+ "\n"
+-"directory       Directory in which salvageable file(s) resides.\n"
++"directory       Directory in which salvageable file resides.\n"
+ "                Default is current directory.\n"
+ "\n"
+ "file_id         The file identified by file_id will be salvaged.\n"
+@@ -52,13 +53,14 @@ static void usage(void) {
+ }
+ 
+ static int g_silent = 0;
++static int g_rename = 0;
++static char* g_newname;
+ static int g_nwns = NW_NS_LONG;
+ 
+ static void process_salvage(struct ncp_conn* conn, int volume, u_int32_t directory_id, int file_id) {
+ 	struct ncp_deleted_file info;
+ 	int found;
+-	char oldfilename[256];
+-	char newfilename[256];
++	char filename[256];
+ 
+ 	NWCCODE err;
+ 
+@@ -66,22 +68,26 @@ static void process_salvage(struct ncp_c
+ 	info.seq = -1;	
+ 	while (!ncp_ns_scan_salvageable_file(conn, g_nwns, 
+ 				1, volume, directory_id, NULL, 0, 
+-				&info, oldfilename, sizeof(oldfilename))) {
++				&info, filename, sizeof(filename))) {
+ 	
+ 		if (info.seq == file_id) {
+-			strcpy(newfilename, oldfilename);
+ 			found++;
+-			if ((err = ncp_ns_salvage_file(conn, g_nwns, &info, newfilename)) != 0) {
++			
++			if (g_rename) {
++			       	strcpy(filename, g_newname);
++			}
++			
++			if ((err = ncp_ns_salvage_file(conn, g_nwns, &info, filename)) != 0) {
+ 				if (!g_silent) {
+ 					if (err == 0x89FE) {
+ 						printf(_("%8s%d -- failed (File already exists, or path inaccessible)\n"), "", info.seq);
+ 					} else {
+-						printf(_("%8s%d %s -- failed (%s)\n"), "", info.seq, newfilename, strnwerror(err));
++						printf(_("%8s%d %s -- failed (%s)\n"), "", info.seq, filename, strnwerror(err));
+ 					}
+ 				}
+ 			} else {
+ 				if (!g_silent) {
+-					printf(_("%8s%d %s -- salvaged \n"), "", info.seq, newfilename);
++					printf(_("%8s%d %s -- salvaged \n"), "", info.seq, filename);
+ 				}
+ 			}
+ 			break;
+@@ -101,12 +107,13 @@ int main(int argc, char* argv[]) {
+ 	int err;
+ 	int c;
+ 	char* opt_n;
++	char* opt_r;
+ 
+ 	setlocale(LC_ALL, "");
+ 	bindtextdomain(NCPFS_PACKAGE, LOCALEDIR);
+ 	textdomain(NCPFS_PACKAGE);
+ 	
+-	while ((c = getopt(argc, argv, "hsn")) != -1) {
++	while ((c = getopt(argc, argv, "hsnr")) != -1) {
+ 		switch (c) {
+ 			case '?':
+ 			case ':':break;
+@@ -130,6 +137,15 @@ int main(int argc, char* argv[]) {
+ 					exit(1);
+ 				}
+ 				break;	
++			case 'r':
++				opt_r = argv[optind++];
++				if (strlen(opt_r) > 255 || strlen(opt_r) < 1) {
++					fprintf(stderr, _("Filename for option '-%c' has invalid length."), c);
++					exit(1);
++				}
++				g_rename = 1;
++				g_newname = opt_r;
++				break;
+ 			default: fprintf(stderr, _("Unexpected option `-%c'\n"), c);
+ 				 break;
+ 		}
+

@@ -1,0 +1,313 @@
+changeset:   423:bef6bf5896d3
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Sat May 28 19:42:20 2005 +0000
+files:       Make.rules.in configure configure.ac contrib/pam/Makefile.in contrib/tcl-utils/Makefile.in contrib/tknwmsg/Makefile.in lib/Makefile.in sutil/Makefile.in util/Makefile.in
+description:
+Do not hardwire library .a/.so extension.
+
+
+diff -r bda42d4b9cf1 -r bef6bf5896d3 Make.rules.in
+--- a/Make.rules.in	Sat May 28 19:21:17 2005 +0000
++++ b/Make.rules.in	Sat May 28 19:42:20 2005 +0000
+@@ -50,6 +50,9 @@ HAVE_ELF := @ELF_TARGET@
+ HAVE_ELF := @ELF_TARGET@
+ BUILD_SHARED := @BUILD_SHARED@
+ 
++libext := @libext@
++shlibext := @shlibext@
++
+ VERSION_SOLIB := 2.3.0
+ VERSION_SONAME := 2.3
+ 
+diff -r bda42d4b9cf1 -r bef6bf5896d3 configure
+--- a/configure	Sat May 28 19:21:17 2005 +0000
++++ b/configure	Sat May 28 19:42:20 2005 +0000
+@@ -313,7 +313,7 @@ ac_includes_default="\
+ #endif"
+ 
+ ac_subdirs_all="$ac_subdirs_all contrib/php"
+-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC_WARNINGS build build_cpu build_vendor build_os host host_cpu host_vendor host_os SET_MAKE CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S PACKAGE VERSION MKINSTALLDIRS USE_NLS MSGFMT GMSGFMT XGETTEXT MSGMERGE CPP EGREP GLIBC2 RANLIB ac_ct_RANLIB ALLOCA GLIBC21 INTL_MACOSX_LIBS HAVE_POSIX_PRINTF HAVE_ASPRINTF HAVE_SNPRINTF HAVE_WPRINTF LIBICONV LTLIBICONV INTLBISON BUILD_INCLUDED_LIBINTL USE_INCLUDED_LIBINTL CATOBJEXT DATADIRNAME INSTOBJEXT GENCAT INTLOBJS INTL_LIBTOOL_SUFFIX_PREFIX INTLLIBS LIBINTL LTLIBINTL POSUB localedir ncp_ipx_headers_1 ncp_ipx_headers_2 ncp_ipx_defsiocprotoprivate ncp_ipx_defsiocaipx ncp_sys_mount_h ncp_linux_fs_h ncp_net_if_h ncp_net_route_h ncp_if_ether_support ncp_sys_select_h stdint_types socklen_t wchar_h LIB_PAM_SECURITY php_found REENTRANT_CFLAGS ncphost ELF_TARGET VERSIONED_LINK ncp_in_support ncp_ipx_support NDS_SUPPORT SIGNATURES MOUNT2 MOUNT3 USE_KERNEL ADDON_SUBDIRS ADDON_DEV_SUBDIRS FFUNCTION_SECTIONS GC_SECTIONS BUILD_SHARED subdirs LIBOBJS LTLIBOBJS'
++ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC_WARNINGS build build_cpu build_vendor build_os host host_cpu host_vendor host_os SET_MAKE CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S PACKAGE VERSION MKINSTALLDIRS USE_NLS MSGFMT GMSGFMT XGETTEXT MSGMERGE CPP EGREP GLIBC2 RANLIB ac_ct_RANLIB ALLOCA GLIBC21 INTL_MACOSX_LIBS HAVE_POSIX_PRINTF HAVE_ASPRINTF HAVE_SNPRINTF HAVE_WPRINTF LIBICONV LTLIBICONV INTLBISON BUILD_INCLUDED_LIBINTL USE_INCLUDED_LIBINTL CATOBJEXT DATADIRNAME INSTOBJEXT GENCAT INTLOBJS INTL_LIBTOOL_SUFFIX_PREFIX INTLLIBS LIBINTL LTLIBINTL POSUB localedir ncp_ipx_headers_1 ncp_ipx_headers_2 ncp_ipx_defsiocprotoprivate ncp_ipx_defsiocaipx ncp_sys_mount_h ncp_linux_fs_h ncp_net_if_h ncp_net_route_h ncp_if_ether_support ncp_sys_select_h stdint_types socklen_t wchar_h LIB_PAM_SECURITY php_found REENTRANT_CFLAGS ncphost ELF_TARGET VERSIONED_LINK ncp_in_support ncp_ipx_support NDS_SUPPORT SIGNATURES MOUNT2 MOUNT3 USE_KERNEL ADDON_SUBDIRS ADDON_DEV_SUBDIRS FFUNCTION_SECTIONS GC_SECTIONS BUILD_SHARED shlibext libext subdirs LIBOBJS LTLIBOBJS'
+ ac_subst_files=''
+ 
+ # Initialize some variables set by options.
+@@ -14106,6 +14106,39 @@ then
+     GC_SECTIONS="-Wl,--gc-sections "
+ fi
+ 
++
++
++                                                echo "$as_me:$LINENO: checking for shared library run path origin" >&5
++echo $ECHO_N "checking for shared library run path origin... $ECHO_C" >&6
++if test "${acl_cv_rpath+set}" = set; then
++  echo $ECHO_N "(cached) $ECHO_C" >&6
++else
++
++    CC="$CC" GCC="$GCC" LDFLAGS="$LDFLAGS" LD="$LD" with_gnu_ld="$with_gnu_ld" \
++    ${CONFIG_SHELL-/bin/sh} "$ac_aux_dir/config.rpath" "$host" > conftest.sh
++    . ./conftest.sh
++    rm -f ./conftest.sh
++    acl_cv_rpath=done
++
++fi
++echo "$as_me:$LINENO: result: $acl_cv_rpath" >&5
++echo "${ECHO_T}$acl_cv_rpath" >&6
++  wl="$acl_cv_wl"
++  libext="$acl_cv_libext"
++  shlibext="$acl_cv_shlibext"
++  hardcode_libdir_flag_spec="$acl_cv_hardcode_libdir_flag_spec"
++  hardcode_libdir_separator="$acl_cv_hardcode_libdir_separator"
++  hardcode_direct="$acl_cv_hardcode_direct"
++  hardcode_minus_L="$acl_cv_hardcode_minus_L"
++    # Check whether --enable-rpath or --disable-rpath was given.
++if test "${enable_rpath+set}" = set; then
++  enableval="$enable_rpath"
++  :
++else
++  enable_rpath=yes
++fi;
++
++
+ if test "$VERSIONED_LINK" = "yes"
+ then
+   echo "$as_me:$LINENO: checking for working versioned link" >&5
+@@ -14126,7 +14159,7 @@ void lsym(void) { };
+ void lsym(void) { };
+ void gsym(void) { };
+ EOF
+-    if ${CC} -shared -Wl,-version-script=conftest.vers -o conftest.so conftest.c -lc >/dev/null 2>&1
++    if ${CC} -shared -Wl,-version-script=conftest.vers -o conftest.${shlibext} conftest.c -lc >/dev/null 2>&1
+     then
+       ncp_cv_versioned_link=yes
+     fi
+@@ -14134,7 +14167,7 @@ fi
+ fi
+ echo "$as_me:$LINENO: result: $ncp_cv_versioned_link" >&5
+ echo "${ECHO_T}$ncp_cv_versioned_link" >&6
+-  rm -f conftest.c conftest.vers conftest.so
++  rm -f conftest.c conftest.vers conftest.${shlibext}
+   if test "$ncp_cv_versioned_link" = "no"
+   then
+     if test "$versions_forced" = "yes"
+@@ -14191,6 +14224,8 @@ fi
+ 
+ 
+ ADDON_SUBDIRS="$ADDON_SUBDIRS $ADDON_DEV_SUBDIRS"
++
++
+ 
+ 
+ 
+@@ -14963,6 +14998,8 @@ s,@FFUNCTION_SECTIONS@,$FFUNCTION_SECTIO
+ s,@FFUNCTION_SECTIONS@,$FFUNCTION_SECTIONS,;t t
+ s,@GC_SECTIONS@,$GC_SECTIONS,;t t
+ s,@BUILD_SHARED@,$BUILD_SHARED,;t t
++s,@shlibext@,$shlibext,;t t
++s,@libext@,$libext,;t t
+ s,@subdirs@,$subdirs,;t t
+ s,@LIBOBJS@,$LIBOBJS,;t t
+ s,@LTLIBOBJS@,$LTLIBOBJS,;t t
+diff -r bda42d4b9cf1 -r bef6bf5896d3 configure.ac
+--- a/configure.ac	Sat May 28 19:21:17 2005 +0000
++++ b/configure.ac	Sat May 28 19:42:20 2005 +0000
+@@ -937,6 +937,8 @@ then
+     GC_SECTIONS="-Wl,--gc-sections "
+ fi
+ 
++AC_LIB_RPATH
++
+ if test "$VERSIONED_LINK" = "yes"
+ then
+   AC_CACHE_CHECK(for working versioned link,
+@@ -954,12 +956,12 @@ void lsym(void) { };
+ void lsym(void) { };
+ void gsym(void) { };
+ EOF
+-    if ${CC} -shared -Wl,-version-script=conftest.vers -o conftest.so conftest.c -lc >/dev/null 2>&1
++    if ${CC} -shared -Wl,-version-script=conftest.vers -o conftest.${shlibext} conftest.c -lc >/dev/null 2>&1
+     then
+       ncp_cv_versioned_link=yes
+     fi]
+   )
+-  rm -f conftest.c conftest.vers conftest.so
++  rm -f conftest.c conftest.vers conftest.${shlibext}
+   if test "$ncp_cv_versioned_link" = "no"
+   then
+     if test "$versions_forced" = "yes"
+@@ -1013,6 +1015,8 @@ AC_SUBST(FFUNCTION_SECTIONS)
+ AC_SUBST(FFUNCTION_SECTIONS)
+ AC_SUBST(GC_SECTIONS)
+ AC_SUBST(BUILD_SHARED)
++AC_SUBST(shlibext)
++AC_SUBST(libext)
+ 
+ AC_CONFIG_FILES([
+ Make.rules
+diff -r bda42d4b9cf1 -r bef6bf5896d3 contrib/pam/Makefile.in
+--- a/contrib/pam/Makefile.in	Sat May 28 19:21:17 2005 +0000
++++ b/contrib/pam/Makefile.in	Sat May 28 19:42:20 2005 +0000
+@@ -10,10 +10,10 @@ LIBS = @INTLLIBS@ @LIBS@
+ LIBS = @INTLLIBS@ @LIBS@
+ LIB_PAM_SECURITY = @LIB_PAM_SECURITY@
+ 
+-NCP_LIB = libncp.so
++NCP_LIB = libncp.$(shlibext)
+ NCPLIB_DIR = ../../lib
+ 
+-PAM_LIBRARY = pam_ncp_auth.so
++PAM_LIBRARY = pam_ncp_auth.$(shlibext)
+ PAM_OBJECTS = pam_ncp_auth.do support.do
+ 
+ CFLAGS_pam_ncp_auth.do := -DNCPMOUNT_PATH=\"$(bindir)/ncpmount\" -DNCPUMOUNT_PATH=\"$(bindir)/ncpumount\"
+diff -r bda42d4b9cf1 -r bef6bf5896d3 contrib/tcl-utils/Makefile.in
+--- a/contrib/tcl-utils/Makefile.in	Sat May 28 19:21:17 2005 +0000
++++ b/contrib/tcl-utils/Makefile.in	Sat May 28 19:42:20 2005 +0000
+@@ -27,9 +27,9 @@ UTILS = $(USERUTILS) $(SBINUTILS)
+ UTILS = $(USERUTILS) $(SBINUTILS)
+ 
+ ifeq ($(BUILD_SHARED),yes)
+-NCP_LIB := libncp.so
++NCP_LIB := libncp.$(shlibext)
+ else
+-NCP_LIB := libncp.a
++NCP_LIB := libncp.$(libext)
+ endif
+ NCPLIB_DIR := ${top_builddir}/lib
+ LIBDEP := $(NCPLIB_DIR)/$(NCP_LIB)
+@@ -49,11 +49,11 @@ install: all
+ 
+ install-dev:
+ 
+-${NCPLIB_DIR}/libncp.a:
+-	make -C ${NCPLIB_DIR} libncp.a
++${NCPLIB_DIR}/libncp.$(libext):
++	make -C ${NCPLIB_DIR} libncp.$(libext)
+ 
+-${NCPLIB_DIR}/libncp.so:
+-	make -C ${NCPLIB_DIR} libncp.so
++${NCPLIB_DIR}/libncp.$(shlibext):
++	make -C ${NCPLIB_DIR} libncp.$(shlibext)
+ 
+ $(O_USERUTILS) $(O_SBINUTILS) $(O_OTHER): %.o: %.c
+ 	$(CC) $(CFLAGS) $(CCFLAGS) $(CFLAGS_$@) -o $@ -c $<
+diff -r bda42d4b9cf1 -r bef6bf5896d3 contrib/tknwmsg/Makefile.in
+--- a/contrib/tknwmsg/Makefile.in	Sat May 28 19:21:17 2005 +0000
++++ b/contrib/tknwmsg/Makefile.in	Sat May 28 19:42:20 2005 +0000
+@@ -20,14 +20,12 @@ UTILS = $(USERUTILS) $(SBINUTILS)
+ UTILS = $(USERUTILS) $(SBINUTILS)
+ 
+ ifeq ($(BUILD_SHARED),yes)
+-NCP_LIB = libncp.so
+-NCPLIB_DIR = ../../lib
++NCP_LIB = libncp.$(shlibext)
++else
++NCP_LIB = libncp.$(libext)
++endif
++NCPLIB_DIR = $(top_builddir)/lib
+ LIBDEP = $(NCPLIB_DIR)/$(NCP_LIB)
+-else
+-NCP_LIB = libncp.a
+-NCPLIB_DIR = ../../lib
+-LIBDEP = $(NCPLIB_DIR)/$(NCP_LIB)
+-endif
+ 
+ .PHONY : all install install-dev dep clean mrproper distclean
+ .PHONY : default
+@@ -46,11 +44,11 @@ install: all
+ 
+ install-dev:
+ 
+-../../lib/libncp.a:
+-	make -C ../../lib libncp.a
++../../lib/libncp.$(libext):
++	make -C ../../lib libncp.$(libext)
+ 
+-../../lib/libncp.so:
+-	make -C ../../lib libncp.so
++../../lib/libncp.$(shlibext):
++	make -C ../../lib libncp.$(shlibext)
+ 
+ $(O_USERUTILS) $(O_SBINUTILS): %.o: %.c
+ 	$(CC) $(CFLAGS) $(CCFLAGS) -o $@ -c $<
+diff -r bda42d4b9cf1 -r bef6bf5896d3 lib/Makefile.in
+--- a/lib/Makefile.in	Sat May 28 19:21:17 2005 +0000
++++ b/lib/Makefile.in	Sat May 28 19:42:20 2005 +0000
+@@ -14,10 +14,10 @@ REENTRANT_CFLAGS := @REENTRANT_CFLAGS@
+ REENTRANT_CFLAGS := @REENTRANT_CFLAGS@
+ VERSIONED_LINK := @VERSIONED_LINK@
+ 
+-SHARED_NCPLIB := libncp.so
++SHARED_NCPLIB := libncp.$(shlibext)
+ SHARED_NCPLIB_BIN := $(SHARED_NCPLIB).$(VERSION_SOLIB)
+ SHARED_NCPLIB_SONAME := $(SHARED_NCPLIB).$(VERSION_SONAME)
+-STATIC_NCPLIB := libncp.a
++STATIC_NCPLIB := libncp.$(libext)
+ STATIC_NCPLIB_BIN := $(STATIC_NCPLIB)
+ 
+ CCFLAGS += -I.
+@@ -93,7 +93,7 @@ dep:
+ 
+ clean:
+ 	rm -f *.o *.do *.to *~ ds/*.o ds/*.do ds/*.to ds/*~ fs/*.o fs/*.do fs/*.to fs/*~
+-	rm -f libncp.a libncp.so* libncpsu.*
++	rm -f $(STATIC_NCPLIB) libncp.$(shlibext)*
+ 
+ mrproper: clean
+ 	rm -f $(UTILS) $(DISTFILE) *.d fs/*.d ds/*.d
+diff -r bda42d4b9cf1 -r bef6bf5896d3 sutil/Makefile.in
+--- a/sutil/Makefile.in	Sat May 28 19:21:17 2005 +0000
++++ b/sutil/Makefile.in	Sat May 28 19:42:20 2005 +0000
+@@ -85,11 +85,11 @@ ncpm_common.d mount_login.d: %.d: %.c
+ 		| sed 's,\($*\)\.o[ :]*,\1.o \1.do \1.to $@ : ,g' > $@; \
+ 		[ -s $@ ] || rm -f $@
+ 
+-$(UTILS): %: %.o ../lib/libncp.a
++$(UTILS): %: %.o ../lib/libncp.$(libext)
+ 	$(CC) @GC_SECTIONS@-o $@ $^ ${LIBS}
+ 
+-../lib/libncp.a:
+-	make -C ../lib libncp.a
++../lib/libncp.$(libext):
++	make -C ../lib libncp.$(libext)
+ 
+ dep:
+ 
+diff -r bda42d4b9cf1 -r bef6bf5896d3 util/Makefile.in
+--- a/util/Makefile.in	Sat May 28 19:21:17 2005 +0000
++++ b/util/Makefile.in	Sat May 28 19:42:20 2005 +0000
+@@ -38,14 +38,12 @@ UTILS = $(USERUTILS) $(SBINUTILS) ncptes
+ UTILS = $(USERUTILS) $(SBINUTILS) ncptest
+ 
+ ifeq ($(BUILD_SHARED),yes)
+-NCP_LIB = libncp.so
++NCP_LIB = libncp.$(shlibext)
++else
++NCP_LIB = libncp.$(libext)
++endif
+ NCPLIB_DIR = ../lib
+ LIBDEP = $(NCPLIB_DIR)/$(NCP_LIB)
+-else
+-NCP_LIB = libncp.a
+-NCPLIB_DIR = ../lib
+-LIBDEP = $(NCPLIB_DIR)/$(NCP_LIB)
+-endif
+ 
+ CFLAGS_ncopy.o  = -D_GNU_SOURCE
+ ADDOBJS_pqstat  = dsqueue.o
+@@ -76,11 +74,11 @@ endif
+ 
+ install-dev:
+ 
+-../lib/libncp.a:
+-	make -C ../lib libncp.a
++../lib/libncp.$(libext):
++	make -C $(NCPLIB_DIR) libncp.$(libext)
+ 
+-../lib/libncp.so:
+-	make -C ../lib libncp.so
++../lib/libncp.$(shlibext):
++	make -C $(NCPLIB_DIR) libncp.$(shlibext)
+ 
+ $(O_USERUTILS) $(O_SBINUTILS) $(O_OTHER) ncptest.o: %.o: %.c
+ 	$(CC) $(CFLAGS) $(CCFLAGS) $(CFLAGS_$@) -o $@ -c $<
+

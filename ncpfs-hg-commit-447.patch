@@ -1,0 +1,43 @@
+changeset:   447:3143e61fb504
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Thu Sep 29 23:06:24 2005 +0200
+files:       util/pserver.c
+description:
+Store ncp_read's result in ssize_t, otherwise errors returned from
+ncp_read are treated as large positive integers.  Somehow ncp_read
+returns an error at the end of file on NetWare 6.5SP4.
+
+Also log these errors to the syslog.
+
+
+diff -r 07b8031b5209 -r 3143e61fb504 util/pserver.c
+--- a/util/pserver.c	Sat Jul 23 22:22:26 2005 +0100
++++ b/util/pserver.c	Thu Sep 29 23:06:24 2005 +0200
+@@ -248,7 +248,7 @@ poll_queue(struct nw_queue *q)
+ 	{
+ 		/* parent */
+ 		char buf[1024];
+-		size_t result;
++		ssize_t result;
+ 		off_t offset = 0;
+ 
+ 		close(fd[0]);	/* close read end */
+@@ -257,9 +257,16 @@ poll_queue(struct nw_queue *q)
+ 					  sizeof(buf), buf)) > 0)
+ 		{
+ 			offset += result;
+-			if (write(fd[1], buf, result) != (int)result)
++			if (write(fd[1], buf, result) != result)
+ 			{
+ 				goto fail;
++			}
++		}
++		if (result < 0) {
++			if (result == -1) {
++				syslog(LOG_ERR, _("ncp_read: unknown error\n"));
++			} else {
++				syslog(LOG_ERR, _("ncp_read: %m\n"));
+ 			}
+ 		}
+ 
+

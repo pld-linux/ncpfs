@@ -1,0 +1,72 @@
+changeset:   455:69f23e25cc66
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Sat Apr 15 04:25:06 2006 +0200
+files:       lib/ds/filter.c lib/nwnet.c util/nwdir.c
+description:
+Fix some more gcc-4.1 warnings
+
+gcc-4.1 is even more stupid than gcc-4.0 was when it comes to uninitialized
+variables - if function either returns an error, or returns success and
+modifies its argument, you can be almost 100% sure that gcc-4.1 will tag
+this with warning if you call some other function between this one, before
+you'll test function's return value.  Just crap, probably it is time to
+disable all warnings, as they are more than useless.
+
+
+diff -r 7783da47228e -r 69f23e25cc66 lib/ds/filter.c
+--- a/lib/ds/filter.c	Thu Apr 13 22:53:06 2006 +0200
++++ b/lib/ds/filter.c	Sat Apr 15 04:25:06 2006 +0200
+@@ -303,7 +303,7 @@ static void _PutFilterFirstPass(
+ 				} else {
+                                         /* different operand: go to next node in created
+                                            chain */
+-					last_q = (struct _filter_node**)&q->value;
++					last_q = (struct _filter_node**)(void*)&q->value;
+ 					q = q->value;
+ 				}
+ 			}
+diff -r 7783da47228e -r 69f23e25cc66 lib/nwnet.c
+--- a/lib/nwnet.c	Thu Apr 13 22:53:06 2006 +0200
++++ b/lib/nwnet.c	Sat Apr 15 04:25:06 2006 +0200
+@@ -1696,7 +1696,7 @@ restartLoop:;
+ 			NWCONN_HANDLE conn = list_entry(current, struct ncp_conn, nds_ring);
+ 			NWObjectCount connaddresses;
+ 			nuint8* conndata;
+-			NWCCODE err2;
++			NWDSCCODE err2;
+ 			/* compare addresses */
+ 
+ 			ncpt_mutex_unlock(&nds_ring_lock);
+@@ -2808,6 +2808,8 @@ static NWDSCCODE NWDSGetAttrVal_OBJECT_A
+ 	if (err)
+ 		return err;
+ 	err = NWDSBufGetLE32(buffer, &priv);
++	if (err)
++		return err;
+ 	oacl->privileges = priv;
+ 	return err;
+ }
+@@ -4149,6 +4151,8 @@ NWDSCCODE NWDSGetServerName(NWDSContextH
+ 	if (err)
+ 		return err;
+ 	err = NWDSBufGetLE32(buffer, &le32);
++	if (err)
++		return err;
+ 	if (partcount)
+ 		*partcount = le32;
+ 	return 0;
+diff -r 7783da47228e -r 69f23e25cc66 util/nwdir.c
+--- a/util/nwdir.c	Thu Apr 13 22:53:06 2006 +0200
++++ b/util/nwdir.c	Sat Apr 15 04:25:06 2006 +0200
+@@ -521,7 +521,9 @@ static void dumpit(NWCONN_HANDLE conn, c
+ 
+ 				err = NWNSGetEffectiveRights(conn, 
+ 					dir.volNumber, dir.DosDirNum, &eff);
+-				eff32 = eff;
++				if (!err) {
++					eff32 = eff;
++				}
+ 			}
+ 			printf(_("  Effective: "));
+ 			if (err) {
+

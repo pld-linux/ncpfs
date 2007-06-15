@@ -1,0 +1,21 @@
+changeset:   430:3fc1f5c9c744
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Sun Jun 05 21:25:42 2005 +0000
+files:       lib/ncplib.c
+description:
+Set tm_isdst to -1 (unknown DST state) when converting date/time from
+NetWare to Unix format.  It should give better results when DST is active.
+
+
+diff -r 776dc4052e39 -r 3fc1f5c9c744 lib/ncplib.c
+--- a/lib/ncplib.c	Sun Jun 05 14:36:28 2005 +0000
++++ b/lib/ncplib.c	Sun Jun 05 21:25:42 2005 +0000
+@@ -2641,6 +2641,7 @@ nw_to_ctime(struct nw_time_buffer *sourc
+ 	u_time.tm_mday = source->day;
+ 	u_time.tm_mon = source->month - 1;
+ 	u_time.tm_year = source->year;
++	u_time.tm_isdst = -1;
+ 
+ 	if (u_time.tm_year < 80) {
+ 		u_time.tm_year += 100;
+

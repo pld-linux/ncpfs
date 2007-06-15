@@ -1,0 +1,55 @@
+changeset:   410:4216c218ee44
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Sat May 28 13:40:15 2005 +0000
+files:       include/ncp/ncplib.h
+description:
+Prefer off_t over __off_t unless _FILE_OFFSET_BITS=64 is defined.  Needed
+for building on Darwin.
+
+
+diff -r 0cc3f7f08de0 -r 4216c218ee44 include/ncp/ncplib.h
+--- a/include/ncp/ncplib.h	Sat May 28 13:38:37 2005 +0000
++++ b/include/ncp/ncplib.h	Sat May 28 13:40:15 2005 +0000
+@@ -94,6 +94,13 @@ typedef enum NET_ADDRESS_TYPE {
+ 	NT_URL                 = 13,
+ 	NT_COUNT               = 14
+ } NET_ADDRESS_TYPE;
++
++#if !defined(_FILE_OFFSET_BITS) || _FILE_OFFSET_BITS != 64
++typedef off_t ncp_off_t;
++#else
++/* Maintain unchanged ABI - these functions use 32bit off_t... */
++typedef __off_t ncp_off_t;
++#endif
+ 
+ #ifdef SWIG
+ /* ncp_off64_t is defined to double by Perl interface */
+@@ -872,11 +879,11 @@ long
+ #ifdef SWIG
+ long
+  ncp_read(NWCONN_HANDLE conn, const char fileHandle[6],
+-	  __off_t offset, size_t count, char *RETBUFFER_LENPREV);
++	  ncp_off_t offset, size_t count, char *RETBUFFER_LENPREV);
+ 
+ long
+  ncp_write(NWCONN_HANDLE conn, const char fileHandle[6],
+-	   __off_t offset, size_t IGNORE, const char *STRING_LENPREV);
++	   ncp_off_t offset, size_t IGNORE, const char *STRING_LENPREV);
+ 
+ long
+  ncp_copy_file(NWCONN_HANDLE conn,
+@@ -889,11 +896,11 @@ long
+ #else
+ long
+  ncp_read(NWCONN_HANDLE conn, const char fileHandle[6],
+-	  __off_t offset, size_t count, char *target);
++	  ncp_off_t offset, size_t count, char *target);
+ 
+ long
+  ncp_write(NWCONN_HANDLE conn, const char fileHandle[6],
+-	   __off_t offset, size_t count, const char *source);
++	   ncp_off_t offset, size_t count, const char *source);
+ 
+ NWCCODE ncp_read64(NWCONN_HANDLE conn, const char fileHandle[6],
+ 		ncp_off64_t offset, size_t count, void *target, size_t *bytesread);
+

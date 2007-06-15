@@ -1,0 +1,133 @@
+changeset:   405:8aededcd3e6a
+user:        Scott Bentley <bentleys@hhangus.com>
+date:        Sun May 22 23:35:00 2005 +0000
+files:       man/Makefile.in man/nwlistsalvage.1 man/nwsalvage.1
+description:
+Add nwsalvage and nwlistsalvage manpages.
+
+
+diff -r fc77f4249198 -r 8aededcd3e6a man/Makefile.in
+--- a/man/Makefile.in	Wed May 11 20:46:55 2005 +0000
++++ b/man/Makefile.in	Sun May 22 23:35:00 2005 +0000
+@@ -16,7 +16,8 @@ MAN1 := nprint.1 nsend.1 nwauth.1 nwbols
+ MAN1 := nprint.1 nsend.1 nwauth.1 nwbols.1 nwboprops.1 nwbpset.1 \
+ 	nwbpvalues.1 nwdir.1 nwfsinfo.1 nwfstime.1 nwpasswd.1 nwpurge.1 \
+ 	nwrights.1 nwsfind.1 nwtrustee.1 nwuserlist.1 nwvolinfo.1 pqlist.1 \
+-	nwpqjob.1 pqstat.1 pserver.1 slist.1 nwpjmv.1
++	nwpqjob.1 pqstat.1 pserver.1 slist.1 nwpjmv.1 \
++	nwsalvage.1 nwlistsalvage.1
+ MAN3 := $(notdir $(wildcard ${this_srcdir}/*.3ncp))
+ MAN5 := nwclient.5
+ MAN8 := nwbocreate.8 nwborm.8 nwbpadd.8 nwbpcreate.8 nwbprm.8 nwfsctrl.8 \
+diff -r fc77f4249198 -r 8aededcd3e6a man/nwlistsalvage.1
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/man/nwlistsalvage.1	Sun May 22 23:35:00 2005 +0000
+@@ -0,0 +1,49 @@
++.TH NWLISTSALVAGE 1 11/05/2005 nwlistsalvage nwlistsalvage
++.SH NAME
++nwlistsalvage
++.SH SYNOPSIS
++.B nwlistsalvage
++[ \fB-h\fP ] [ \fB-n\fP \fInamespace\fP ] [ \fB-v\fP ] \fBdirectory\fP
++
++.SH DESCRIPTION
++.B nwlistsalvage
++lists all salvageable files in the specified NetWare directory.
++
++.SH OPTIONS
++
++.B -h
++.RS 3
++Print out a short help text.
++.RE
++
++.B -n
++.RS 3
++Specify a different NetWare file namespace.  Possible options include DOS, 
++MAC, NFS, FTAM, LONG.  Default is LONG.
++.RE
++
++.B -v
++.RS 3
++List verbose file information.
++.RE
++
++.B directory
++.RS 3
++The directory to scan for salvageable files. Current
++working directory is used by default. You have to specify path in
++Linux format, not in NetWare format.
++.RE
++
++.SH EXAMPLES
++
++nwlistsalvage /mnt/NetWare/server/volume/directory/
++
++This example will return the file-type, file-id (see \fBnwsalvage\fP)
++and file-name of all salvageable files found in /mnt/NetWare/server/volume/directory/
++
++.SH AUTHORS
++nwlistsalvage was written by Scott Bentley.  See the Changes file of ncpfs 
++for other contributors.
++
++.SH SEE ALSO
++nwsalvage
+diff -r fc77f4249198 -r 8aededcd3e6a man/nwsalvage.1
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/man/nwsalvage.1	Sun May 22 23:35:00 2005 +0000
+@@ -0,0 +1,54 @@
++.TH NWSALVAGE 1 11/05/2005 nwsalvage nwsalvage
++.SH NAME
++nwsalvage
++.SH SYNOPSIS
++.B nwsalvage
++[ \fB-h\fP ] [ \fB-s\fP ] [ \fB-n\fP \fInamespace\fP ] [ \fBdirectory\fP ] [ \fBfile_id\fP ]
++
++.SH DESCRIPTION
++.B nwsalvage
++recovers a file from the specified NetWare directory.
++
++.SH OPTIONS
++
++.B -h
++.RS 3
++Print out a short help text.
++.RE
++
++.B -n
++.RS 3
++Specify a different NetWare file namespace.  Possible options include DOS, 
++MAC, NFS, FTAM, LONG.  Default is LONG.
++.RE
++
++.B -s
++.RS 3
++Silent mode
++.RE
++
++.B directory
++.RS 3
++The directory from which the file to be salvaged was deleted. Current
++working directory is used by default. You have to specify path in
++Linux format, not in NetWare format.
++.RE
++
++.B file_id
++.RS 3
++The numeric file identifier specifying the file you want to salvage.  
++This number is obtained from \fBnwlistsalvage\fP.
++
++.SH EXAMPLES
++
++nwsalvage /mnt/NetWare/server/volume/directory/ 123456
++
++With this example, the file identified by 123456 deleted from the 
++directory /mnt/NetWare/server/volume/directory/ will be recovered.
++
++.SH AUTHORS
++nwsalvage was written by Scott Bentley.  See the Changes file of ncpfs 
++for other contributors.
++
++.SH SEE ALSO
++nwlistsalvage
+

@@ -1,0 +1,30 @@
+changeset:   424:81e0853d48a9
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Sat May 28 19:59:35 2005 +0000
+files:       include/ncp/kernel/types.h.in
+description:
+Use stdint.h when possible.  Fixes problems on Darwin.
+
+
+diff -r bef6bf5896d3 -r 81e0853d48a9 include/ncp/kernel/types.h.in
+--- a/include/ncp/kernel/types.h.in	Sat May 28 19:42:20 2005 +0000
++++ b/include/ncp/kernel/types.h.in	Sat May 28 19:59:35 2005 +0000
+@@ -7,6 +7,9 @@
+ @ncp_in_support@
+ @ncp_ipx_support@
+ 
++#if @stdint_types@
++#include <stdint.h>
++#else
+ /* FIXME: What about configure?! */
+ #ifndef __BIT_TYPES_DEFINED__
+ #define __BIT_TYPES_DEFINED__ 1
+@@ -26,6 +29,7 @@ typedef signed long long   int64_t;
+ #endif
+ 
+ #endif	/* __BIT_TYPES_DEFINED__ */
++#endif
+ 
+ #if @USE_KERNEL@
+ 
+

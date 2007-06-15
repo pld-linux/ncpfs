@@ -1,0 +1,86 @@
+changeset:   406:6af6a89be103
+user:        Scott Bentley <bentleys@hhangus.com>
+date:        Sun May 22 23:37:08 2005 +0000
+files:       util/nwsalvage.c
+description:
+Do not use absolute path in nwsalvage.  Salvage limits filename to
+256 characters.
+
+
+diff -r 8aededcd3e6a -r 6af6a89be103 util/nwsalvage.c
+--- a/util/nwsalvage.c	Sun May 22 23:35:00 2005 +0000
++++ b/util/nwsalvage.c	Sun May 22 23:37:08 2005 +0000
+@@ -23,7 +23,6 @@
+  */
+ 
+ #include <stdlib.h>
+-#include <string.h>
+ #include <ncp/nwcalls.h>
+ #include <unistd.h>
+ 
+@@ -58,15 +57,8 @@ static void process_salvage(struct ncp_c
+ static void process_salvage(struct ncp_conn* conn, int volume, u_int32_t directory_id, int file_id) {
+ 	struct ncp_deleted_file info;
+ 	int found;
+-	char dirname[1024];
+-	char filename[1024];
+-	char name[1024];
+-	
+-	if (!ncp_ns_get_full_name(conn, g_nwns, g_nwns,
+-		1, volume, directory_id, NULL, 0,
+-		dirname, sizeof(dirname))) {
+-	}
+-	strcat(dirname,"/");
++	char oldfilename[256];
++	char newfilename[256];
+ 
+ 	NWCCODE err;
+ 
+@@ -74,31 +66,29 @@ static void process_salvage(struct ncp_c
+ 	info.seq = -1;	
+ 	while (!ncp_ns_scan_salvageable_file(conn, g_nwns, 
+ 				1, volume, directory_id, NULL, 0, 
+-				&info, filename, sizeof(filename))){
+-	
+-		strcpy(name,dirname);
+-		strcat(name,filename);
++				&info, oldfilename, sizeof(oldfilename))) {
+ 	
+ 		if (info.seq == file_id) {
++			strcpy(newfilename, oldfilename);
+ 			found++;
+-			if ((err = ncp_ns_salvage_file(conn, g_nwns, &info, name)) != 0) {
++			if ((err = ncp_ns_salvage_file(conn, g_nwns, &info, newfilename)) != 0) {
+ 				if (!g_silent) {
+ 					if (err == 0x89FE) {
+ 						printf(_("%8s%d -- failed (File already exists, or path inaccessible)\n"), "", info.seq);
+ 					} else {
+-						printf(_("%8s%d %s -- failed (%s)\n"), "", info.seq, name, strnwerror(err));
++						printf(_("%8s%d %s -- failed (%s)\n"), "", info.seq, newfilename, strnwerror(err));
+ 					}
+ 				}
+ 			} else {
+ 				if (!g_silent) {
+-					printf(_("%8s%d %s -- salvaged \n"), "", info.seq, name);
++					printf(_("%8s%d %s -- salvaged \n"), "", info.seq, newfilename);
+ 				}
+ 			}
+ 			break;
+ 		}
+ 	}
+ 	if (!found) {
+-		printf(_("%8sFile with scan ID '%d' was not found in directory '%s'."), "", file_id, dirname);
++		printf(_("%8sFile with scan ID '%d' was not found."), "", file_id);
+ 	}
+ 	printf("\n");
+ }
+@@ -121,7 +111,7 @@ int main(int argc, char* argv[]) {
+ 			case '?':
+ 			case ':':break;
+ 			case 'h':usage(); exit(2);
+-			case 's':g_silent=1;
++			case 's':g_silent = 1;
+ 				 break;
+ 			case 'n':
+ 				opt_n = argv[optind++];
+

@@ -1,0 +1,32 @@
+changeset:   444:34ddb26e48fa
+user:        vana@ppc.vc.cvut.cz
+date:        Mon Jul 11 02:36:37 2005 +0100
+files:       lib/ncplib.c
+description:
+Fix ncpfs against NW3.x servers.  It was not possible to reuse
+existing connection as connection to NW3.x server was never marked
+as authenticated.
+
+
+diff -r c943b66ae2f6 -r 34ddb26e48fa lib/ncplib.c
+--- a/lib/ncplib.c	Mon Jul 11 02:35:19 2005 +0100
++++ b/lib/ncplib.c	Mon Jul 11 02:36:37 2005 +0100
+@@ -1946,9 +1946,14 @@ static int ncp_do_open_fd(int fd, struct
+ #ifdef SIGNATURES
+ 	ncp_sign_init_perm(result);
+ #endif	
+-	if (!ncp_get_private_key(result, NULL, &klen)) {
+-		if (klen > 10) {
+-			result->connState |= CONNECTION_AUTHENTICATED;
++	if (!ncp_get_private_key(result, NULL, &klen) && klen > 10) {
++		result->connState |= CONNECTION_AUTHENTICATED;
++	} else {
++		nuint8 level;
++		NWCCODE err = NWGetBinderyAccessLevel(result, &level, NULL);
++
++		if (err == 0 && level != 0) {
++			result->connState |= CONNECTION_AUTHENTICATED | CONNECTION_LICENSED;
+ 		}
+ 	}
+ 	result->bcast_state = NWCC_BCAST_PERMIT_UNKNOWN;
+

@@ -1,0 +1,24 @@
+changeset:   412:b4b6191b3d97
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Sat May 28 13:46:29 2005 +0000
+files:       lib/nwclient.c
+description:
+Define ENOPKG error as ENOSYS if ENOPKG does not exist.  Needed for
+Darwin.
+
+
+diff -r e04165992166 -r b4b6191b3d97 lib/nwclient.c
+--- a/lib/nwclient.c	Sat May 28 13:45:22 2005 +0000
++++ b/lib/nwclient.c	Sat May 28 13:46:29 2005 +0000
+@@ -88,6 +88,10 @@
+ #endif
+ #include <pwd.h>
+ #include <sys/stat.h>
++
++#ifndef ENOPKG
++#define ENOPKG ENOSYS
++#endif
+ 
+ /*should be in ndslib.h ?*/
+ #define NWE_BIND_NO_SUCH_PROP NWE_NCP_NOT_SUPPORTED
+

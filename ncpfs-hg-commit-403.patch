@@ -1,0 +1,21 @@
+changeset:   403:08f41478a208
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Sun Apr 10 10:36:35 2005 +0000
+files:       man/ncpmount.8
+description:
+Change charset from iso-8859-1 to iso8859-1 in ncpmount manpage.
+
+
+diff -r 722e35906cab -r 08f41478a208 man/ncpmount.8
+--- a/man/ncpmount.8	Thu Jan 27 16:35:36 2005 +0000
++++ b/man/ncpmount.8	Sun Apr 10 10:36:35 2005 +0000
+@@ -282,7 +282,7 @@ You can specify character translation ru
+ You can specify character translation rules for converting names from
+ unicode to your desktop (it works together with \fB-p\fP).
+ .I iocharset
+-is charset name, for example \fIiso-8859-1\fP.
++is charset name, for example \fIiso8859-1\fP.
+ .RE
+ 
+ .B -p
+

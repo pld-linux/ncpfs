@@ -1,0 +1,21 @@
+changeset:   449:20cdebe39580
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Sun Oct 16 02:44:08 2005 +0200
+files:       contrib/ncp_nss_lib/Makefile
+description:
+Update 'make clean' rule in ncp_nss_lib to remove all build products.
+
+
+diff -r 1a8455ed3290 -r 20cdebe39580 contrib/ncp_nss_lib/Makefile
+--- a/contrib/ncp_nss_lib/Makefile	Sun Oct 16 02:40:25 2005 +0200
++++ b/contrib/ncp_nss_lib/Makefile	Sun Oct 16 02:44:08 2005 +0200
+@@ -87,7 +87,7 @@ dep:
+ dep:
+ 
+ clean:
+-	rm -f *.o *.do *.to *~
++	rm -f *.o *.do *.to $(SHARED_NSSLIB) $(SHARED_NSSLIB_BIN) $(UTILS1) *~
+ 
+ mrproper: clean
+ 	rm -f $(UTILS) $(DISTFILE)
+

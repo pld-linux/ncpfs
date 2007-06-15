@@ -1,0 +1,19 @@
+changeset:   428:cccdaf2ce097
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Sun Jun 05 14:35:46 2005 +0000
+files:       ipx-1.0/Samples/samples.h
+description:
+Include <stdlib.h> into samples, to get rid of warning about exit() not 
+having a prototype.
+
+
+diff -r 225fa587c2d8 -r cccdaf2ce097 ipx-1.0/Samples/samples.h
+--- a/ipx-1.0/Samples/samples.h	Sun Jun 05 14:35:13 2005 +0000
++++ b/ipx-1.0/Samples/samples.h	Sun Jun 05 14:35:46 2005 +0000
+@@ -1,4 +1,5 @@
+ #include <stdio.h>
++#include <stdlib.h>
+ #include <sys/types.h>
+ #include <ncp/kernel/ipx.h>
+ #include <netinet/in.h>
+

@@ -1,0 +1,128 @@
+changeset:   443:c943b66ae2f6
+user:        vana@ppc.vc.cvut.cz
+date:        Mon Jul 11 02:35:19 2005 +0100
+files:       util/nwfsinfo.c util/nwfstime.c
+description:
+Use NWGetFileServerUTCTime() instead of ncp_get_file_server_time()
+in nwfsinfo and nwfstime.  Fixes problems when server is in different
+timezone than client (on NW3.x old ncp_get_file_server_time is still
+used).
+
+
+diff -r 093f842dbd98 -r c943b66ae2f6 util/nwfsinfo.c
+--- a/util/nwfsinfo.c	Mon Jul 11 00:44:36 2005 +0100
++++ b/util/nwfsinfo.c	Mon Jul 11 02:35:19 2005 +0100
+@@ -33,6 +33,7 @@
+ #include <string.h>
+ #include <ncp/nwcalls.h>
+ #include <ncp/nwfse.h>
++#include <ncp/nwnet.h>
+ 
+ #include "private/libintl.h"
+ #define _(X) gettext(X)
+@@ -175,8 +176,14 @@ main(int argc, char **argv)
+ 			{
+ 				time_t t;
+ 				int err2;
+-
+-				err2 = ncp_get_file_server_time(conn, &t);
++				nuint32 sec;
++
++				err2 = __NWGetFileServerUTCTime(conn, &sec, NULL, NULL, NULL, NULL, NULL, NULL);
++				if (err2) {
++					err2 = ncp_get_file_server_time(conn, &t);
++				} else {
++					t = sec;
++				}
+ 				if (err2) {
+ 					fprintf(stderr, "%s: %s\n", _("could not get server time"),
+ 						strnwerror(err2));
+diff -r 093f842dbd98 -r c943b66ae2f6 util/nwfstime.c
+--- a/util/nwfstime.c	Mon Jul 11 00:44:36 2005 +0100
++++ b/util/nwfstime.c	Mon Jul 11 02:35:19 2005 +0100
+@@ -33,7 +33,7 @@
+ #include <unistd.h>
+ #include <sys/time.h>
+ 
+-#include <ncp/ncplib.h>
++#include <ncp/nwnet.h>
+ 
+ #include "private/libintl.h"
+ #define _(X) gettext(X)
+@@ -124,32 +124,51 @@ main(int argc, char **argv)
+ 			ncp_close(conn);
+ 			return 1;
+ 		}
+-	} else
+-	{	int offset;
+-		time_t last;
++	} else {
++		unsigned int offset;
++		nuint32 sec, xsec;
+ 
+-		if ((err = ncp_get_file_server_time(conn, &t)) != 0)
+-		{
+-	     get_error: com_err(argv[0], err, _("when getting file server time"));
+-			ncp_close(conn);
+-			return 1;
++		err = __NWGetFileServerUTCTime(conn, &sec, &xsec, NULL, NULL, NULL, NULL, NULL);
++		if (err != 0) {
++			if ((err = ncp_get_file_server_time(conn, &t)) != 0) {
++		     get_error: com_err(argv[0], err, _("when getting file server time"));
++				ncp_close(conn);
++				return 1;
++			}
++			if (accurate) {
++				time_t last;
++
++				do {
++					if ((err = ncp_get_file_server_time(conn, &last)) != 0)
++						goto get_error;
++				} while (last == t);
++				t = last;
++				offset = 0;		/* we can read the time 1000s of times a second */
++	       		} else {
++				offset = 500000;	/* if no accurate measure, then assume offset of 500ms */
++			}
++		} else {
++			if (accurate) {
++				nuint32 last;
++
++				do {
++					offset = (xsec * 1000000ULL) >> 32;
++					if (offset > 100) {
++						usleep(1000000 - offset);
++					}
++					if ((err = __NWGetFileServerUTCTime(conn, &last, &xsec, NULL, NULL, NULL, NULL, NULL)) != 0) {
++						goto get_error;
++					}
++				} while (last == sec);
++				t = last;
++			} else {
++				t = sec;
++			}
++			offset = (xsec * 1000000ULL) >> 32;
+ 		}
+-
+-		if(accurate)
+-		{
+-			do
+-			{	if ((err = ncp_get_file_server_time(conn, &last)) != 0)
+-					goto get_error;
+-			} while(last==t);
+-			t=last;
+-			offset=0;	/* we can read the time 1000s of times a second */
+-	       	}
+-		else
+-			offset=500;	/* if no accurate measure, then assume offset of 500ms */
+-
+-		if(get)
+-		{	timeval.tv_sec = t;
+-			timeval.tv_usec = offset*1000;
++		if (get) {
++			timeval.tv_sec = t;
++			timeval.tv_usec = offset;
+ 			settimeofday(&timeval, NULL);
+ 		}
+ 		{
+

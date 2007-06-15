@@ -1,0 +1,94 @@
+changeset:   450:f18f9f05b9b8
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Sun Oct 16 02:52:35 2005 +0200
+files:       .hgignore contrib/ncp_nss_lib/Makefile contrib/ncp_nss_lib/nss_cfgfile.c
+description:
+Get ncp_nss_lib to build with gcc4.0.  Also fix build process - libnss_ncp.so
+is needed for development, libnss_ncp.so.2 is soname, and libnss_ncp.so.2.3 is
+library version.
+
+
+diff -r 20cdebe39580 -r f18f9f05b9b8 .hgignore
+--- a/.hgignore	Sun Oct 16 02:44:08 2005 +0200
++++ b/.hgignore	Sun Oct 16 02:52:35 2005 +0200
+@@ -10,7 +10,7 @@
+ ^autom4te.cache/
+ ^config\.log$
+ ^config\.status$
+-^contrib/ncp_nss_lib/libnss_ncp\.so\.2$
++^contrib/ncp_nss_lib/libnss_ncp\.so\.
+ ^contrib/ncp_nss_lib/test_ncp_nss$
+ ^contrib/pam/Makefile$
+ ^contrib/php/Makefile$
+diff -r 20cdebe39580 -r f18f9f05b9b8 contrib/ncp_nss_lib/Makefile
+--- a/contrib/ncp_nss_lib/Makefile	Sun Oct 16 02:44:08 2005 +0200
++++ b/contrib/ncp_nss_lib/Makefile	Sun Oct 16 02:52:35 2005 +0200
+@@ -8,8 +8,8 @@ this_srcdir = ${top_srcdir}/lib
+ 
+ include ${top_builddir}/Make.rules
+ 
+-VERSION_SOLIB := 2
+-VERSION_SONAME := 2.3
++VERSION_SOLIB := 2.3
++VERSION_SONAME := 2
+ 
+ vpath %.c ${this_srcdir}
+ 
+@@ -80,8 +80,8 @@ install: install_shared
+ $(O_UTILS1) $(O_TMP1): %.o: %.c 
+ 	$(CC) $(CCFLAGS) $(CFLAGS) $(CFLAGS_$@) -o $@ -c $<
+ 
+-$(UTILS1):: %: %.o $(O_TMP1)
+-	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(addsuffix .o,$@) $(OBJS_$@) -L$(top_builddir)/lib -lnss_ncp -lncp $(LDFLAGS_$@)
++$(UTILS1):: %: %.o $(O_TMP1) $(SHARED_NSSLIB)
++	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(addsuffix .o,$@) $(OBJS_$@) -L. -lnss_ncp -L$(top_builddir)/lib -lncp $(LDFLAGS_$@)
+ 
+ 
+ dep:
+@@ -100,8 +100,11 @@ install_shared: $(SHARED_NCPLIB_BIN)
+ 	-ldconfig
+ 
+ 
+-$(SHARED_NSSLIB): $(SHARED_NSSLIB_BIN)
++$(SHARED_NSSLIB): $(SHARED_NSSLIB_SONAME)
+ 	rm -f $@
++	ln -sf $< $@
++
++$(SHARED_NSSLIB_SONAME): $(SHARED_NSSLIB_BIN)
+ 	ln -sf $< $@
+ 
+ $(SHARED_NSSLIB_BIN): $(SHARED_O_OBJ) ${this_srcdir}/libncp.vers
+diff -r 20cdebe39580 -r f18f9f05b9b8 contrib/ncp_nss_lib/nss_cfgfile.c
+--- a/contrib/ncp_nss_lib/nss_cfgfile.c	Sun Oct 16 02:44:08 2005 +0200
++++ b/contrib/ncp_nss_lib/nss_cfgfile.c	Sun Oct 16 02:52:35 2005 +0200
+@@ -175,13 +175,13 @@ static int process_line (char* cptr, str
+ 	}
+ 	*eptr = 0;
+ 	if (ptr->isNum) {
+-		(int *)*ptr->value_ptr=strtoul (sptr,&errPtr,0);
++		*(int**)ptr->value_ptr=strtoul (sptr,&errPtr,0);
+ 		ptr->found= ((*sptr) && !(*errPtr)); //not empty and no error
+ 	} else {
+ 		if (eptr>sptr) { // do not take an empty string value
+ 			char *v=strdup(sptr);
+ 			if (v) {
+-				(char*) *ptr->value_ptr=v;
++				*(char**)ptr->value_ptr=v;
+ 				ptr->found= TRUE;
+ 			}else
+ 				return 1;
+@@ -201,11 +201,11 @@ static int fix_conf (struct check *resul
+ 				return 1;
+ 			}
+ 			if (ptr->isNum) {
+-				(int *)*ptr->value_ptr=strtoul (ptr->defValue,NULL,0);
++				*(int**)ptr->value_ptr=strtoul (ptr->defValue,NULL,0);
+ 			}else {
+ 				char * v=strdup(ptr->defValue);
+ 				if (v)
+-					(char*) *ptr->value_ptr=v;
++					*(char**)ptr->value_ptr=v;
+ 				else
+ 					return 1;
+ 			}
+

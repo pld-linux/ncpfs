@@ -1,0 +1,135 @@
+changeset:   456:260a30abdb81
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Sat Apr 15 04:41:06 2006 +0200
+files:       contrib/ncp_nss_lib/nss_cfgfile.c contrib/ncp_nss_lib/nss_cfgfile.h
+description:
+Fix nss_ncp strict aliasing problems
+
+It is bad idea to convert pointer to integer to pointer to char pointer,
+and in addition this is also unnecessary.  And removal of this typecast
+revealed that we believe that 'int' and 'gid_t' and 'uid_t' have same
+width.  This is unreasonable assumption, I personally remember time
+when uid_t was 16bit, while int was 32bit...
+
+
+diff -r 69f23e25cc66 -r 260a30abdb81 contrib/ncp_nss_lib/nss_cfgfile.c
+--- a/contrib/ncp_nss_lib/nss_cfgfile.c	Sat Apr 15 04:25:06 2006 +0200
++++ b/contrib/ncp_nss_lib/nss_cfgfile.c	Sat Apr 15 04:41:06 2006 +0200
+@@ -108,9 +108,9 @@ struct check {
+         const char *option; 	/* configuration option */
+         int mandatory; 		/* can be empty or null */
+ 	int found;		/*set to TRUE if found in cfg file */
+-        char ** value_ptr; 	/* temporary storage place */
+-	int isNum;		/* 1 is numeric, 0 is string*/
+-	const char* defValue;
++        char ** char_ptr; 	/* where to store string value */
++	int * int_ptr;		/* where to store integer value */
++	const char* defValue;	/* default value */
+ };
+ 
+ 
+@@ -119,12 +119,12 @@ void printResults (const char * infos,st
+ 	struct check* ptr;
+ 	printf ("%s\n",infos);
+ 	for  (ptr=results; ptr->option; ptr++) {
+-		if (ptr->isNum)
+-			printf ("option=%s mandatory=%d found=%d value=%d isNum=%d defvalue=%s\n",
+-				ptr->option,ptr->mandatory,ptr->found,*(int**)ptr->value_ptr,ptr->isNum,ptr->defValue);
++		if (ptr->int_ptr)
++			printf ("option=%s mandatory=%d found=%d value=%d defvalue=%s\n",
++				ptr->option,ptr->mandatory,ptr->found,*ptr->int_ptr,ptr->defValue);
+ 		else
+-			printf ("option=%s mandatory=%d found=%d value=%s isNum=%d defvalue=%s\n",
+-				ptr->option,ptr->mandatory,ptr->found,*ptr->value_ptr,ptr->isNum,ptr->defValue);
++			printf ("option=%s mandatory=%d found=%d value=%s defvalue=%s\n",
++				ptr->option,ptr->mandatory,ptr->found,*ptr->char_ptr,ptr->defValue);
+ 	}
+ 
+ }
+@@ -175,14 +175,14 @@ static int process_line (char* cptr, str
+ 		eptr++;
+ 	}
+ 	*eptr = 0;
+-	if (ptr->isNum) {
+-		*(int*)ptr->value_ptr=strtoul (sptr,&errPtr,0);
++	if (ptr->int_ptr) {
++		*ptr->int_ptr=strtoul (sptr,&errPtr,0);
+ 		ptr->found= ((*sptr) && !(*errPtr)); //not empty and no error
+ 	} else {
+ 		if (eptr>sptr) { // do not take an empty string value
+ 			char *v=strdup(sptr);
+ 			if (v) {
+-				*ptr->value_ptr=v;
++				*ptr->char_ptr=v;
+ 				ptr->found= TRUE;
+ 			}else
+ 				return 1;
+@@ -201,12 +201,12 @@ static int fix_conf (struct check *resul
+ 				traceForce(0,LOG_ERR, "ncp_nss aborting :missing mandatory information '%s=' in config file %s  ",ptr->option,GLOBALCFGFILE);
+ 				return 1;
+ 			}
+-			if (ptr->isNum) {
+-				*(int*)ptr->value_ptr=strtoul (ptr->defValue,NULL,0);
++			if (ptr->int_ptr) {
++				*ptr->int_ptr=strtoul (ptr->defValue,NULL,0);
+ 			}else {
+ 				char * v=strdup(ptr->defValue);
+ 				if (v)
+-					*ptr->value_ptr=v;
++					*ptr->char_ptr=v;
+ 				else
+ 					return 1;
+ 			}
+@@ -225,20 +225,20 @@ static struct nss_ncp_conf *read_conf_fi
+ 		return NULL;
+ 	{
+ 		struct check check_confs[] = {
+-		/*option	mandat	found	value_ptr		isNum	defValue */
+-                {"debug",	FALSE,FALSE,(char**)&conf->debug,	TRUE,	"0"},
+-                {"useTree",	FALSE,FALSE,(char**)&conf->useTree,	TRUE,	"0"},
+-                {"server",	TRUE, FALSE,        &conf->server,	FALSE,	""},
+-                {"startCtx",	FALSE,FALSE,        &conf->startCtx,	FALSE,	""},
+-                {"ctrlGroup",	FALSE,FALSE,        &conf->ctrlGroup,	FALSE,	""},
+-                {"defGid",	FALSE,FALSE,(char**)&conf->defGid,	TRUE,	"100"},
+-		{"defShell",	FALSE,FALSE,        &conf->defShell,	FALSE,	"/bin/bash"},
+-                {"fallbackUid",	FALSE,FALSE,(char**)&conf->fallbackUid,	TRUE,	"-1"},
+-		{"fallbackGid",	FALSE,FALSE,(char**)&conf->fallbackGid,	TRUE,	"-1"},
+-                {"doPasswd",	FALSE,FALSE,(char**)&conf->doPassword,	TRUE,	"0"},
+-                {"doGroup",	FALSE,FALSE,(char**)&conf->doGroup,	TRUE,	"0"},
+-                {"doShadow",	FALSE,FALSE,(char**)&conf->doShadow,	TRUE,	"0"},
+-		{NULL	,	FALSE,FALSE,        NULL,		FALSE,	NULL}
++		/*option	mandat	found	char_ptr		int_ptr			defValue */
++                {"debug",	FALSE,FALSE,	NULL,			&conf->debug,		"0"},
++                {"useTree",	FALSE,FALSE,	NULL,			&conf->useTree,		"0"},
++                {"server",	TRUE, FALSE,	&conf->server,		NULL,			""},
++                {"startCtx",	FALSE,FALSE,	&conf->startCtx,	NULL,			""},
++                {"ctrlGroup",	FALSE,FALSE,	&conf->ctrlGroup,	NULL,			""},
++                {"defGid",	FALSE,FALSE,	NULL,			&conf->defGid,		"100"},
++		{"defShell",	FALSE,FALSE,	&conf->defShell,	NULL,			"/bin/bash"},
++                {"fallbackUid",	FALSE,FALSE,	NULL,			&conf->fallbackUid,	"-1"},
++		{"fallbackGid",	FALSE,FALSE,	NULL,			&conf->fallbackGid,	"-1"},
++                {"doPasswd",	FALSE,FALSE,	NULL,			&conf->doPassword,	"0"},
++                {"doGroup",	FALSE,FALSE,	NULL,			&conf->doGroup,		"0"},
++                {"doShadow",	FALSE,FALSE,	NULL,			&conf->doShadow,	"0"},
++		{NULL	,	FALSE,FALSE,	NULL,			NULL,			NULL}
+ 		};
+ 
+ 		char cfgline[16384];
+diff -r 69f23e25cc66 -r 260a30abdb81 contrib/ncp_nss_lib/nss_cfgfile.h
+--- a/contrib/ncp_nss_lib/nss_cfgfile.h	Sat Apr 15 04:25:06 2006 +0200
++++ b/contrib/ncp_nss_lib/nss_cfgfile.h	Sat Apr 15 04:41:06 2006 +0200
+@@ -11,10 +11,10 @@ struct nss_ncp_conf {
+         char *  server;         // name of server or tree
+         char *  startCtx;       // start searching is this context (and below)
+         char *  ctrlGroup;      // limit search to members of this NDS group for passwd and shadow
+-        gid_t   defGid;         // if no primary group found in NDS use this value
++        int     defGid;         // if no primary group found in NDS use this value
+         char *  defShell;       // if no shell found in NDS use this value
+-        uid_t   fallbackUid;    //  if no UID found in NDS use this one (-1= skip user, NFS_NOBODY= use this UID)
+-        gid_t   fallbackGid;    //  if no GID found in NDS use this one (-1= skip group, NFS_NOBODY= use this GID)
++        int     fallbackUid;    //  if no UID found in NDS use this one (-1= skip user, NFS_NOBODY= use this UID)
++        int     fallbackGid;    //  if no GID found in NDS use this one (-1= skip group, NFS_NOBODY= use this GID)
+         int     doPassword;     // if  0, will return immediarly NSS_STATUS_UNAVAILABLE even if ncp is listed in /etc/nsswitch.conf
+         int     doGroup;        // if  0, will return immediarly NSS_STATUS_UNAVAILABLE even if ncp is listed in /etc/nsswitch.conf
+         int     doShadow;       // if  0, will return immediarly NSS_STATUS_UNAVAILABLE even if ncp is listed in /etc/nsswitch.conf
+

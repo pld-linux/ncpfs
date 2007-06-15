@@ -1,0 +1,31 @@
+changeset:   421:50351d213ba9
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Sat May 28 18:57:50 2005 +0000
+files:       Make.rules.in lib/Makefile.in
+description:
+Perform ranlib on static library after build.
+
+
+diff -r c7f1c54278c9 -r 50351d213ba9 Make.rules.in
+--- a/Make.rules.in	Sat May 28 18:54:50 2005 +0000
++++ b/Make.rules.in	Sat May 28 18:57:50 2005 +0000
+@@ -2,6 +2,7 @@ INSTALL := @INSTALL@
+ INSTALL := @INSTALL@
+ INSTALL_DATA := @INSTALL_DATA@
+ CC := @CC@
++RANLIB := @RANLIB@
+ 
+ prefix := @prefix@
+ exec_prefix := @exec_prefix@
+diff -r c7f1c54278c9 -r 50351d213ba9 lib/Makefile.in
+--- a/lib/Makefile.in	Sat May 28 18:54:50 2005 +0000
++++ b/lib/Makefile.in	Sat May 28 18:57:50 2005 +0000
+@@ -130,6 +130,7 @@ install_static: $(STATIC_NCPLIB_BIN)
+ 
+ $(STATIC_NCPLIB): $(STATIC_O_OBJ)
+ 	ar r $@ $(STATIC_O_OBJ) 
++	$(RANLIB) $@
+ 
+ ifeq ($(NEED_DEP),yes)
+ include $(STATIC_O_OBJ:.o=.d)
+

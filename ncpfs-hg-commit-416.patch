@@ -1,0 +1,303 @@
+changeset:   416:48879aeab0b6
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Sat May 28 15:42:43 2005 +0000
+files:       configure.ac lib/ds/filter.c lib/ds/iterhandle.c lib/ds/request.c lib/ds/search.c lib/ds/setkeys.c lib/fs/eas.c lib/fs/filelock.c lib/ncpext.c lib/ncplib.c lib/ncplib_i.h lib/nwcalls.c lib/nwtime.c lib/queue.c lib/rdn.c
+description:
+Add support for SO_NOSIGPIPE (Darwin) in addition to MSG_NOSIGNAL.
+
+
+diff -r 005801e1fd28 -r 48879aeab0b6 configure.ac
+--- a/configure.ac	Sat May 28 15:07:13 2005 +0000
++++ b/configure.ac	Sat May 28 15:42:43 2005 +0000
+@@ -495,6 +495,38 @@ else
+   socklen_t="typedef $ncp_cv_socklen_t socklen_t;"
+ fi
+ AC_SUBST(socklen_t)
++
++AC_CACHE_CHECK(whether SO_NOSIGPIPE exists,
++    ncp_cv_so_nosigpipe,
++  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[[#include <sys/types.h>
++#include <sys/socket.h>]]],
++    [[[int s;
++     int o = 0;
++     s = socket(0, 0, 0);
++     setsockopt(s, SOL_SOCKET, SO_NOSIGPIPE, &o, sizeof(o))]]])],
++    [ncp_cv_so_nosigpipe="yes"],
++    [ncp_cv_so_nosigpipe="no"]
++  )
++)
++if test "$ncp_cv_so_nosigpipe" = "yes"
++then
++  AC_DEFINE(HAVE_SO_NOSIGPIPE, 1, [Define when SO_NOSIGPIPE exists])
++fi
++
++AC_CACHE_CHECK(whether MSG_NOSIGNAL exists,
++    ncp_cv_msg_nosignal,
++  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[[#include <sys/types.h>
++#include <sys/socket.h>
++struct msghdr msg;]]],
++    [[[sendmsg(0, &msg, MSG_NOSIGNAL)]]])],
++    [ncp_cv_msg_nosignal="yes"],
++    [ncp_cv_msg_nosignal="no"]
++  )
++)
++if test "$ncp_cv_msg_nosignal" = "yes"
++then
++  AC_DEFINE(HAVE_MSG_NOSIGNAL, 1, [Define when MSG_NOSIGNAL exists])
++fi
+ 
+ dnl UNICODE
+ AC_CHECK_TYPE([wchar_t], , [AC_DEFINE([wchar_t], [unsigned int], [Define to 'unsigned int' if wchar_t is not defined.])])
+diff -r 005801e1fd28 -r 48879aeab0b6 lib/ds/filter.c
+--- a/lib/ds/filter.c	Sat May 28 15:07:13 2005 +0000
++++ b/lib/ds/filter.c	Sat May 28 15:42:43 2005 +0000
+@@ -26,6 +26,8 @@
+ 		Fix coredumps, endless loops and so on in NWDSPutFilter.
+ 
+  */
++
++#include "config.h"
+ 
+ #include <stddef.h>
+ #include <stdlib.h>
+diff -r 005801e1fd28 -r 48879aeab0b6 lib/ds/iterhandle.c
+--- a/lib/ds/iterhandle.c	Sat May 28 15:07:13 2005 +0000
++++ b/lib/ds/iterhandle.c	Sat May 28 15:42:43 2005 +0000
+@@ -22,6 +22,8 @@
+ 		Initial release.
+ 	
+  */
++
++#include "config.h"
+ 
+ #include "iterhandle.h"
+ 
+diff -r 005801e1fd28 -r 48879aeab0b6 lib/ds/request.c
+--- a/lib/ds/request.c	Sat May 28 15:07:13 2005 +0000
++++ b/lib/ds/request.c	Sat May 28 15:42:43 2005 +0000
+@@ -22,6 +22,8 @@
+ 		Initial release
+ 
+  */
++
++#include "config.h"
+ 
+ #include <stddef.h>
+ #include <stdlib.h>
+diff -r 005801e1fd28 -r 48879aeab0b6 lib/ds/search.c
+--- a/lib/ds/search.c	Sat May 28 15:07:13 2005 +0000
++++ b/lib/ds/search.c	Sat May 28 15:42:43 2005 +0000
+@@ -32,6 +32,8 @@
+ 		to NWDSSearch.
+ 
+  */
++
++#include "config.h"
+ 
+ #include <stddef.h>
+ #include <stdlib.h>
+diff -r 005801e1fd28 -r 48879aeab0b6 lib/ds/setkeys.c
+--- a/lib/ds/setkeys.c	Sat May 28 15:07:13 2005 +0000
++++ b/lib/ds/setkeys.c	Sat May 28 15:42:43 2005 +0000
+@@ -35,6 +35,8 @@
+ 		Modified nds_login to use unaliased name in NWDSSetKeys.
+ 
+  */
++
++#include "config.h"
+ 
+ #include <stddef.h>
+ #include <stdlib.h>
+diff -r 005801e1fd28 -r 48879aeab0b6 lib/fs/eas.c
+--- a/lib/fs/eas.c	Sat May 28 15:07:13 2005 +0000
++++ b/lib/fs/eas.c	Sat May 28 15:42:43 2005 +0000
+@@ -23,6 +23,7 @@
+ 
+  */
+ 
++#include "config.h"
+ #include <ncp/eas.h>
+ #include "ncplib_i.h"
+ 
+diff -r 005801e1fd28 -r 48879aeab0b6 lib/fs/filelock.c
+--- a/lib/fs/filelock.c	Sat May 28 15:07:13 2005 +0000
++++ b/lib/fs/filelock.c	Sat May 28 15:42:43 2005 +0000
+@@ -23,6 +23,7 @@
+ 
+  */
+ 
++#include "config.h"
+ #include "ncplib_i.h"
+ 
+ #include <ncp/nwnet.h>
+diff -r 005801e1fd28 -r 48879aeab0b6 lib/ncpext.c
+--- a/lib/ncpext.c	Sat May 28 15:07:13 2005 +0000
++++ b/lib/ncpext.c	Sat May 28 15:42:43 2005 +0000
+@@ -22,6 +22,8 @@
+ 		Initial version.
+ 
+  */
++
++#include "config.h"
+ 
+ #include <ncp/nwcalls.h>
+ #include <ncp/nwnet.h>
+diff -r 005801e1fd28 -r 48879aeab0b6 lib/ncplib.c
+--- a/lib/ncplib.c	Sat May 28 15:07:13 2005 +0000
++++ b/lib/ncplib.c	Sat May 28 15:42:43 2005 +0000
+@@ -460,6 +460,18 @@ restart:
+ 	return 0;
+ }
+ 
++int
++ncp_fd_nosigpipe(UNUSED(int fd))
++{
++#ifdef HAVE_SO_NOSIGPIPE
++	static const int one = 1;
++
++	return setsockopt(fd, SOL_SOCKET, SO_NOSIGPIPE, &one, sizeof(one));
++#else
++	return 0;
++#endif
++}
++
+ #ifdef CONFIG_NATIVE_IPX
+ static int
+ exec_nwsfind(const char* request[]) {
+@@ -521,8 +533,11 @@ ipx_make_reachable_rip(const struct sock
+ 	memset(&rip, 0, sizeof(rip));
+ 
+ 	sock = socket(PF_IPX, SOCK_DGRAM, IPXPROTO_IPX);
+-
+ 	if (sock == -1) {
++		return errno;
++	}
++	if (ncp_fd_nosigpipe(sock)) {
++		close(sock);
+ 		return errno;
+ 	}
+ 	opt = 1;
+@@ -1291,7 +1306,16 @@ ncp_connect_ipx_addr(struct ncp_conn *co
+ 	if ((ncp_sock = socket(PF_IPX, SOCK_DGRAM, IPXPROTO_IPX)) == -1) {
+ 		return errno;
+ 	}
++	if (ncp_fd_nosigpipe(ncp_sock)) {
++		close(ncp_sock);
++		return errno;
++	}
+ 	if ((wdog_sock = socket(PF_IPX, SOCK_DGRAM, IPXPROTO_IPX)) == -1) {
++		close(ncp_sock);
++		return errno;
++	}
++	if (ncp_fd_nosigpipe(wdog_sock)) {
++		close(wdog_sock);
+ 		close(ncp_sock);
+ 		return errno;
+ 	}
+@@ -1385,6 +1409,10 @@ ncp_connect_in_addr(struct ncp_conn *con
+ 	if ((ncp_sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
+ 		return errno;
+ 	}
++	if (ncp_fd_nosigpipe(ncp_sock)) {
++		close(ncp_sock);
++		return errno;
++	}
+ 	addr.sin_family = AF_INET;
+ 	addr.sin_port = htons(0x0);
+ 	addr.sin_addr.s_addr = INADDR_ANY;
+@@ -1444,6 +1472,10 @@ ncp_connect_tcp_addr(struct ncp_conn *co
+ 	if ((ncp_sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1) {
+ 		return errno;
+ 	}
++	if (ncp_fd_nosigpipe(ncp_sock)) {
++		close(ncp_sock);
++		return errno;
++	}
+ 	addr.sin_family = AF_INET;
+ 	addr.sin_port = htons(0x0);
+ 	addr.sin_addr.s_addr = INADDR_ANY;
+@@ -1503,6 +1535,10 @@ ncp_connect_un_addr(struct ncp_conn *con
+ 	conn->verbose = 0;
+ 
+ 	if ((fd = socket(PF_UNIX, SOCK_DGRAM, 0)) == -1) {
++		return errno;
++	}
++	if (ncp_fd_nosigpipe(fd)) {
++		close(fd);
+ 		return errno;
+ 	}
+ 	addr.sun_family = AF_UNIX;
+diff -r 005801e1fd28 -r 48879aeab0b6 lib/ncplib_i.h
+--- a/lib/ncplib_i.h	Sat May 28 15:07:13 2005 +0000
++++ b/lib/ncplib_i.h	Sat May 28 15:42:43 2005 +0000
+@@ -62,6 +62,10 @@ extern "C" {
+ #include "private/ncp_fs.h"
+ 
+ #include <string.h>
++
++#ifndef HAVE_MSG_NOSIGNAL
++#define MSG_NOSIGNAL		0
++#endif
+ 
+ #define UNUSED(x) x __attribute__((unused))
+ 
+@@ -328,6 +332,8 @@ static inline NWCCODE x_recv(int sock, v
+ 
+ NWCCODE __NWReadFileServerInfo(struct ncp_conn* conn);
+ 
++int ncp_fd_nosigpipe(int fd);
++
+ #ifdef __cplusplus
+ }
+ #endif
+diff -r 005801e1fd28 -r 48879aeab0b6 lib/nwcalls.c
+--- a/lib/nwcalls.c	Sat May 28 15:07:13 2005 +0000
++++ b/lib/nwcalls.c	Sat May 28 15:42:43 2005 +0000
+@@ -343,6 +343,10 @@ retryLoop:;
+ 		}
+ 		fd = socket(PF_UNIX, SOCK_STREAM, 0);
+ 		if (fd < 0) {
++			goto errquit;
++		}
++		if (ncp_fd_nosigpipe(fd)) {
++			close(fd);
+ 			goto errquit;
+ 		}
+ 		sunlen = offsetof(struct sockaddr_un, sun_path) + sprintf(sun.sun_path, "%cncpfs.permanent.mount.%lu", 0,
+diff -r 005801e1fd28 -r 48879aeab0b6 lib/nwtime.c
+--- a/lib/nwtime.c	Sat May 28 15:07:13 2005 +0000
++++ b/lib/nwtime.c	Sat May 28 15:42:43 2005 +0000
+@@ -22,6 +22,8 @@
+ 		Initial version - NWGetFileServerUTCTime moved from nwcalls.c.
+ 
+  */
++
++#include "config.h"
+ 
+ #include <errno.h>
+ #include <string.h>
+diff -r 005801e1fd28 -r 48879aeab0b6 lib/queue.c
+--- a/lib/queue.c	Sat May 28 15:07:13 2005 +0000
++++ b/lib/queue.c	Sat May 28 15:42:43 2005 +0000
+@@ -29,6 +29,8 @@
+ 	1.00  1999, November 20		Petr Vandrovec <vandrove@vc.cvut.cz>
+ 						Added license.
+  */
++
++#include "config.h"
+ 
+ #include "ncplib_i.h"
+ 
+diff -r 005801e1fd28 -r 48879aeab0b6 lib/rdn.c
+--- a/lib/rdn.c	Sat May 28 15:07:13 2005 +0000
++++ b/lib/rdn.c	Sat May 28 15:42:43 2005 +0000
+@@ -25,6 +25,8 @@
+ 		DN length check in __NWDSExtractRDN and NWDSRemoveAllTypesW
+ 
+ */
++
++#include "config.h"
+ 
+ #include <stddef.h>
+ #include <stdlib.h>
+

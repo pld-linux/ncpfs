@@ -1,0 +1,42 @@
+changeset:   435:12722b2b7268
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Sun Jul 03 21:44:37 2005 +0100
+files:       util/nwauth.c
+description:
+Rename daemon to daemon_auth in util/nwauth.c
+
+Fix a warning in nwauth.c build that global daemon() function
+is shadowed by daemon variable in nwauth.c.
+
+
+diff -r 5eb60dbc36bd -r 12722b2b7268 util/nwauth.c
+--- a/util/nwauth.c	Sun Jul 03 21:43:04 2005 +0100
++++ b/util/nwauth.c	Sun Jul 03 21:44:37 2005 +0100
+@@ -82,7 +82,7 @@ main(int argc, char *argv[])
+ 	char *str;
+ 
+ 	int opt;
+-	int daemon = 0;
++	int daemon_auth = 0;
+ 
+ 	setlocale(LC_ALL, "");
+ 	bindtextdomain(NCPFS_PACKAGE, LOCALEDIR);
+@@ -114,7 +114,7 @@ main(int argc, char *argv[])
+ #endif
+ 			break;
+ 		case 'D':
+-			daemon = 1;
++			daemon_auth = 1;
+ 			break;
+ 		case 'h':
+ 		case '?':
+@@ -127,7 +127,7 @@ main(int argc, char *argv[])
+ 	}
+ 
+ 	err = ncp_find_conn_spec3(server, object_name, "",
+-				  1, daemon ? ~0U : getuid(), 0, &spec);
++				  1, daemon_auth ? ~0U : getuid(), 0, &spec);
+ 
+ 	if (err)
+ 	{
+

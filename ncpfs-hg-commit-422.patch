@@ -1,0 +1,196 @@
+changeset:   422:bda42d4b9cf1
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Sat May 28 19:21:17 2005 +0000
+files:       Make.rules.in Makefile.in configure configure.ac contrib/tcl-utils/Makefile.in contrib/tknwmsg/Makefile.in lib/Makefile.in util/Makefile.in
+description:
+Add support for disabling build of shared library with --disable-shared.
+
+
+diff -r 50351d213ba9 -r bda42d4b9cf1 Make.rules.in
+--- a/Make.rules.in	Sat May 28 18:57:50 2005 +0000
++++ b/Make.rules.in	Sat May 28 19:21:17 2005 +0000
+@@ -48,6 +48,7 @@ CCFLAGS := $(CFLAGS_DEFINES) $(CFLAGS_OP
+ # directory where the dynamic library resides to the environment
+ # variable LD_LIBRARY_PATH
+ HAVE_ELF := @ELF_TARGET@
++BUILD_SHARED := @BUILD_SHARED@
+ 
+ VERSION_SOLIB := 2.3.0
+ VERSION_SONAME := 2.3
+diff -r 50351d213ba9 -r bda42d4b9cf1 Makefile.in
+--- a/Makefile.in	Sat May 28 18:57:50 2005 +0000
++++ b/Makefile.in	Sat May 28 19:21:17 2005 +0000
+@@ -19,11 +19,11 @@ CLEAN_SUBDIRS := lib sutil util man intl
+ 	contrib/testing/pp contrib/tests contrib/libtrace contrib/nss64 \
+ 	contrib/tcl-utils contrib/php contrib/pam
+ 
+-export INCLUDES VERSION HAVE_ELF CFLAGS 
++export INCLUDES VERSION BUILD_SHARED CFLAGS 
+ 
+ all:
+ 	set -e; for i in $(EXECSUBDIRS); do make -C $$i all; done
+-	@if [ "$(HAVE_ELF)" = yes ] ;\
++	@if [ "$(BUILD_SHARED)" = yes ] ;\
+ 	then \
+ 	echo ; echo ; echo ;\
+ 	echo Please add \'`pwd`/lib\' to the environment ; \
+diff -r 50351d213ba9 -r bda42d4b9cf1 configure
+--- a/configure	Sat May 28 18:57:50 2005 +0000
++++ b/configure	Sat May 28 19:21:17 2005 +0000
+@@ -313,7 +313,7 @@ ac_includes_default="\
+ #endif"
+ 
+ ac_subdirs_all="$ac_subdirs_all contrib/php"
+-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC_WARNINGS build build_cpu build_vendor build_os host host_cpu host_vendor host_os SET_MAKE CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S PACKAGE VERSION MKINSTALLDIRS USE_NLS MSGFMT GMSGFMT XGETTEXT MSGMERGE CPP EGREP GLIBC2 RANLIB ac_ct_RANLIB ALLOCA GLIBC21 INTL_MACOSX_LIBS HAVE_POSIX_PRINTF HAVE_ASPRINTF HAVE_SNPRINTF HAVE_WPRINTF LIBICONV LTLIBICONV INTLBISON BUILD_INCLUDED_LIBINTL USE_INCLUDED_LIBINTL CATOBJEXT DATADIRNAME INSTOBJEXT GENCAT INTLOBJS INTL_LIBTOOL_SUFFIX_PREFIX INTLLIBS LIBINTL LTLIBINTL POSUB localedir ncp_ipx_headers_1 ncp_ipx_headers_2 ncp_ipx_defsiocprotoprivate ncp_ipx_defsiocaipx ncp_sys_mount_h ncp_linux_fs_h ncp_net_if_h ncp_net_route_h ncp_if_ether_support ncp_sys_select_h stdint_types socklen_t wchar_h LIB_PAM_SECURITY php_found REENTRANT_CFLAGS ncphost ELF_TARGET VERSIONED_LINK ncp_in_support ncp_ipx_support NDS_SUPPORT SIGNATURES MOUNT2 MOUNT3 USE_KERNEL ADDON_SUBDIRS ADDON_DEV_SUBDIRS FFUNCTION_SECTIONS GC_SECTIONS subdirs LIBOBJS LTLIBOBJS'
++ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC_WARNINGS build build_cpu build_vendor build_os host host_cpu host_vendor host_os SET_MAKE CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S PACKAGE VERSION MKINSTALLDIRS USE_NLS MSGFMT GMSGFMT XGETTEXT MSGMERGE CPP EGREP GLIBC2 RANLIB ac_ct_RANLIB ALLOCA GLIBC21 INTL_MACOSX_LIBS HAVE_POSIX_PRINTF HAVE_ASPRINTF HAVE_SNPRINTF HAVE_WPRINTF LIBICONV LTLIBICONV INTLBISON BUILD_INCLUDED_LIBINTL USE_INCLUDED_LIBINTL CATOBJEXT DATADIRNAME INSTOBJEXT GENCAT INTLOBJS INTL_LIBTOOL_SUFFIX_PREFIX INTLLIBS LIBINTL LTLIBINTL POSUB localedir ncp_ipx_headers_1 ncp_ipx_headers_2 ncp_ipx_defsiocprotoprivate ncp_ipx_defsiocaipx ncp_sys_mount_h ncp_linux_fs_h ncp_net_if_h ncp_net_route_h ncp_if_ether_support ncp_sys_select_h stdint_types socklen_t wchar_h LIB_PAM_SECURITY php_found REENTRANT_CFLAGS ncphost ELF_TARGET VERSIONED_LINK ncp_in_support ncp_ipx_support NDS_SUPPORT SIGNATURES MOUNT2 MOUNT3 USE_KERNEL ADDON_SUBDIRS ADDON_DEV_SUBDIRS FFUNCTION_SECTIONS GC_SECTIONS BUILD_SHARED subdirs LIBOBJS LTLIBOBJS'
+ ac_subst_files=''
+ 
+ # Initialize some variables set by options.
+@@ -864,6 +864,7 @@ Optional Features:
+   --disable-reentrant     do not compile threading support into library
+   --disable-versions      do not use version symbols in library
+   --disable-function-sections   do not use -ffunction-sections for static libraries
++  --disable-shared        disable build/use of shared libncp
+   --enable-trace          enable trace of ncp calls
+   --enable-ncp-debug      enable builtin debugging support
+   --disable-nls           do not use Native Language Support
+@@ -1432,6 +1433,12 @@ fi;
+ # Check whether --enable-function_sections or --disable-function_sections was given.
+ if test "${enable_function_sections+set}" = set; then
+   enableval="$enable_function_sections"
++
++fi;
++
++# Check whether --enable-shared or --disable-shared was given.
++if test "${enable_shared+set}" = set; then
++  enableval="$enable_shared"
+ 
+ fi;
+ 
+@@ -14049,6 +14056,16 @@ ELF_TARGET="$ncp_cv_elf_target"
+ ELF_TARGET="$ncp_cv_elf_target"
+ 
+ 
++BUILD_SHARED="$ELF_TARGET"
++if test "$enable_shared" = "no"
++then
++    BUILD_SHARED="no"
++fi
++if test "$enable_shared" = "yes"
++then
++    BUILD_SHARED="yes"
++fi
++
+ FFUNCTION_SECTIONS=""
+ GC_SECTIONS=""
+ if test "$function_sections" = "yes"
+@@ -14174,6 +14191,7 @@ fi
+ 
+ 
+ ADDON_SUBDIRS="$ADDON_SUBDIRS $ADDON_DEV_SUBDIRS"
++
+ 
+ 
+ 
+@@ -14944,6 +14962,7 @@ s,@ADDON_DEV_SUBDIRS@,$ADDON_DEV_SUBDIRS
+ s,@ADDON_DEV_SUBDIRS@,$ADDON_DEV_SUBDIRS,;t t
+ s,@FFUNCTION_SECTIONS@,$FFUNCTION_SECTIONS,;t t
+ s,@GC_SECTIONS@,$GC_SECTIONS,;t t
++s,@BUILD_SHARED@,$BUILD_SHARED,;t t
+ s,@subdirs@,$subdirs,;t t
+ s,@LIBOBJS@,$LIBOBJS,;t t
+ s,@LTLIBOBJS@,$LTLIBOBJS,;t t
+diff -r 50351d213ba9 -r bda42d4b9cf1 configure.ac
+--- a/configure.ac	Sat May 28 18:57:50 2005 +0000
++++ b/configure.ac	Sat May 28 19:21:17 2005 +0000
+@@ -50,6 +50,9 @@ AC_ARG_ENABLE(versions,
+ 
+ AC_ARG_ENABLE(function_sections,
+ [  --disable-function-sections   do not use -ffunction-sections for static libraries])
++
++AC_ARG_ENABLE(shared,
++[  --disable-shared        disable build/use of shared libncp])
+ 
+ AC_ARG_ENABLE(trace,
+ [  --enable-trace          enable trace of ncp calls])
+@@ -892,6 +895,16 @@ ELF_TARGET="$ncp_cv_elf_target"
+ ELF_TARGET="$ncp_cv_elf_target"
+ AC_SUBST(ELF_TARGET)
+ 
++BUILD_SHARED="$ELF_TARGET"
++if test "$enable_shared" = "no"
++then
++    BUILD_SHARED="no"
++fi
++if test "$enable_shared" = "yes"
++then
++    BUILD_SHARED="yes"
++fi
++
+ FFUNCTION_SECTIONS=""
+ GC_SECTIONS=""
+ if test "$function_sections" = "yes"
+@@ -999,6 +1012,7 @@ AC_SUBST(ADDON_DEV_SUBDIRS)
+ AC_SUBST(ADDON_DEV_SUBDIRS)
+ AC_SUBST(FFUNCTION_SECTIONS)
+ AC_SUBST(GC_SECTIONS)
++AC_SUBST(BUILD_SHARED)
+ 
+ AC_CONFIG_FILES([
+ Make.rules
+diff -r 50351d213ba9 -r bda42d4b9cf1 contrib/tcl-utils/Makefile.in
+--- a/contrib/tcl-utils/Makefile.in	Sat May 28 18:57:50 2005 +0000
++++ b/contrib/tcl-utils/Makefile.in	Sat May 28 19:21:17 2005 +0000
+@@ -26,7 +26,7 @@ SBINUTILS = $(O_SBINUTILS:%.o=%)
+ 
+ UTILS = $(USERUTILS) $(SBINUTILS)
+ 
+-ifeq ($(HAVE_ELF),yes)
++ifeq ($(BUILD_SHARED),yes)
+ NCP_LIB := libncp.so
+ else
+ NCP_LIB := libncp.a
+diff -r 50351d213ba9 -r bda42d4b9cf1 contrib/tknwmsg/Makefile.in
+--- a/contrib/tknwmsg/Makefile.in	Sat May 28 18:57:50 2005 +0000
++++ b/contrib/tknwmsg/Makefile.in	Sat May 28 19:21:17 2005 +0000
+@@ -19,7 +19,7 @@ SBINUTILS = $(O_SBINUTILS:%.o=%)
+ 
+ UTILS = $(USERUTILS) $(SBINUTILS)
+ 
+-ifeq ($(HAVE_ELF),yes)
++ifeq ($(BUILD_SHARED),yes)
+ NCP_LIB = libncp.so
+ NCPLIB_DIR = ../../lib
+ LIBDEP = $(NCPLIB_DIR)/$(NCP_LIB)
+diff -r 50351d213ba9 -r bda42d4b9cf1 lib/Makefile.in
+--- a/lib/Makefile.in	Sat May 28 18:57:50 2005 +0000
++++ b/lib/Makefile.in	Sat May 28 19:21:17 2005 +0000
+@@ -63,9 +63,14 @@ SHARED_CFLAGS    := $(CFLAGS) $(CCFLAGS)
+ .PHONY : all dep install install-dev clean mrproper distclean
+ .PHONY : install_shared install_static install_static_su 
+ 
++
++ifeq ($(BUILD_SHARED),yes)
+ all: $(STATIC_NCPLIB) $(SHARED_NCPLIB)
+-
+ install: install_shared
++else
++all: $(STATIC_NCPLIB)
++install:
++endif
+ 
+ %.d: %.c
+ 	set -e; $(CC) -M $(STATIC_CFLAGS) $(CFLAGS_$(@:.d=.o)) $(BASE_CFLAGS) $< \
+diff -r 50351d213ba9 -r bda42d4b9cf1 util/Makefile.in
+--- a/util/Makefile.in	Sat May 28 18:57:50 2005 +0000
++++ b/util/Makefile.in	Sat May 28 19:21:17 2005 +0000
+@@ -37,7 +37,7 @@ SBINUTILS = $(O_SBINUTILS:%.o=%)
+ 
+ UTILS = $(USERUTILS) $(SBINUTILS) ncptest
+ 
+-ifeq ($(HAVE_ELF),yes)
++ifeq ($(BUILD_SHARED),yes)
+ NCP_LIB = libncp.so
+ NCPLIB_DIR = ../lib
+ LIBDEP = $(NCPLIB_DIR)/$(NCP_LIB)
+

@@ -1,0 +1,977 @@
+changeset:   441:fbfcfbb3c88d
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Mon Jul 11 00:42:47 2005 +0100
+files:       contrib/testing/dirlimit.c contrib/testing/dssearch.c contrib/testing/eaops.c contrib/testing/fileinfo.c contrib/testing/large.c contrib/testing/mkfile.c contrib/testing/nsfileinfo.c contrib/testing/nwdsgethost.c contrib/testing/nwdspartlist.c contrib/testing/pp/getconn_addr.c contrib/testing/pp/nwgetconnlist.c contrib/testing/readaddr.c contrib/testing/readadef.c contrib/testing/readcls.c contrib/testing/resint.c contrib/testing/timeinfo.c contrib/testing/wcsmbs-tst1.c ipx-1.0/Samples/ipxrcv.c ipx-1.0/Samples/ipxsend.c ipx-1.0/Samples/rip.c ipx-1.0/Samples/sap.c lib/ncplib.c lib/nwclient.c sutil/ncpm_common.c util/nwdir.c util/nwuserlist.c
+description:
+Fix printf argument mismatches revealed by gcc-4.0 on amd64.
+
+
+diff -r 7f46ab032bd8 -r fbfcfbb3c88d contrib/testing/dirlimit.c
+--- a/contrib/testing/dirlimit.c	Mon Jul 04 00:01:49 2005 +0100
++++ b/contrib/testing/dirlimit.c	Mon Jul 11 00:42:47 2005 +0100
+@@ -146,9 +146,9 @@ int main(int argc, char *argv[]) {
+ 			} else {
+ 				size_t c;
+ 				
+-				printf("%u entries returned\n", x.numEntries);
++				printf("%zu entries returned\n", x.numEntries);
+ 				for (c = 0; c < x.numEntries; c++) {
+-					printf("Entry %u: Level: %u\n", c, x.list[c].level);
++					printf("Entry %zu: Level: %u\n", c, x.list[c].level);
+ 					printf("  Max:     %u\n", x.list[c].max);
+ 					printf("  Current: %u\n", x.list[c].current);
+ 					printf("  Used:    %u\n", x.list[c].max - x.list[c].current);
+diff -r 7f46ab032bd8 -r fbfcfbb3c88d contrib/testing/dssearch.c
+--- a/contrib/testing/dssearch.c	Mon Jul 04 00:01:49 2005 +0100
++++ b/contrib/testing/dssearch.c	Mon Jul 11 00:42:47 2005 +0100
+@@ -163,7 +163,7 @@ static void prtattr(NWDSContextHandle ct
+ 					size_t rl = sizeof(name);
+ 					while ((rl > 0) && (name[rl - 1] == '\xEE')) rl--;
+ 					if (cs != rl) {
+-						printf("SYNT %d: computed: %u, real: %u\n", synt, cs, rl);
++						printf("SYNT %d: computed: %zu, real: %zu\n", synt, cs, rl);
+ 					}
+ 				}
+ 				switch (synt) {
+@@ -181,7 +181,7 @@ static void prtattr(NWDSContextHandle ct
+ 							Octet_String_T* os = (Octet_String_T*)name;
+ 							size_t i;
+ 
+-							printf("%s      Value: length=%u\n", pref, os->length);
++							printf("%s      Value: length=%zu\n", pref, os->length);
+ 							printf("%s             ", pref);
+ 							for (i = 0; i < os->length; i++)
+ 								printf("%02X ", os->data[i]);
+@@ -214,7 +214,7 @@ static void prtattr(NWDSContextHandle ct
+ 							size_t z;
+ 
+ 							printf("%s          Type: %u\n", pref, na->addressType);
+-							printf("%s          Length: %u\n", pref, na->addressLength);
++							printf("%s          Length: %zu\n", pref, na->addressLength);
+ 							printf("%s          Data: ", pref);
+ 							for (z = 0; z < na->addressLength; z++)
+ 								printf("%02X ", na->address[z]);
+@@ -231,12 +231,12 @@ static void prtattr(NWDSContextHandle ct
+ 							printf("%s        Server Name: '%s'\n", pref, rp->serverName);
+ 							printf("%s        Replica Type: %u\n", pref, rp->replicaType);
+ 							printf("%s        Replica Number: %u\n", pref, rp->replicaNumber);
+-							printf("%s        Address Count: %u\n", pref, rp->count);
++							printf("%s        Address Count: %zu\n", pref, rp->count);
+ 							for (cntv = rp->count, qp = rp->replicaAddressHint; cntv--; qp++) {
+ 								size_t z;
+ 
+ 								printf("%s          Type: %u\n", pref, qp->addressType);
+-								printf("%s          Length: %u\n", pref, qp->addressLength);
++								printf("%s          Length: %zu\n", pref, qp->addressLength);
+ 								printf("%s          Data: ", pref);
+ 								for (z = 0; z < qp->addressLength; z++)
+ 									printf("%02X ", qp->address[z]);
+@@ -292,7 +292,7 @@ static void prtattr(NWDSContextHandle ct
+ 							for (; ol; ol = ol->next) {
+ 								size_t i;
+ 
+-								printf("%s      Value: Length: %u\n", pref, ol->length);
++								printf("%s      Value: Length: %zu\n", pref, ol->length);
+ 								printf("%s             ", pref);
+ 								for (i = 0; i < ol->length; i++)
+ 									printf("%02X ", ol->data[i]);
+@@ -313,7 +313,7 @@ static void prtattr(NWDSContextHandle ct
+ 							Fax_Number_T* fn = (Fax_Number_T*)name;
+ 
+ 							printf("%s      Fax Number: '%s'\n", pref, fn->telephoneNumber);
+-							printf("%s      Parameter bits: %u\n", pref, fn->parameters.numOfBits);
++							printf("%s      Parameter bits: %zu\n", pref, fn->parameters.numOfBits);
+ 						}
+ 						break;
+ 					case SYN_EMAIL_ADDRESS:
+diff -r 7f46ab032bd8 -r fbfcfbb3c88d contrib/testing/eaops.c
+--- a/contrib/testing/eaops.c	Mon Jul 04 00:01:49 2005 +0100
++++ b/contrib/testing/eaops.c	Mon Jul 11 00:42:47 2005 +0100
+@@ -90,10 +90,10 @@ static void eaenum0(NWCONN_HANDLE conn, 
+ 		fprintf(stderr, "Enumeration extended fail: %s\n", 
+ 			strnwerror((winfo.errorCode & 0xFF) | NWE_SERVER_ERROR));
+ 	} else {
+-		printf("Total EAs:  %u\n", winfo.totalEAs);
+-		printf("DataSize:   %u\n", winfo.totalEAsDataSize);
+-		printf("KeySize:    %u\n", winfo.totalEAsKeySize);
+-		printf("New EA handle: %08X\n", winfo.newEAhandle);
++		printf("Total EAs:  %lu\n", (unsigned long)winfo.totalEAs);
++		printf("DataSize:   %lu\n", (unsigned long)winfo.totalEAsDataSize);
++		printf("KeySize:    %lu\n", (unsigned long)winfo.totalEAsKeySize);
++		printf("New EA handle: %08lX\n", (unsigned long)winfo.newEAhandle);
+ 	}
+ 	if (winfo.newEAhandle) {
+ 		/* should not happen as we used NWEA_FL_CLOSE_IMM */
+@@ -111,7 +111,7 @@ static void eaenum1(NWCONN_HANDLE conn, 
+ 	struct ncp_ea_enumerate_info winfo;
+ 	NWCCODE err;
+ 	int sawtitle = 0;
+-	size_t eaid = 1;
++	unsigned int eaid = 1;
+ 
+ 	winfo.enumSequence = 0;
+ 	err = ncp_ea_enumerate(conn,
+@@ -134,15 +134,15 @@ static void eaenum1(NWCONN_HANDLE conn, 
+ 		}
+ 
+ 		if (!sawtitle) {
+-			printf("Total EAs:  %u\n", winfo.totalEAs);
+-			printf("DataSize:   %u\n", winfo.totalEAsDataSize);
+-			printf("KeySize:    %u\n", winfo.totalEAsKeySize);
++			printf("Total EAs:  %lu\n", (unsigned long)winfo.totalEAs);
++			printf("DataSize:   %lu\n", (unsigned long)winfo.totalEAsDataSize);
++			printf("KeySize:    %lu\n", (unsigned long)winfo.totalEAsKeySize);
+ 			sawtitle = 1;
+ 		}
+-		printf("New EA handle: %08X\n", winfo.newEAhandle);
+-		printf("New search seq: %u\n", winfo.enumSequence);
+-		printf("Returned items: %u\n", winfo.returnedItems);
+-		printf("Size:       %u\n", pos);
++		printf("New EA handle: %08lX\n", (unsigned long)winfo.newEAhandle);
++		printf("New search seq: %lu\n", (unsigned long)winfo.enumSequence);
++		printf("Returned items: %lu\n", (unsigned long)winfo.returnedItems);
++		printf("Size:       %zu\n", pos);
+ 
+ 		p = vv;
+ 		for (rinfo = 0; rinfo < winfo.returnedItems; rinfo++) {
+@@ -156,8 +156,8 @@ static void eaenum1(NWCONN_HANDLE conn, 
+ 			else {
+ 				printf("  Key %u:\n", eaid);
+ 				printf("    Name:  %s\n", ppp.key);
+-				printf("    Access Flag: %08X\n", ppp.accessFlag);
+-				printf("    Value Length: %u\n", ppp.valueLength);
++				printf("    Access Flag: %08lX\n", (unsigned long)ppp.accessFlag);
++				printf("    Value Length: %lu\n", (unsigned long)ppp.valueLength);
+ 			}
+ 			eaid++;
+ 		}
+@@ -183,7 +183,7 @@ static void eaenum6(NWCONN_HANDLE conn, 
+ 	size_t pos;
+ 	struct ncp_ea_enumerate_info winfo;
+ 	NWCCODE err;
+-	size_t eaid = 1;
++	unsigned int eaid = 1;
+ 
+ 	winfo.enumSequence = 0;
+ 	err = ncp_ea_enumerate(conn,
+@@ -202,13 +202,13 @@ static void eaenum6(NWCONN_HANDLE conn, 
+ 		size_t rinfo;
+ 		const unsigned char* p;
+ 
+-		printf("Total EAs:  %u\n", winfo.totalEAs);
+-		printf("DataSize:   %u\n", winfo.totalEAsDataSize);
+-		printf("KeySize:    %u\n", winfo.totalEAsKeySize);
+-		printf("New EA handle: %08X\n", winfo.newEAhandle);
+-		printf("New search seq: %u\n", winfo.enumSequence);
+-		printf("Returned items: %u\n", winfo.returnedItems);
+-		printf("Size:       %u\n", pos);
++		printf("Total EAs:  %lu\n", (unsigned long)winfo.totalEAs);
++		printf("DataSize:   %lu\n", (unsigned long)winfo.totalEAsDataSize);
++		printf("KeySize:    %lu\n", (unsigned long)winfo.totalEAsKeySize);
++		printf("New EA handle: %08lX\n", (unsigned long)winfo.newEAhandle);
++		printf("New search seq: %lu\n", (unsigned long)winfo.enumSequence);
++		printf("Returned items: %lu\n", (unsigned long)winfo.returnedItems);
++		printf("Size:       %zu\n", pos);
+ 
+ 		p = vv;
+ 		for (rinfo = 0; rinfo < winfo.returnedItems; rinfo++) {
+@@ -222,10 +222,10 @@ static void eaenum6(NWCONN_HANDLE conn, 
+ 			else {
+ 				printf("  Key %u:\n", eaid);
+ 				printf("    Name:  %s\n", ppp.key);
+-				printf("    Access Flag: %08X\n", ppp.accessFlag);
+-				printf("    Value Length: %u\n", ppp.valueLength);
+-				printf("    Key Extants: %u\n", ppp.keyExtants);
+-				printf("    Value Extants: %u\n", ppp.valueExtants);
++				printf("    Access Flag: %08lX\n", (unsigned long)ppp.accessFlag);
++				printf("    Value Length: %lu\n", (unsigned long)ppp.valueLength);
++				printf("    Key Extants: %lu\n", (unsigned long)ppp.keyExtants);
++				printf("    Value Extants: %lu\n", (unsigned long)ppp.valueExtants);
+ 			}
+ 			eaid++;
+ 		}
+@@ -246,7 +246,7 @@ static void eaenum7(NWCONN_HANDLE conn, 
+ 	struct ncp_ea_enumerate_info winfo;
+ 	NWCCODE err;
+ 	int sawtitle = 0;
+-	size_t eaid = 1;
++	unsigned int eaid = 1;
+ 
+ 	winfo.enumSequence = 0;
+ 	err = ncp_ea_enumerate(conn,
+@@ -269,15 +269,15 @@ static void eaenum7(NWCONN_HANDLE conn, 
+ 		}
+ 
+ 		if (!sawtitle) {
+-			printf("Total EAs:  %u\n", winfo.totalEAs);
+-			printf("DataSize:   %u\n", winfo.totalEAsDataSize);
+-			printf("KeySize:    %u\n", winfo.totalEAsKeySize);
++			printf("Total EAs:  %lu\n", (unsigned long)winfo.totalEAs);
++			printf("DataSize:   %lu\n", (unsigned long)winfo.totalEAsDataSize);
++			printf("KeySize:    %lu\n", (unsigned long)winfo.totalEAsKeySize);
+ 			sawtitle = 1;
+ 		}
+-		printf("New EA handle: %08X\n", winfo.newEAhandle);
+-		printf("New search seq: %u\n", winfo.enumSequence);
+-		printf("Returned items: %u\n", winfo.returnedItems);
+-		printf("Size:       %u\n", pos);
++		printf("New EA handle: %08lX\n", (unsigned long)winfo.newEAhandle);
++		printf("New search seq: %lu\n", (unsigned long)winfo.enumSequence);
++		printf("Returned items: %lu\n", (unsigned long)winfo.returnedItems);
++		printf("Size:       %zu\n", pos);
+ 
+ 		p = vv;
+ 		for (rinfo = 0; rinfo < winfo.returnedItems; rinfo++) {
+@@ -335,13 +335,13 @@ static void eaenumX(NWCONN_HANDLE conn, 
+ 			break;
+ 		}
+ 
+-		printf("Total EAs:  %u\n", winfo.totalEAs);
+-		printf("DataSize:   %u\n", winfo.totalEAsDataSize);
+-		printf("KeySize:    %u\n", winfo.totalEAsKeySize);
+-		printf("New EA handle: %08X\n", winfo.newEAhandle);
+-		printf("New search seq: %u\n", winfo.enumSequence);
+-		printf("Returned items: %u\n", winfo.returnedItems);
+-		printf("Size:       %u\n", pos);
++		printf("Total EAs:  %lu\n", (unsigned long)winfo.totalEAs);
++		printf("DataSize:   %lu\n", (unsigned long)winfo.totalEAsDataSize);
++		printf("KeySize:    %lu\n", (unsigned long)winfo.totalEAsKeySize);
++		printf("New EA handle: %08lX\n", (unsigned long)winfo.newEAhandle);
++		printf("New search seq: %lu\n", (unsigned long)winfo.enumSequence);
++		printf("Returned items: %lu\n", (unsigned long)winfo.returnedItems);
++		printf("Size:       %zu\n", pos);
+ 
+ 		printf("Returned data: ");
+ 		p = vv;
+@@ -396,16 +396,16 @@ static void eawritebuf(NWCONN_HANDLE con
+ 			break;
+ 		}
+ 		if (winfo.written != tbs) {
+-			fprintf(stderr, "Partial write: %u instead of %u\n",
+-				winfo.written, tbs);
++			fprintf(stderr, "Partial write: %lu instead of %zu\n",
++				(unsigned long)winfo.written, tbs);
+ 			break;
+ 		}
+ 		cpos += winfo.written;
+ 		if (cpos >= buflen) {
+-			printf("Successfully written %u bytes\n", cpos);
+-			break;
+-		}
+-		printf("%u\r", cpos); fflush(stdout);
++			printf("Successfully written %zu bytes\n", cpos);
++			break;
++		}
++		printf("%zu\r", cpos); fflush(stdout);
+ 
+ 		attrname = "";
+ 		dirent = 0;
+@@ -459,7 +459,7 @@ static void eawrite(NWCONN_HANDLE conn, 
+ 			if (!nb) {
+ 				fprintf(stderr, "Cannot allocate memory: %s\n",
+ 					strerror(errno));
+-				printf("Continuing with %u bytes read\n",
++				printf("Continuing with %zu bytes read\n",
+ 					used);
+ 				break;
+ 			}
+diff -r 7f46ab032bd8 -r fbfcfbb3c88d contrib/testing/fileinfo.c
+--- a/contrib/testing/fileinfo.c	Mon Jul 04 00:01:49 2005 +0100
++++ b/contrib/testing/fileinfo.c	Mon Jul 11 00:42:47 2005 +0100
+@@ -69,21 +69,21 @@ help(void)
+ 			
+ static void printstruct2(u_int32_t rim, struct nw_info_struct2* info) {
+ 	if (rim & RIM_SPACE_ALLOCATED) {
+-		printf("Space Allocated:       %08LX (%Ld)\n", info->SpaceAllocated,
+-							      info->SpaceAllocated);
++		printf("Space Allocated:       %08llX (%lld)\n", (unsigned long long)info->SpaceAllocated,
++							         (unsigned long long)info->SpaceAllocated);
+ 	}
+ 	if (rim & RIM_ATTRIBUTES) {
+ 		printf("Attributes:            %08X\n", info->Attributes.Attributes);
+ 		printf("Flags:                 %04X\n", info->Attributes.Flags);
+ 	}
+ 	if (rim & (RIM_DATA_SIZE | RIM_SIZE64)) {
+-		printf("Data Size:             %08LX (%Ld)\n", info->DataSize,
+-							     info->DataSize);
++		printf("Data Size:             %08llX (%lld)\n", (unsigned long long)info->DataSize,
++							         (unsigned long long)info->DataSize);
+ 	}
+ 	if (rim & RIM_TOTAL_SIZE) {
+ 		printf("Total Size:            %08X (%d)\n", info->TotalSize.TotalAllocated,
+ 							     info->TotalSize.TotalAllocated);
+-		printf("Datastreams:           %d\n", info->TotalSize.Datastreams);
++		printf("Datastreams:           %zd\n", info->TotalSize.Datastreams);
+ 	}
+ 	if (rim & RIM_EXT_ATTR_INFO) {
+ 		printf("ExtAttrInfo.DataSize:  %08X (%d)\n", info->ExtAttrInfo.DataSize,
+diff -r 7f46ab032bd8 -r fbfcfbb3c88d contrib/testing/large.c
+--- a/contrib/testing/large.c	Mon Jul 04 00:01:49 2005 +0100
++++ b/contrib/testing/large.c	Mon Jul 11 00:42:47 2005 +0100
+@@ -64,21 +64,21 @@ help(void)
+ 			
+ static void printstruct2(u_int32_t rim, struct nw_info_struct2* info) {
+ 	if (rim & RIM_SPACE_ALLOCATED) {
+-		printf("Space Allocated:       %08LX (%Ld)\n", info->SpaceAllocated,
+-							      info->SpaceAllocated);
++		printf("Space Allocated:       %08llX (%lld)\n", (unsigned long long)info->SpaceAllocated,
++							         (unsigned long long)info->SpaceAllocated);
+ 	}
+ 	if (rim & RIM_ATTRIBUTES) {
+ 		printf("Attributes:            %08X\n", info->Attributes.Attributes);
+ 		printf("Flags:                 %04X\n", info->Attributes.Flags);
+ 	}
+ 	if (rim & RIM_DATA_SIZE) {
+-		printf("Data Size:             %08LX (%Ld)\n", info->DataSize,
+-							     info->DataSize);
++		printf("Data Size:             %08llX (%lld)\n", (unsigned long long)info->DataSize,
++							         (unsigned long long)info->DataSize);
+ 	}
+ 	if (rim & RIM_TOTAL_SIZE) {
+ 		printf("Total Size:            %08X (%d)\n", info->TotalSize.TotalAllocated,
+ 							     info->TotalSize.TotalAllocated);
+-		printf("Datastreams:           %d\n", info->TotalSize.Datastreams);
++		printf("Datastreams:           %zd\n", info->TotalSize.Datastreams);
+ 	}
+ 	if (rim & RIM_EXT_ATTR_INFO) {
+ 		printf("ExtAttrInfo.DataSize:  %08X (%d)\n", info->ExtAttrInfo.DataSize,
+@@ -272,7 +272,7 @@ int main(int argc, char *argv[]) {
+ 				dserr = ncp_write64(conn, fh, offs, length, databuffer, &lnw);
+ 				printf("64-bit write request done with %s\n", strnwerror(dserr));
+ 				if (dserr == 0) {
+-					printf("%u bytes written\n", lnw);
++					printf("%zu bytes written\n", lnw);
+ 				}
+ 			} else if (dolen) {
+ 				u_int64_t ln;
+@@ -280,7 +280,7 @@ int main(int argc, char *argv[]) {
+ 				dserr = ncp_get_file_size(conn, fh, &ln);
+ 				printf("64-bit file length request done with %s\n", strnwerror(dserr));
+ 				if (dserr == 0) {
+-					printf("%llu bytes (0x%016llX)\n", ln, ln);
++					printf("%llu bytes (0x%016llX)\n", (unsigned long long)ln, (unsigned long long)ln);
+ 				}
+ 			} else {
+ 				size_t lnr;
+@@ -288,7 +288,7 @@ int main(int argc, char *argv[]) {
+ 				dserr = ncp_read64(conn, fh, offs, length, databuffer, &lnr);
+ 				printf("64-bit read request done with %s\n", strnwerror(dserr));
+ 				if (dserr == 0) {
+-					printf("%u bytes read\n", lnr);
++					printf("%zu bytes read\n", lnr);
+ #if 0
+ 					fwrite(databuffer, 1, lnr, stdout);
+ #else
+diff -r 7f46ab032bd8 -r fbfcfbb3c88d contrib/testing/mkfile.c
+--- a/contrib/testing/mkfile.c	Mon Jul 04 00:01:49 2005 +0100
++++ b/contrib/testing/mkfile.c	Mon Jul 11 00:42:47 2005 +0100
+@@ -61,21 +61,21 @@ help(void)
+ 			
+ static void printstruct2(u_int32_t rim, struct nw_info_struct2* info) {
+ 	if (rim & RIM_SPACE_ALLOCATED) {
+-		printf("Space Allocated:       %08LX (%Ld)\n", info->SpaceAllocated,
+-							      info->SpaceAllocated);
++		printf("Space Allocated:       %08llX (%lld)\n", (unsigned long long)info->SpaceAllocated,
++							         (unsigned long long)info->SpaceAllocated);
+ 	}
+ 	if (rim & RIM_ATTRIBUTES) {
+ 		printf("Attributes:            %08X\n", info->Attributes.Attributes);
+ 		printf("Flags:                 %04X\n", info->Attributes.Flags);
+ 	}
+ 	if (rim & RIM_DATA_SIZE) {
+-		printf("Data Size:             %08LX (%Ld)\n", info->DataSize,
+-							     info->DataSize);
++		printf("Data Size:             %08llX (%lld)\n", (unsigned long long)info->DataSize,
++							         (unsigned long long)info->DataSize);
+ 	}
+ 	if (rim & RIM_TOTAL_SIZE) {
+ 		printf("Total Size:            %08X (%d)\n", info->TotalSize.TotalAllocated,
+ 							     info->TotalSize.TotalAllocated);
+-		printf("Datastreams:           %d\n", info->TotalSize.Datastreams);
++		printf("Datastreams:           %zd\n", info->TotalSize.Datastreams);
+ 	}
+ 	if (rim & RIM_EXT_ATTR_INFO) {
+ 		printf("ExtAttrInfo.DataSize:  %08X (%d)\n", info->ExtAttrInfo.DataSize,
+diff -r 7f46ab032bd8 -r fbfcfbb3c88d contrib/testing/nsfileinfo.c
+--- a/contrib/testing/nsfileinfo.c	Mon Jul 04 00:01:49 2005 +0100
++++ b/contrib/testing/nsfileinfo.c	Mon Jul 11 00:42:47 2005 +0100
+@@ -64,14 +64,14 @@ static void printstruct2(struct ncp_name
+ static void printstruct2(struct ncp_namespace_format* info) {
+ 	int i;
+ 	
+-	printf("Bits: Fixed:    %08X, count %d\n", info->BitMask.fixed,    info->BitsDefined.fixed);
+-	printf("Bits: Variable: %08X, count %d\n", info->BitMask.variable, info->BitsDefined.variable);
+-	printf("Bits: Huge:     %08X, count %d\n", info->BitMask.huge,     info->BitsDefined.huge);
++	printf("Bits: Fixed:    %08X, count %zd\n", info->BitMask.fixed,    info->BitsDefined.fixed);
++	printf("Bits: Variable: %08X, count %zd\n", info->BitMask.variable, info->BitsDefined.variable);
++	printf("Bits: Huge:     %08X, count %zd\n", info->BitMask.huge,     info->BitsDefined.huge);
+ 	for (i = 0; i < 32; i++) {
+ 		int prt = 0;
+-		int mask = 1 << i;
++		unsigned int mask = 1 << i;
+ 		
+-		printf("Field %02X: %d bytes (", i, info->FieldsLength[i]);
++		printf("Field %02X: %zd bytes (", i, info->FieldsLength[i]);
+ 		if (info->BitMask.fixed & mask) {
+ 			printf("fixed");
+ 			prt = 1;
+diff -r 7f46ab032bd8 -r fbfcfbb3c88d contrib/testing/nwdsgethost.c
+--- a/contrib/testing/nwdsgethost.c	Mon Jul 04 00:01:49 2005 +0100
++++ b/contrib/testing/nwdsgethost.c	Mon Jul 11 00:42:47 2005 +0100
+@@ -273,7 +273,7 @@ int main(int argc, char *argv[]) {
+ 						size_t rl = sizeof(name);
+ 						while ((rl > 0) && (name[rl - 1] == '\xEE')) rl--;
+ 						if (cs != rl) {
+-							printf("SYNT %d: computed: %u, real: %u\n", synt, cs, rl);
++							printf("SYNT %d: computed: %zu, real: %zu\n", synt, cs, rl);
+ 						}
+ 					}
+ 					switch (synt) {
+@@ -291,7 +291,7 @@ int main(int argc, char *argv[]) {
+ 								Octet_String_T* os = (Octet_String_T*)name;
+ 								size_t i;
+ 								
+-								printf("        Value: length=%u\n", os->length);
++								printf("        Value: length=%zu\n", os->length);
+ 								printf("               ");
+ 								for (i = 0; i < os->length; i++)
+ 									printf("%02X ", os->data[i]);
+@@ -324,7 +324,7 @@ int main(int argc, char *argv[]) {
+ 								size_t z;
+ 
+ 								printf("            Type: %u\n", na->addressType);
+-								printf("            Length: %u\n", na->addressLength);
++								printf("            Length: %zu\n", na->addressLength);
+ 								printf("            Data: ");
+ 								for (z = 0; z < na->addressLength; z++)
+ 									printf("%02X ", na->address[z]);
+@@ -341,12 +341,12 @@ int main(int argc, char *argv[]) {
+ 								printf("          Server Name: '%s'\n", rp->serverName);
+ 								printf("          Replica Type: %u\n", rp->replicaType);
+ 								printf("          Replica Number: %u\n", rp->replicaNumber);
+-								printf("          Address Count: %u\n", rp->count);
++								printf("          Address Count: %zu\n", rp->count);
+ 								for (rpcnt = rp->count, qp = rp->replicaAddressHint; rpcnt--; qp++) {
+ 									size_t z;
+ 
+ 									printf("            Type: %u\n", qp->addressType);
+-									printf("            Length: %u\n", qp->addressLength);
++									printf("            Length: %zu\n", qp->addressLength);
+ 									printf("            Data: ");
+ 									for (z = 0; z < qp->addressLength; z++)
+ 										printf("%02X ", qp->address[z]);
+@@ -402,7 +402,7 @@ int main(int argc, char *argv[]) {
+ 								for (; ol; ol = ol->next) {
+ 									size_t i;
+ 									
+-									printf("        Value: Length: %u\n", ol->length);
++									printf("        Value: Length: %zu\n", ol->length);
+ 									printf("               ");
+ 									for (i = 0; i < ol->length; i++)
+ 										printf("%02X ", ol->data[i]);
+@@ -423,7 +423,7 @@ int main(int argc, char *argv[]) {
+ 								Fax_Number_T* fn = (Fax_Number_T*)name;
+ 								
+ 								printf("        Fax Number: '%s'\n", fn->telephoneNumber);
+-								printf("        Parameter bits: %u\n", fn->parameters.numOfBits);
++								printf("        Parameter bits: %zu\n", fn->parameters.numOfBits);
+ 							}
+ 							break;
+ 						case SYN_EMAIL_ADDRESS:
+diff -r 7f46ab032bd8 -r fbfcfbb3c88d contrib/testing/nwdspartlist.c
+--- a/contrib/testing/nwdspartlist.c	Mon Jul 04 00:01:49 2005 +0100
++++ b/contrib/testing/nwdspartlist.c	Mon Jul 11 00:42:47 2005 +0100
+@@ -252,7 +252,7 @@ int main(int argc, char *argv[]) {
+ 				printf("Server %s holds %u partitions\n",
+ 					sn, cnt);
+ 				while (!dserr && cnt--) {
+-					printf("Partition #%u\n", pcnt++);
++					printf("Partition #%zu\n", pcnt++);
+ 					if (req_present) {
+ 						char* start;
+ 						char* end;
+@@ -273,7 +273,7 @@ int main(int argc, char *argv[]) {
+ 							nuint32 bit;
+ 							size_t len;
+ 							
+-							printf("  Partition info length:  %10u\n", end - start);
++							printf("  Partition info length:  %10zu\n", end - start);
+ 							if (req & DSP_OUTPUT_FIELDS) {
+ 								dserr = NWDSGetPartitionExtInfo(ctx, start, end, DSP_OUTPUT_FIELDS, &len, &pt);
+ 								if (dserr) {
+@@ -281,7 +281,7 @@ int main(int argc, char *argv[]) {
+ 										strnwerror(dserr));
+ 									pt = req;
+ 								} else {
+-									printf("  Output fields:            %08X (%u bytes)\n", pt, len);
++									printf("  Output fields:            %08X (%zu bytes)\n", pt, len);
+ 								}
+ 							} else {
+ 								pt = req;
+@@ -295,38 +295,38 @@ int main(int argc, char *argv[]) {
+ 									else {
+ 										switch (bit) {
+ 											case DSP_PARTITION_ID:
+-												printf("  Partition ID:             %08X (%u bytes)\n", info.id, len);
++												printf("  Partition ID:             %08X (%zu bytes)\n", info.id, len);
+ 												break;
+ 											case DSP_REPLICA_STATE:
+-												printf("  Replica state:          %10u (%u bytes)\n", info.x32, len);
++												printf("  Replica state:          %10u (%zu bytes)\n", info.x32, len);
+ 												break;
+ 											case DSP_MODIFICATION_TIMESTAMP:
+-												printf("  Modification timestamp: %10u.%u.%u (%u bytes)\n",
++												printf("  Modification timestamp: %10u.%u.%u (%zu bytes)\n",
+ 													info.ts.wholeSeconds, info.ts.replicaNum,
+ 													info.ts.eventID, len);
+ 												break;
+ 											case DSP_PURGE_TIME:
+-												printf("  Purge time:             %10u (%u bytes)\n", 
++												printf("  Purge time:             %10u (%zu bytes)\n", 
+ 													info.x32, len);
+ 												break;
+ 											case DSP_LOCAL_PARTITION_ID:
+-												printf("  Local partition ID:     %10u (%u bytes)\n",
++												printf("  Local partition ID:     %10u (%zu bytes)\n",
+ 													info.x32, len);
+ 												break;
+ 											case DSP_PARTITION_DN:
+-												printf("  Partition DN:           %s (%u bytes)\n",
++												printf("  Partition DN:           %s (%zu bytes)\n",
+ 													info.name, len);
+ 												break;
+ 											case DSP_REPLICA_TYPE:
+-												printf("  Replica type:           %10u (%u bytes)\n",
++												printf("  Replica type:           %10u (%zu bytes)\n",
+ 													info.x32, len);
+ 												break;
+ 											case DSP_PARTITION_BUSY:
+-												printf("  Partition busy:         %10u (%u bytes)\n",
++												printf("  Partition busy:         %10u (%zu bytes)\n",
+ 													info.x32, len);
+ 												break;
+ 											default:
+-												printf("  Unknown %08X:       %10u (%u bytes)\n",
++												printf("  Unknown %08X:       %10u (%zu bytes)\n",
+ 													bit, info.x32, len);
+ 												break;
+ 										}
+diff -r 7f46ab032bd8 -r fbfcfbb3c88d contrib/testing/pp/getconn_addr.c
+--- a/contrib/testing/pp/getconn_addr.c	Mon Jul 04 00:01:49 2005 +0100
++++ b/contrib/testing/pp/getconn_addr.c	Mon Jul 11 00:42:47 2005 +0100
+@@ -129,7 +129,7 @@ int main(int argc, char *argv[]) {
+ 
+         printf (" got the following tran address: \n");
+         printf ("TYPE:%d \n",ta.type);
+-        printf ("LEN: %d \n",ta.len);
++        printf ("LEN: %zd \n",ta.len);
+         for (i=0; i<ta.len;i++)
+           printf ("%x ",myBuf[i]);
+         printf("\n");
+@@ -155,7 +155,7 @@ int main(int argc, char *argv[]) {
+ 
+         printf (" got the following tran address: \n");
+         printf ("TYPE:%d \n",ta.type);
+-        printf ("LEN: %d \n",ta.len);
++        printf ("LEN: %zd \n",ta.len);
+         for (i=0; i<mySize;i++)
+           printf ("%x ",myBuf[i]);
+         printf("\n");
+diff -r 7f46ab032bd8 -r fbfcfbb3c88d contrib/testing/pp/nwgetconnlist.c
+--- a/contrib/testing/pp/nwgetconnlist.c	Mon Jul 04 00:01:49 2005 +0100
++++ b/contrib/testing/pp/nwgetconnlist.c	Mon Jul 11 00:42:47 2005 +0100
+@@ -159,7 +159,7 @@ dump_hex(const char *_msg, const unsigne
+ dump_hex(const char *_msg, const unsigned char *_buf, size_t _len)
+ {
+ 	static char sym[] = "0123456789ABCDEF";
+-	printf( "len = %d:msg->%s", _len, _msg);
++	printf( "len = %zd:msg->%s", _len, _msg);
+ 	for (; _len > 0; _len--, _buf++) {
+ 		putc(sym[(*_buf) >> 4],stdout);
+ 		putc(sym[(*_buf) & 0x0F],stdout);
+diff -r 7f46ab032bd8 -r fbfcfbb3c88d contrib/testing/readaddr.c
+--- a/contrib/testing/readaddr.c	Mon Jul 04 00:01:49 2005 +0100
++++ b/contrib/testing/readaddr.c	Mon Jul 11 00:42:47 2005 +0100
+@@ -182,7 +182,7 @@ int main(int argc, char *argv[]) {
+ 					}	
+ 					p = (Net_Address_T*)malloc(len);
+ 					if (!p) {
+-						fprintf(stderr, "malloc(%u): Out of memory\n",
++						fprintf(stderr, "malloc(%zu): Out of memory\n",
+ 							len);
+ 						break;
+ 					}
+@@ -231,7 +231,7 @@ int main(int argc, char *argv[]) {
+ 							break;
+ 					}
+ 					if (!printed) {
+-						printf("Address: %d, len: %d, content: ", p->addressType, p->addressLength);
++						printf("Address: %d, len: %zd, content: ", p->addressType, p->addressLength);
+ 						while (len--) {
+ 							printf("%02X ", *v++);
+ 						}
+diff -r 7f46ab032bd8 -r fbfcfbb3c88d contrib/testing/readadef.c
+--- a/contrib/testing/readadef.c	Mon Jul 04 00:01:49 2005 +0100
++++ b/contrib/testing/readadef.c	Mon Jul 11 00:42:47 2005 +0100
+@@ -278,7 +278,7 @@ int main(int argc, char *argv[]) {
+ 					printf("    Syntax ID: %d\n", ainfo.attrSyntaxID);
+ 					printf("    Lower boundary: %d\n", ainfo.attrLower);
+ 					printf("    Upper boundary: %d\n", ainfo.attrUpper);
+-					printf("    ASN1:  %d chars, ", ainfo.asn1ID.length);
++					printf("    ASN1:  %zd chars, ", ainfo.asn1ID.length);
+ 					for (asnp = 0; asnp < ainfo.asn1ID.length; asnp++)
+ 						printf("%02X", ainfo.asn1ID.data[asnp]);
+ 					printf("\n");
+diff -r 7f46ab032bd8 -r fbfcfbb3c88d contrib/testing/readcls.c
+--- a/contrib/testing/readcls.c	Mon Jul 04 00:01:49 2005 +0100
++++ b/contrib/testing/readcls.c	Mon Jul 11 00:42:47 2005 +0100
+@@ -297,7 +297,7 @@ int main(int argc, char *argv[]) {
+ 					}
+ 					printf("  Class: '%s'\n", name);
+ 					printf("    Flags: %08X\n", cinfo.classFlags);
+-					printf("    ASN1:  %d chars, ", cinfo.asn1ID.length);
++					printf("    ASN1:  %zd chars, ", cinfo.asn1ID.length);
+ 					for (asnp = 0; asnp < cinfo.asn1ID.length; asnp++)
+ 						printf("%02X", cinfo.asn1ID.data[asnp]);
+ 					printf("\n");
+diff -r 7f46ab032bd8 -r fbfcfbb3c88d contrib/testing/resint.c
+--- a/contrib/testing/resint.c	Mon Jul 04 00:01:49 2005 +0100
++++ b/contrib/testing/resint.c	Mon Jul 11 00:42:47 2005 +0100
+@@ -242,7 +242,7 @@ lll:;
+ 		buff = buffT->curPos;
+ 		l = buffT->dataend - buff;
+ 				
+-		printf("Resolved: %d bytes\n", l);
++		printf("Resolved: %zd bytes\n", l);
+ 		x = 0;
+ 		if (l < 4) goto dump;
+ 		val = DVAL_LH(buff, x);
+diff -r 7f46ab032bd8 -r fbfcfbb3c88d contrib/testing/timeinfo.c
+--- a/contrib/testing/timeinfo.c	Mon Jul 04 00:01:49 2005 +0100
++++ b/contrib/testing/timeinfo.c	Mon Jul 11 00:42:47 2005 +0100
+@@ -138,7 +138,7 @@ static void DemoGetTime(NWCONN_HANDLE co
+ 		fprintf(stderr, "NCP 114.1 failed with %s\n", strnwerror(err));
+ 		return;
+ 	}
+-	printf("Returned data length (at least 28): %u\n", rp->fragSize);
++	printf("Returned data length (at least 28): %zu\n", rp->fragSize);
+ 	printf("Seconds:   %u\n", *(u_int32_t*)rpbuff);
+ 	printf("Fractions: 0x%08X (%u)\n", *(u_int32_t*)(rpbuff + 4), *(u_int32_t*)(rpbuff + 4));
+ 	printf("Flags:     0x%08X\n", *(u_int32_t*)(rpbuff + 8));
+@@ -160,7 +160,7 @@ static void DemoGetVersion(NWCONN_HANDLE
+ 		fprintf(stderr, "NCP 114.12 failed with %s\n", strnwerror(err));
+ 		return;
+ 	}
+-	printf("Returned data length (at least 4): %u\n", rp->fragSize);
++	printf("Returned data length (at least 4): %zu\n", rp->fragSize);
+ 	printf("Version:   0x%08X (%u)\n", *(u_int32_t*)rpbuff, *(u_int32_t*)rpbuff);
+ }
+ 
+@@ -176,7 +176,7 @@ static void DemoGetGarbage(NWCONN_HANDLE
+ 		fprintf(stderr, "NCP 114.6 failed with %s\n", strnwerror(err));
+ 		return;
+ 	}
+-	printf("Returned data length: %u\n", rp->fragSize);
++	printf("Returned data length: %zu\n", rp->fragSize);
+ 	printf("Data: ");
+ 	for (i = 0; i < rp->fragSize; i++)
+ 		printf(" %02X", rpbuff[i]);
+diff -r 7f46ab032bd8 -r fbfcfbb3c88d contrib/testing/wcsmbs-tst1.c
+--- a/contrib/testing/wcsmbs-tst1.c	Mon Jul 04 00:01:49 2005 +0100
++++ b/contrib/testing/wcsmbs-tst1.c	Mon Jul 11 00:42:47 2005 +0100
+@@ -20,7 +20,7 @@ main (void)
+ 
+   pchar= setlocale (LC_ALL, "");
+   printf ("locale : %s\n",pchar);
+-  printf ("MB_CUR_MAX %d\n", MB_CUR_MAX);
++  printf ("MB_CUR_MAX %zd\n", MB_CUR_MAX);
+ 
+   puts("---- test 1 ------");
+   test = mbstowcs (tmp, str, (strlen (str) + 1) * sizeof (char));
+diff -r 7f46ab032bd8 -r fbfcfbb3c88d ipx-1.0/Samples/ipxrcv.c
+--- a/ipx-1.0/Samples/ipxrcv.c	Mon Jul 04 00:01:49 2005 +0100
++++ b/ipx-1.0/Samples/ipxrcv.c	Mon Jul 11 00:42:47 2005 +0100
+@@ -7,7 +7,7 @@ main(int argc, char **argv)
+ 	int s;
+ 	int result;
+ 	char msg[100];
+-	int len;
++	socklen_t len;
+ 
+ 	s = socket(AF_IPX, SOCK_DGRAM, AF_IPX);
+ 	if (s < 0)
+@@ -19,7 +19,6 @@ main(int argc, char **argv)
+ 	sipx.sipx_network = 0;
+ 	sipx.sipx_port = htons(0x5000);
+ 	sipx.sipx_type = 17;
+-	len = sizeof(sipx);
+ 	result = bind(s, (struct sockaddr *) &sipx, sizeof(sipx));
+ 	if (result < 0)
+ 	{
+@@ -27,6 +26,7 @@ main(int argc, char **argv)
+ 		exit(-1);
+ 	}
+ 	msg[0] = '\0';
++	len = sizeof(sipx);
+ 	result = recvfrom(s, msg, sizeof(msg), 0, (struct sockaddr *) &sipx,
+ 			  &len);
+ 	if (result < 0)
+diff -r 7f46ab032bd8 -r fbfcfbb3c88d ipx-1.0/Samples/ipxsend.c
+--- a/ipx-1.0/Samples/ipxsend.c	Mon Jul 04 00:01:49 2005 +0100
++++ b/ipx-1.0/Samples/ipxsend.c	Mon Jul 11 00:42:47 2005 +0100
+@@ -7,7 +7,7 @@ main(int argc, char **argv)
+ 	int s;
+ 	int result;
+ 	char msg[100] = "Hi Mom";
+-	int len = sizeof(sipx);
++	socklen_t len = sizeof(sipx);
+ 
+ 	s = socket(AF_IPX, SOCK_DGRAM, AF_IPX);
+ 	if (s < 0)
+diff -r 7f46ab032bd8 -r fbfcfbb3c88d ipx-1.0/Samples/rip.c
+--- a/ipx-1.0/Samples/rip.c	Mon Jul 04 00:01:49 2005 +0100
++++ b/ipx-1.0/Samples/rip.c	Mon Jul 11 00:42:47 2005 +0100
+@@ -14,7 +14,6 @@ main(int argc, char **argv)
+ 	int result;
+ 	int s;
+ 	char msg[1024];
+-	int len;
+ 	char *bptr;
+ 	struct rip_data *rp;
+ 
+@@ -36,6 +35,7 @@ main(int argc, char **argv)
+ 	}
+ 	while (1)
+ 	{
++		socklen_t len;
+ 		size_t rclen;
+ 
+ 		len = sizeof(sipx);
+diff -r 7f46ab032bd8 -r fbfcfbb3c88d ipx-1.0/Samples/sap.c
+--- a/ipx-1.0/Samples/sap.c	Mon Jul 04 00:01:49 2005 +0100
++++ b/ipx-1.0/Samples/sap.c	Mon Jul 11 00:42:47 2005 +0100
+@@ -18,7 +18,6 @@ main(int argc, char **argv)
+ 	struct sockaddr_ipx sipx;
+ 	char msg[1024];
+ 	long val = 0;
+-	int len;
+ 	char *bptr;
+ 	struct sap_data *sp;
+ 
+@@ -47,6 +46,7 @@ main(int argc, char **argv)
+ 	}
+ 	while (1)
+ 	{
++		socklen_t len;
+ 		size_t rclen;
+ 
+ 		len = 1024;
+@@ -64,7 +64,7 @@ main(int argc, char **argv)
+ 		rclen = result - 2;
+ 		bptr = msg;
+ 		printf("SAP: OP is %x %x\n", bptr[0], bptr[1]);
+-		printf("Length is %u\n", rclen);
++		printf("Length is %zu\n", rclen);
+ 		if (bptr[1] != 2)
+ 			continue;
+ 
+diff -r 7f46ab032bd8 -r fbfcfbb3c88d lib/ncplib.c
+--- a/lib/ncplib.c	Mon Jul 04 00:01:49 2005 +0100
++++ b/lib/ncplib.c	Mon Jul 11 00:42:47 2005 +0100
+@@ -665,7 +665,7 @@ static void run_wdog(struct ncp_conn *co
+ 			default:
+ 				if (pfd[0].revents & POLLIN) {
+ 					struct sockaddr_ipx sender;
+-					int sizeofaddr = sizeof(struct sockaddr_ipx);
++					socklen_t sizeofaddr = sizeof(struct sockaddr_ipx);
+ 					unsigned char buf[1024];
+ 					size_t pktsize;
+ 					NWCCODE err;
+@@ -1016,7 +1016,7 @@ do_ncp_tcp_call(struct ncp_conn *conn, u
+ 		return ECONNABORTED;
+ 	}
+ 	if (ln > sizeof(conn->packet) - 2) {
+-		fprintf(stderr, "Too long reply: %u\n", ln);
++		fprintf(stderr, "Too long reply: %zu\n", ln);
+ 		return ECONNABORTED;
+ 	}
+ 	result = do_tcp_rcv(conn->ncp_sock, conn->packet + 2, ln);
+diff -r 7f46ab032bd8 -r fbfcfbb3c88d lib/nwclient.c
+--- a/lib/nwclient.c	Mon Jul 04 00:01:49 2005 +0100
++++ b/lib/nwclient.c	Mon Jul 11 00:42:47 2005 +0100
+@@ -714,7 +714,7 @@ NWDSCCODE NWCXAttachToTreeByName( NWCONN
+ 
+ /* try to speed up search of all servers but first checking that treeName exists */
+         {
+-          nuint32 scanIndex=-1;
++          nint32 scanIndex=-1;
+           char myTreeName [MAX_DN_CHARS+1];
+           NWDSContextHandle ctx;
+           int found=0;
+@@ -856,7 +856,7 @@ static NWDSCCODE __docopy_string (UNUSED
+ 	case SYN_FAX_NUMBER:{
+ 	        const Fax_Number_T* fn = (const Fax_Number_T*)val;
+ 		
+-		l = snprintf(result, maxSize, "%s,%u", fn->telephoneNumber, fn->parameters.numOfBits);
++		l = snprintf(result, maxSize, "%s,%zu", fn->telephoneNumber, fn->parameters.numOfBits);
+ 		}
+ 		break;
+ 	case SYN_EMAIL_ADDRESS:{
+@@ -923,7 +923,7 @@ static NWDSCCODE __docopy_string (UNUSED
+ 
+                 if (20 + (ol->length+1)*3+1 >=maxSize)
+                         return NWE_BUFFER_OVERFLOW;
+-                sprintf(result, "%u", ol->length);
++                sprintf(result, "%zu", ol->length);
+ 		aux = result + strlen(result);
+                 for (i = 0; i < ol->length; i++) {
+                         sprintf(aux, ",%02X", ol->data[i]);
+@@ -940,7 +940,7 @@ static NWDSCCODE __docopy_string (UNUSED
+ #endif
+                 if (20 + (os->length+1)*3+1 >=maxSize)
+                         return NWE_BUFFER_OVERFLOW;
+-                sprintf(result, "%u", os->length);
++                sprintf(result, "%zu", os->length);
+ 		aux = result + strlen(result);
+                 for (i = 0; i < os->length; i++) {
+                         sprintf(aux, ",%02X", os->data[i]);
+@@ -956,7 +956,7 @@ static NWDSCCODE __docopy_string (UNUSED
+                 z=na->addressLength;
+                 if (40 + 3*(z+2)+1  >=maxSize)
+                         return NWE_BUFFER_OVERFLOW;
+-                sprintf(result, "%u,%u", na->addressType, na->addressLength);
++                sprintf(result, "%u,%zu", na->addressType, na->addressLength);
+ 		aux = result + strlen(result);
+                 for (z = 0; z < na->addressLength; z++) {
+                         sprintf(aux, ",%02X", na->address[z]);
+diff -r 7f46ab032bd8 -r fbfcfbb3c88d sutil/ncpm_common.c
+--- a/sutil/ncpm_common.c	Mon Jul 04 00:01:49 2005 +0100
++++ b/sutil/ncpm_common.c	Mon Jul 11 00:42:47 2005 +0100
+@@ -219,7 +219,7 @@ static int load_ncpfs(void)
+ 		return 1;
+ 	} else if (pid == 0)
+ 	{
+-		char *myenv[] = {
++		const char *myenv[] = {
+ 			"PATH=/sbin:/usr/sbin:/bin:/usr/bin",
+ 			NULL
+ 		};
+@@ -875,7 +875,7 @@ static void ncp_ctl_cmd(unsigned int cmd
+ 		char xxx[1024]; /* "cmd=XXXXXXXXXXX, len=XXXXXXXXX, data:" + 3x300 chars */
+ 		char* p;
+ 
+-		sprintf(xxx, "cmd=%u, len=%u, data:", cmd, datalen);
++		sprintf(xxx, "cmd=%u, len=%zu, data:", cmd, datalen);
+ 		p = xxx + strlen(xxx);
+ 		if (datalen > 300) {
+ 			datalen = 300;
+diff -r 7f46ab032bd8 -r fbfcfbb3c88d util/nwdir.c
+--- a/util/nwdir.c	Mon Jul 04 00:01:49 2005 +0100
++++ b/util/nwdir.c	Mon Jul 11 00:42:47 2005 +0100
+@@ -283,7 +283,7 @@ static void eaenum(NWCONN_HANDLE conn, u
+ 	struct ncp_ea_enumerate_info winfo;
+ 	NWCCODE err;
+ 	int sawtitle = 0;
+-	size_t eaid = 1;
++	unsigned int eaid = 1;
+ 
+ 	winfo.enumSequence = 0;
+ 	err = ncp_ea_enumerate(conn,
+@@ -308,9 +308,9 @@ static void eaenum(NWCONN_HANDLE conn, u
+ 		if (!winfo.totalEAs)
+ 			break;
+ 		if (!sawtitle) {
+-			printf(_("Extended attributes: %u attributes\n"
+-			         "                     %u bytes in keys, %u bytes in data\n"), 
+-				 	winfo.totalEAs, winfo.totalEAsKeySize, winfo.totalEAsDataSize);
++			printf(_("Extended attributes: %lu attributes\n"
++			         "                     %lu bytes in keys, %lu bytes in data\n"), 
++				 	(unsigned long)winfo.totalEAs, (unsigned long)winfo.totalEAsKeySize, (unsigned long)winfo.totalEAsDataSize);
+ 			sawtitle = 1;
+ 		}
+ 
+@@ -326,10 +326,10 @@ static void eaenum(NWCONN_HANDLE conn, u
+ 			else {
+ 				printf(_("  Key %u:\n"
+ 				         "    Name:         %s\n"
+-					 "    Access Flag:  0x%08X\n"
+-					 "    Value Length: %u\n"), 
++					 "    Access Flag:  0x%08zX\n"
++					 "    Value Length: %lu\n"), 
+ 					 eaid, ppp.key, ppp.accessFlag, 
+-					 ppp.valueLength);
++					 (unsigned long)ppp.valueLength);
+ 			}
+ 			eaid++;
+ 		}
+@@ -364,12 +364,12 @@ static void dumpDataSizes(const struct n
+ 		if (err) {
+ 			printf(_("  Cannot determine file size: %s\n"), strnwerror(err));
+ 		} else {
+-			printf(_("  File size:       %10Lu"), off);
++			printf(_("  File size:       %10llu"), (unsigned long long)off);
+ 
+ 			err = ncp_ns_extract_info_field(info, NSIF_SPACE_ALLOCATED,
+ 				&off, sizeof(off));
+ 			if (!err) {
+-				printf(_(" (allocated %Lu)"), off * 8ULL);
++				printf(_(" (allocated %llu)"), off * 8ULL);
+ 			}
+ 			printf("\n");
+ 		}
+@@ -411,16 +411,16 @@ static void dumpDataSizes(const struct n
+ 			u_int32_t num = logical->ds[i].Number;
+ 			
+ 			if (num) {
+-				printf(_("  Stream %3u size: %10Lu"), num,
+-					logical->ds[i].Size);
++				printf(_("  Stream %3u size: %10llu"), num,
++					(unsigned long long)logical->ds[i].Size);
+ 			} else {
+-				printf(_("  File size:       %10Lu"),
+-					logical->ds[i].Size);
++				printf(_("  File size:       %10llu"),
++					(unsigned long long)logical->ds[i].Size);
+ 			}
+ 			if (size) {
+ 				for (j = 0; j < size->NumberOfDatastreams; j++) {
+ 					if (size->ds[j].Number == num) {
+-						printf(_(" (allocated %Lu)"),
++						printf(_(" (allocated %llu)"),
+ 							((ncp_off64_t)size->ds[j].FATBlockSize) * 512ULL);
+ 						break;					
+ 					}
+@@ -774,7 +774,7 @@ static void dumpit(NWCONN_HANDLE conn, c
+ 					doID(conn, o.object_id);
+ 				}
+ 				printf("\n");
+-				printf(_("    Range: 0x%08LX-0x%08LX\n"), pl.recordStart, pl.recordEnd);
++				printf(_("    Range: 0x%08llX-0x%08llX\n"), (unsigned long long)pl.recordStart, (unsigned long long)pl.recordEnd);
+ 			}
+ 		}
+ 		if (!first) {
+diff -r 7f46ab032bd8 -r fbfcfbb3c88d util/nwuserlist.c
+--- a/util/nwuserlist.c	Mon Jul 04 00:01:49 2005 +0100
++++ b/util/nwuserlist.c	Mon Jul 11 00:42:47 2005 +0100
+@@ -149,7 +149,7 @@ static void print_value(int format, cons
+ 	unsigned int div;
+ 
+ 	if (format == 0) {
+-		printf(_("        %-21s%llu %s\n"), title, value, units);
++		printf(_("        %-21s%llu %s\n"), title, (unsigned long long)value, units);
+ 		return;
+ 	}
+ 	if (format == 1) {
+@@ -163,9 +163,9 @@ static void print_value(int format, cons
+ 		unitptr++;
+ 	}
+ 	if (unitptr == si_prefixes) {
+-		printf(_("        %-21s%5llu %s\n"), title, value, units);
++		printf(_("        %-21s%5llu %s\n"), title, (unsigned long long)value, units);
+ 	} else {
+-		printf(_("        %-21s%5llu %c%s\n"), title, value, *unitptr, units);
++		printf(_("        %-21s%5llu %c%s\n"), title, (unsigned long long)value, *unitptr, units);
+ 	}
+ }
+ 
+

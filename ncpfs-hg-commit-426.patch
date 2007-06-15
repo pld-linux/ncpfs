@@ -1,0 +1,257 @@
+changeset:   426:08cd551d8c1c
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Sun Jun 05 14:23:57 2005 +0000
+files:       include/ncp/ipxlib.h include/ncp/kernel/ncp.h include/ncp/ncplib.h ipx-1.0/Samples/rip.c ipx-1.0/Samples/sap.c ipx-1.0/ipx_cmd.c ipxdump/ipxparse.c lib/ncplib.c
+description:
+Add __attribute__((packed)) at structure level too.  Darwin's gcc-3.3 
+needs that, otherwise it (at least) adds one byte to ncp_request_header,
+completely mangling sent packet.
+
+
+diff -r 8341fcd1dc86 -r 08cd551d8c1c include/ncp/ipxlib.h
+--- a/include/ncp/ipxlib.h	Sat May 28 20:02:00 2005 +0000
++++ b/include/ncp/ipxlib.h	Sun Jun 05 14:23:57 2005 +0000
+@@ -73,7 +73,7 @@ struct sap_server_ident
+ #endif
+ 	IPXPort		server_port __attribute__((packed));
+ 	u_int16_t	intermediate_network __attribute__((packed));
+-};
++} __attribute__((packed));
+ 
+ #define IPX_RIP_REQUEST (0x1)
+ #define IPX_RIP_RESPONSE (0x2)
+@@ -82,13 +82,13 @@ struct ipx_rt_def {
+ 	u_int32_t network __attribute__((packed));
+ 	u_int16_t hops __attribute__((packed));
+ 	u_int16_t ticks __attribute__((packed));
+-};
++} __attribute__((packed));
+ 
+ struct ipx_rip_packet
+ {
+ 	u_int16_t		operation __attribute__((packed));
+ 	struct ipx_rt_def	rt[1] __attribute__((packed));
+-};
++} __attribute__((packed));
+ 
+ #ifdef SWIG
+ #define IPX_BROADCAST_NODE "\xff\xff\xff\xff\xff\xff"
+diff -r 8341fcd1dc86 -r 08cd551d8c1c include/ncp/kernel/ncp.h
+--- a/include/ncp/kernel/ncp.h	Sat May 28 20:02:00 2005 +0000
++++ b/include/ncp/kernel/ncp.h	Sun Jun 05 14:23:57 2005 +0000
+@@ -59,7 +59,7 @@ struct ncp_request_header {
+ 	u_int8_t  conn_high __attribute__((packed));
+ 	u_int8_t  function __attribute__((packed));
+ 	u_int8_t  data[0] __attribute__((packed));
+-};
++} __attribute__((packed));
+ 
+ #define NCP_REPLY                (0x3333)
+ #define NCP_POSITIVE_ACK         (0x9999)
+@@ -73,7 +73,7 @@ struct ncp_reply_header {
+ 	u_int8_t completion_code __attribute__((packed));
+ 	u_int8_t connection_state __attribute__((packed));
+ 	u_int8_t data[0] __attribute__((packed));
+-};
++} __attribute__((packed));
+ 
+ #define NCP_VOLNAME_LEN (16)
+ #define NCP_NUMBER_OF_VOLUMES (64)
+@@ -232,7 +232,7 @@ struct nw_info_struct {
+ 	u_int32_t NSCreator __attribute__((packed));
+ 	u_int8_t nameLen __attribute__((packed));
+ 	u_int8_t entryName[256] __attribute__((packed));
+-};
++} __attribute__((packed));
+ #endif
+ 
+ /* modify mask - use with MODIFY_DOS_INFO structure */
+@@ -265,7 +265,7 @@ struct nw_modify_dos_info {
+ 	u_int16_t inheritanceGrantMask __attribute__((packed));
+ 	u_int16_t inheritanceRevokeMask __attribute__((packed));
+ 	u_int32_t maximumSpace __attribute__((packed));
+-};
++} __attribute__((packed));
+ 
+ #ifdef SWIG
+ struct nw_file_info {
+@@ -284,13 +284,13 @@ struct nw_file_info {
+ 	u_int32_t server_file_handle __attribute__((packed));
+ 	u_int8_t open_create_action __attribute__((packed));
+ 	u_int8_t file_handle[6] __attribute__((packed));
+-};
++} __attribute__((packed));
+ #endif
+ 
+ struct nw_search_sequence {
+ 	u_int8_t volNumber __attribute__((packed));
+ 	u_int32_t dirBase __attribute__((packed));
+ 	u_int32_t sequence __attribute__((packed));
+-};
++} __attribute__((packed));
+ 
+ #endif				/* _LINUX_NCP_H */
+diff -r 8341fcd1dc86 -r 08cd551d8c1c include/ncp/ncplib.h
+--- a/include/ncp/ncplib.h	Sat May 28 20:02:00 2005 +0000
++++ b/include/ncp/ncplib.h	Sun Jun 05 14:23:57 2005 +0000
+@@ -492,7 +492,7 @@ struct ncp_file_server_info
+ 	u_int8_t RestrictionLevel __attribute__((packed));
+ 	u_int8_t InternetBridge __attribute__((packed));
+ 	u_int8_t Reserved[60] __attribute__((packed));
+-};
++} __attribute__((packed));
+ #endif
+ 
+ struct ncp_file_server_info_2 {
+@@ -607,7 +607,7 @@ struct ncp_station_addr
+ 	u_int8_t Node[6] __attribute__((packed));
+ #endif
+ 	u_int16_t Socket __attribute__((packed));
+-};
++} __attribute__((packed));
+ 
+ struct ncp_prop_login_control
+ {
+@@ -640,7 +640,7 @@ struct ncp_prop_login_control
+ 	u_int16_t BadLoginCount __attribute__((packed));
+ 	u_int32_t BadLoginCountDown __attribute__((packed));
+ 	struct ncp_station_addr LastIntruder __attribute__((packed));
+-};
++} __attribute__((packed));
+ 
+ NWCCODE NWReadPropertyValue(NWCONN_HANDLE conn, const char *objName,
+ 			    NWObjectType objType, const char *propertyName,
+diff -r 8341fcd1dc86 -r 08cd551d8c1c ipx-1.0/Samples/rip.c
+--- a/ipx-1.0/Samples/rip.c	Sat May 28 20:02:00 2005 +0000
++++ b/ipx-1.0/Samples/rip.c	Sun Jun 05 14:23:57 2005 +0000
+@@ -5,7 +5,7 @@ struct rip_data
+ 	u_int32_t	rip_net __attribute__((packed));
+ 	u_int16_t	rip_hops __attribute__((packed));
+ 	u_int16_t	rip_ticks __attribute__((packed));
+-};
++} __attribute__((packed));
+ 
+ int
+ main(int argc, char **argv)
+diff -r 8341fcd1dc86 -r 08cd551d8c1c ipx-1.0/Samples/sap.c
+--- a/ipx-1.0/Samples/sap.c	Sat May 28 20:02:00 2005 +0000
++++ b/ipx-1.0/Samples/sap.c	Sun Jun 05 14:23:57 2005 +0000
+@@ -8,7 +8,7 @@ struct sap_data
+ 	u_int8_t	sap_node[6] __attribute__((packed));
+ 	u_int16_t	sap_sock __attribute__((packed));
+ 	u_int16_t	sap_hops __attribute__((packed));
+-};
++} __attribute__((packed));
+ 
+ int
+ main(int argc, char **argv)
+diff -r 8341fcd1dc86 -r 08cd551d8c1c ipx-1.0/ipx_cmd.c
+--- a/ipx-1.0/ipx_cmd.c	Sat May 28 20:02:00 2005 +0000
++++ b/ipx-1.0/ipx_cmd.c	Sun Jun 05 14:23:57 2005 +0000
+@@ -66,8 +66,8 @@ struct {
+ 	u_int8_t	dst[6]	__attribute__((packed));
+ 	u_int8_t	src[6]	__attribute__((packed));
+ 	u_int16_t	type	__attribute__((packed));
+-	u_int8_t	ipx[16384];
+-	} buffer;
++	u_int8_t	ipx[16384] __attribute__((packed));
++	} __attribute__((packed)) buffer;
+ 
+ static int getiflist(int fd, struct ifconf* ifc) {
+ 	int i;
+diff -r 8341fcd1dc86 -r 08cd551d8c1c ipxdump/ipxparse.c
+--- a/ipxdump/ipxparse.c	Sat May 28 20:02:00 2005 +0000
++++ b/ipxdump/ipxparse.c	Sun Jun 05 14:23:57 2005 +0000
+@@ -60,7 +60,7 @@ struct ipx_address
+ 	IPXNet	net	__attribute__((packed));
+ 	IPXNode	node	__attribute__((packed));
+ 	IPXPort	sock	__attribute__((packed));
+-};
++} __attribute__((packed));
+ 
+ struct ipx_packet
+ {
+@@ -77,7 +77,7 @@ struct ipx_packet
+ #define IPX_TYPE_PPROP		0x14	/* complicated flood fill brdcast [Not supported] */
+ 	struct ipx_address ipx_dest __attribute__((packed));
+ 	struct ipx_address ipx_source __attribute__((packed));
+-};
++} __attribute__((packed));
+ 
+ #define NCP_ALLOC_SLOT_REQUEST   (0x1111)
+ #define NCP_REQUEST              (0x2222)
+@@ -92,7 +92,7 @@ struct ncp_request_header
+ 	u_int8_t conn_high __attribute__((packed));
+ 	u_int8_t function __attribute__((packed));
+ 	u_int8_t data[0] __attribute__((packed));
+-};
++} __attribute__((packed));
+ 
+ #define NCP_REPLY                (0x3333)
+ #define NCP_POSITIVE_ACK         (0x9999)
+@@ -107,7 +107,7 @@ struct ncp_reply_header
+ 	u_int8_t completion_code __attribute__((packed));
+ 	u_int8_t connection_state __attribute__((packed));
+ 	u_int8_t data[0] __attribute__((packed));
+-};
++} __attribute__((packed));
+ 
+ #define NCP_BURST_PACKET         (0x7777)
+ 
+@@ -126,7 +126,7 @@ struct ncp_burst_header
+ 	u_int32_t data_offset __attribute__((packed));
+ 	u_int16_t data_bytes __attribute__((packed));
+ 	u_int16_t missing_frags __attribute__((packed));
+-};
++} __attribute__((packed));
+ 
+ void handle_ipx(unsigned char *buf, int length, char *frame, int no);
+ void handle_ncp(struct sockaddr_ipx *source,
+@@ -149,7 +149,7 @@ typedef struct saps
+ 	u_int8_t serverName[SAP_MAX_SERVER_NAME_LENGTH] __attribute__((packed));
+ 	struct ipx_address serverAddress __attribute__((packed));
+ 	u_int16_t serverHops __attribute__((packed));	/* NBO */
+-}
++} __attribute__((packed))
+ SAPS;
+ 
+ /* General Service/Nearest Server Response SAP packet */
+@@ -160,14 +160,14 @@ union sap_packet
+ 	{
+ 		u_int16_t sapOperation __attribute__((packed));
+ 		u_int16_t serverType __attribute__((packed));
+-	}
++	} __attribute__((packed))
+ 	query;
+ 	struct sap_response
+ 	{
+ 		u_int16_t sapOperation __attribute__((packed));
+ 		/* each SAP can has a max of SAP_MAX_SAPS_PER_PACKET packets */
+ 		SAPS sap[SAP_MAX_SAPS_PER_PACKET] __attribute__((packed));
+-	}
++	} __attribute__((packed))
+ 	response;
+ };
+ 
+@@ -356,7 +356,7 @@ handle_burst(struct sockaddr_ipx *source
+ 			u_int8_t reserved[8] __attribute__((packed));
+ 			u_int32_t file_offset __attribute__((packed));
+ 			u_int32_t number_of_bytes __attribute__((packed));
+-		}
++		} __attribute__((packed))
+ 		*brq = (struct ncp_burst_request *) rq;
+ 
+ 		printf("Assuming Burst Request:\n");
+diff -r 8341fcd1dc86 -r 08cd551d8c1c lib/ncplib.c
+--- a/lib/ncplib.c	Sat May 28 20:02:00 2005 +0000
++++ b/lib/ncplib.c	Sun Jun 05 14:23:57 2005 +0000
+@@ -2627,7 +2627,7 @@ struct nw_time_buffer
+ 	u_int8_t minute __attribute__((packed));
+ 	u_int8_t second __attribute__((packed));
+ 	u_int8_t wday __attribute__((packed));
+-};
++} __attribute__((packed));
+ 
+ static time_t
+ nw_to_ctime(struct nw_time_buffer *source)
+

@@ -1,0 +1,162 @@
+changeset:   439:0ba24cdb345c
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Sun Jul 03 23:57:27 2005 +0100
+files:       lib/ndslib.c
+description:
+Convert some unsigned char* to const unsigned char* in lib/ndslib.c.
+
+Constify some pointers in the RSA computations, so we do not see 
+any ugly warnings during build.
+
+
+diff -r e635f8099d50 -r 0ba24cdb345c lib/ndslib.c
+--- a/lib/ndslib.c	Sun Jul 03 22:46:56 2005 +0100
++++ b/lib/ndslib.c	Sun Jul 03 23:57:27 2005 +0100
+@@ -233,7 +233,7 @@ static void fillrandom(nuint8 *buf, size
+ }
+ #endif
+ 
+-static int countbits_l(unsigned char *buf, int bufsize) {
++static int countbits_l(const unsigned char *buf, int bufsize) {
+     unsigned char b;
+ 
+     while ((--bufsize) && (!buf[bufsize]));
+@@ -253,7 +253,7 @@ static void copyfill(void *outbuf, int o
+ 
+ static char keyprefix[] = {1, 0, 0, 0, 3, 0, 1, 0}; 
+ 
+-static int initkey(const unsigned char *key, unsigned char **keyptr, size_t *keylen) { /* 1=ok, 0=err */
++static int initkey(const unsigned char *key, const unsigned char **keyptr, size_t *keylen) { /* 1=ok, 0=err */
+     if (!memcmp(key, keyprefix, 8)) {
+         if (keylen) *keylen = WVAL_LH(key, 8);
+         if (keyptr) *keyptr = key + 10;
+@@ -263,14 +263,14 @@ static int initkey(const unsigned char *
+ }
+ 
+ static void clearkey(unsigned char *key) {
+-    unsigned char *keyptr;
++    const unsigned char *keyptr;
+     size_t keylen;
+ 
+     if (initkey(key, &keyptr, &keylen))
+         memset(key, 0, keylen + 10);
+ }
+ 
+-static int findchunk(const unsigned char *keyptr, size_t keylen, const char *chunk, unsigned char **chunkptr) {
++static int findchunk(const unsigned char *keyptr, size_t keylen, const char *chunk, const unsigned char **chunkptr) {
+     const unsigned char *p;
+     
+     if ((p = keyptr)) {
+@@ -278,7 +278,7 @@ static int findchunk(const unsigned char
+             if ((p[0] != chunk[0]) || (p[1] != chunk[1])) {
+                 p += 4 + p[2] + p[3];
+ 	    } else {
+-                if (chunkptr) *chunkptr = (unsigned char*)p + 4;
++                if (chunkptr) *chunkptr = p + 4;
+                 return p[2] + p[3];
+             }
+         }
+@@ -332,7 +332,7 @@ static void dumpkey(const nuint8 *key, s
+ 
+ static int checkkey(const unsigned char *key) { /* 0 - wrong key, != 0 - key ok */
+ 	unsigned char temp[8];
+-	unsigned char *keyptr, *p;
++	const unsigned char *keyptr, *p;
+ 	size_t keylen;
+     
+ 	if ((initkey(key, &keyptr, &keylen)) && 
+@@ -350,12 +350,12 @@ static ncpt_mutex_t mpilock = NCPT_MUTEX
+ static ncpt_mutex_t mpilock = NCPT_MUTEX_INITIALIZER;
+ 
+ static long modexpkey(const unsigned char *s_key, unsigned char *buf, unsigned char *outbuf, int bufsize) {
+-	unsigned char *s_keyptr;
++	const unsigned char *s_keyptr;
+ 	size_t s_keylen;
+ 	int i, nbits, nblocksize;
+ 	int err = -1;
+ 	unitptr nmod, nexp, nin, nout;
+-	unsigned char *p;
++	const unsigned char *p;
+ 
+ 	nmod = nexp = nin = nout = NULL;
+     
+@@ -402,7 +402,7 @@ end1:
+ 
+ /* ctx must be in WCHAR_T mode, without DCV_CANONICALIZE_NAMES */
+ static NWDSCCODE get_public_key(NWDSContextHandle ctx, const wchar_t* objname, nuint8 **key) {
+-	unsigned char *keybuf, *kptr;
++	const unsigned char *keybuf, *kptr;
+ 	NWDSCCODE err;
+ 	size_t keylen, ofs, klen;
+ 	Octet_String_T* ost;
+@@ -420,12 +420,14 @@ static NWDSCCODE get_public_key(NWDSCont
+ 		goto err_exit;
+ 	}
+ 	if (key) {
+-		if (!(kptr = malloc(klen + 10))) {
++		unsigned char *kbuf;
++
++		if (!(kbuf = malloc(klen + 10))) {
+ 			err = ENOMEM;
+ 			goto err_exit;
+ 		}
+-		memcpy(kptr, keybuf + ofs, klen + 10);
+-		*key = kptr;
++		memcpy(kbuf, keybuf + ofs, klen + 10);
++		*key = kbuf;
+ 	}
+ 	err = 0;
+ err_exit:
+@@ -1073,7 +1075,8 @@ err_exit:
+ 
+ static unsigned char *allocfillchunk(const unsigned char *keyptr, int keylen,
+ 		const char *chunk, int destsize) {
+-	unsigned char *p, *p2;
++	const unsigned char *p;
++	unsigned char *p2;
+ 	int i;
+ 
+ 	i = findchunk(keyptr, keylen, chunk, &p);
+@@ -1108,7 +1111,7 @@ static NWDSCCODE gen_auth_data(
+ 		const nuint8* authid,
+ 		nuint8 *loginstrc,
+ 		int loginstrc_len) {
+-	nuint8 *keyptr;
++	const unsigned char *keyptr;
+ 	size_t keylen;
+ 	int i, j;
+ 	int nbits, nblocksize, nbytes, nblocksize_nw;
+@@ -1117,6 +1120,7 @@ static NWDSCCODE gen_auth_data(
+ 	unitptr n_key_dp, n_key_dq;
+ 	unitptr up, up2;
+ 	unitptr randbuf;
++	const unsigned char *pkey;
+ 	nuint8 *p;
+ 	nuint8 *tempbuf;
+ 	nuint8 hashbuf[0x42];
+@@ -1127,12 +1131,12 @@ static NWDSCCODE gen_auth_data(
+ 		ISRPrint("Initkey failed\n");
+ 		return ERR_INVALID_SERVER_RESPONSE;
+ 	}
+-	i = findchunk(keyptr, keylen, "NN", &p);
+-	if (!p) {
++	i = findchunk(keyptr, keylen, "NN", &pkey);
++	if (!pkey) {
+ 		ISRPrint("NN chunk not found\n");
+ 		return ERR_INVALID_SERVER_RESPONSE;
+ 	}
+-	nbits = countbits_l(p, i);
++	nbits = countbits_l(pkey, i);
+ 	nbytes = (nbits + 7) >> 3;
+ 	nmask = (unsigned char)(255 >> (8 - (nbits & 7)));
+ 	/* we really want (x + 31) & ~15... I'm sorry, but Novell thinks that way */
+@@ -1828,7 +1832,7 @@ NWDSCCODE __NWGenerateKeyPair(
+ 		void*		privkey,
+ 		size_t*		privkey_len
+ ) {
+-	nuint8 def_exp[] = { 1, 0, 1};
++	static const nuint8 def_exp[] = { 1, 0, 1};
+ 	struct keyparam kp;
+ 	NWDSCCODE err;
+ 	size_t bits;
+

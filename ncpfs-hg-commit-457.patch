@@ -1,0 +1,366 @@
+changeset:   457:0e4dca2d0b0d
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Sat Apr 15 05:02:48 2006 +0200
+files:       contrib/ncp_nss_lib/nss_cfgfile.c
+description:
+Fix nss_cfgfile.c formatting
+
+Fix nss_cfgfile.c formatting a bit.  And make some constant
+arguments constant.
+
+
+diff -r 260a30abdb81 -r 0e4dca2d0b0d contrib/ncp_nss_lib/nss_cfgfile.c
+--- a/contrib/ncp_nss_lib/nss_cfgfile.c	Sat Apr 15 04:41:06 2006 +0200
++++ b/contrib/ncp_nss_lib/nss_cfgfile.c	Sat Apr 15 05:02:48 2006 +0200
+@@ -50,18 +50,22 @@
+ 
+ // #define DEBUG 1
+ 
+-static struct nss_ncp_conf* alloc_nss_ncp_conf (void){
++static struct nss_ncp_conf*
++alloc_nss_ncp_conf(void)
++{
+ 	struct nss_ncp_conf * conf;
+ 
+-	conf= (struct nss_ncp_conf *)malloc(sizeof(*conf));
++	conf = malloc(sizeof(*conf));
+ 	if (!conf)
+ 		return NULL;
+ 	return conf;
+ }
+ 
+ 
+-void free_nss_ncp_conf (struct nss_ncp_conf *conf){
+-#define FREEFIELD(x) do if (conf->x) {free(conf->x) ; conf->x=NULL;} while (0);
++void
++free_nss_ncp_conf(struct nss_ncp_conf *conf)
++{
++#define FREEFIELD(x) do if (conf->x) { free(conf->x); conf->x = NULL; } while (0);
+ 	if (conf) {
+ 		FREEFIELD(server);
+ 		FREEFIELD(startCtx);
+@@ -77,12 +81,13 @@ struct cfgFile {
+ 		FILE*		file;
+ };
+ 
+-static struct cfgFile* cfgOpenFile(
+-		const char* path,
+-		int writeRequired) {
++static struct cfgFile*
++cfgOpenFile(const char* path,
++	    int writeRequired)
++{
+ 	struct cfgFile* cfg;
+ 
+-	cfg = (struct cfgFile*)malloc(sizeof(*cfg));
++	cfg = malloc(sizeof(*cfg));
+ 	if (cfg) {
+ 		cfg->file = fopen(path, writeRequired ? "r+" : "r");
+ 		if (cfg->file) {
+@@ -95,8 +100,9 @@ static struct cfgFile* cfgOpenFile(
+ 	return cfg;
+ }
+ 
+-static void cfgClose(
+-		struct cfgFile* cfg) {
++static void
++cfgClose(struct cfgFile* cfg)
++{
+ 	ncpt_mutex_lock(&cfg->mutex);
+ 	fclose(cfg->file);
+ 	ncpt_mutex_destroy(&cfg->mutex);
+@@ -105,46 +111,52 @@ static void cfgClose(
+ 
+ 
+ struct check {
+-        const char *option; 	/* configuration option */
+-        int mandatory; 		/* can be empty or null */
+-	int found;		/*set to TRUE if found in cfg file */
+-        char ** char_ptr; 	/* where to store string value */
+-	int * int_ptr;		/* where to store integer value */
+-	const char* defValue;	/* default value */
++	const char *option;	/* configuration option */
++	int         mandatory;	/* can be empty or null */
++	int         found;	/* set to TRUE if found in cfg file */
++	char      **char_ptr;	/* where to store string value */
++	int        *int_ptr;	/* where to store integer value */
++	const char *defValue;	/* default value */
+ };
+ 
+ 
+ #ifdef DEBUG
+-void printResults (const char * infos,struct check * results) {
+-	struct check* ptr;
+-	printf ("%s\n",infos);
+-	for  (ptr=results; ptr->option; ptr++) {
++void
++printResults(const char *infos, const struct check *results)
++{
++	const struct check *ptr;
++
++	printf ("%s\n", infos);
++	for (ptr = results; ptr->option; ptr++) {
+ 		if (ptr->int_ptr)
+ 			printf ("option=%s mandatory=%d found=%d value=%d defvalue=%s\n",
+-				ptr->option,ptr->mandatory,ptr->found,*ptr->int_ptr,ptr->defValue);
++				ptr->option, ptr->mandatory, ptr->found, *ptr->int_ptr, ptr->defValue);
+ 		else
+ 			printf ("option=%s mandatory=%d found=%d value=%s defvalue=%s\n",
+-				ptr->option,ptr->mandatory,ptr->found,*ptr->char_ptr,ptr->defValue);
+-	}
+-
+-}
+-
+-void printConf (const char* infos,struct nss_ncp_conf * conf) {
+-	printf ("%s\n",infos);
+-	printf ("debug=%d useTree=%d server=%s startCtx=%s ctrlGroup=%s defGid=%d defShell=%s fallbackUid=%d fallbackGid=%d "
++				ptr->option, ptr->mandatory, ptr->found, *ptr->char_ptr, ptr->defValue);
++	}
++
++}
++
++void
++printConf(const char *infos, const struct nss_ncp_conf *conf)
++{
++	printf ("%s\n", infos);
++	printf ("debug=%d useTree=%d server=%s startCtx=%s ctrlGroup=%s defGid=%u defShell=%s fallbackUid=%u fallbackGid=%u "
+ 		"doPassword=%d doGroup=%d doShadow=%d\n",
+-		conf->debug,conf->useTree,conf->server,conf->startCtx,
+-        	conf->ctrlGroup,conf->defGid,conf->defShell,conf->fallbackUid,conf->fallbackGid,
+-		conf->doPassword,conf->doGroup,conf->doShadow);
+-}
+-#endif
+-
+-
+-static int process_line (char* cptr, struct check *ptr) {
+-
+-	char* sptr; // start of real value
+-	char* eptr; // end of real value
+-	char* errPtr; // err
++		conf->debug, conf->useTree, conf->server, conf->startCtx,
++		conf->ctrlGroup, conf->defGid, conf->defShell, conf->fallbackUid, conf->fallbackGid,
++		conf->doPassword, conf->doGroup, conf->doShadow);
++}
++#endif
++
++
++static int
++process_line(const char *cptr, struct check *ptr)
++{
++
++	const char* sptr; // start of real value
++	const char* eptr; // end of real value
+ 
+ 	char ec;
+ 	char cc;
+@@ -163,8 +175,8 @@ static int process_line (char* cptr, str
+ 		ec = *cptr++;
+ 	else
+ 		ec = 0;
+-	sptr=cptr;
+-	eptr=cptr;
++	sptr = cptr;
++	eptr = cptr;
+ 	while ((cc = *cptr++) != 0) {
+ 		if (cc == '\n')
+ 			break;
+@@ -174,39 +186,43 @@ static int process_line (char* cptr, str
+ 			break;
+ 		eptr++;
+ 	}
+-	*eptr = 0;
+-	if (ptr->int_ptr) {
+-		*ptr->int_ptr=strtoul (sptr,&errPtr,0);
+-		ptr->found= ((*sptr) && !(*errPtr)); //not empty and no error
+-	} else {
+-		if (eptr>sptr) { // do not take an empty string value
+-			char *v=strdup(sptr);
++	if (eptr != sptr) {
++		if (ptr->int_ptr) {
++			char* errPtr; // err
++
++			*ptr->int_ptr = strtoul(sptr, &errPtr, 0);
++			ptr->found = errPtr == eptr;
++		} else {
++			char *v = malloc(eptr - sptr + 1);
+ 			if (v) {
+-				*ptr->char_ptr=v;
+-				ptr->found= TRUE;
+-			}else
++				memcpy(v, sptr, eptr - sptr);
++				v[eptr - sptr] = 0;
++				*ptr->char_ptr = v;
++				ptr->found = TRUE;
++			} else
+ 				return 1;
+ 		}
+ 	}
+-
+ 	return 0;
+ }
+ 
+-static int fix_conf (struct check *results) {
++static int
++fix_conf(struct check *results)
++{
+ 	struct check* ptr;
+ 
+-	for  (ptr=results; ptr->option; ptr++) {
+-		if (! ptr->found) {
+-		 	if (ptr->mandatory) {
+-				traceForce(0,LOG_ERR, "ncp_nss aborting :missing mandatory information '%s=' in config file %s  ",ptr->option,GLOBALCFGFILE);
++	for (ptr = results; ptr->option; ptr++) {
++		if (!ptr->found) {
++			if (ptr->mandatory) {
++				traceForce(0, LOG_ERR, "ncp_nss aborting :missing mandatory information '%s=' in config file %s", ptr->option, GLOBALCFGFILE);
+ 				return 1;
+ 			}
+ 			if (ptr->int_ptr) {
+-				*ptr->int_ptr=strtoul (ptr->defValue,NULL,0);
+-			}else {
+-				char * v=strdup(ptr->defValue);
++				*ptr->int_ptr = strtoul(ptr->defValue, NULL, 0);
++			} else {
++				char *v = strdup(ptr->defValue);
+ 				if (v)
+-					*ptr->char_ptr=v;
++					*ptr->char_ptr = v;
+ 				else
+ 					return 1;
+ 			}
+@@ -216,38 +232,38 @@ static int fix_conf (struct check *resul
+ }
+ 
+ 
+-static struct nss_ncp_conf *read_conf_file( const char * mySection, struct cfgFile *cfg) {
+-
++static struct nss_ncp_conf *
++read_conf_file(const char * mySection, struct cfgFile *cfg)
++{
+ 	struct nss_ncp_conf *conf;
+ 
+-	conf=alloc_nss_ncp_conf ();
++	conf = alloc_nss_ncp_conf();
+ 	if (!conf)
+ 		return NULL;
+ 	{
+ 		struct check check_confs[] = {
+-		/*option	mandat	found	char_ptr		int_ptr			defValue */
+-                {"debug",	FALSE,FALSE,	NULL,			&conf->debug,		"0"},
+-                {"useTree",	FALSE,FALSE,	NULL,			&conf->useTree,		"0"},
+-                {"server",	TRUE, FALSE,	&conf->server,		NULL,			""},
+-                {"startCtx",	FALSE,FALSE,	&conf->startCtx,	NULL,			""},
+-                {"ctrlGroup",	FALSE,FALSE,	&conf->ctrlGroup,	NULL,			""},
+-                {"defGid",	FALSE,FALSE,	NULL,			&conf->defGid,		"100"},
+-		{"defShell",	FALSE,FALSE,	&conf->defShell,	NULL,			"/bin/bash"},
+-                {"fallbackUid",	FALSE,FALSE,	NULL,			&conf->fallbackUid,	"-1"},
+-		{"fallbackGid",	FALSE,FALSE,	NULL,			&conf->fallbackGid,	"-1"},
+-                {"doPasswd",	FALSE,FALSE,	NULL,			&conf->doPassword,	"0"},
+-                {"doGroup",	FALSE,FALSE,	NULL,			&conf->doGroup,		"0"},
+-                {"doShadow",	FALSE,FALSE,	NULL,			&conf->doShadow,	"0"},
+-		{NULL	,	FALSE,FALSE,	NULL,			NULL,			NULL}
++		/*option	mandati	found	char_ptr		int_ptr			defValue */
++		{"debug",	FALSE,	FALSE,	NULL,			&conf->debug,		"0"},
++		{"useTree",	FALSE,	FALSE,	NULL,			&conf->useTree,		"0"},
++		{"server",	TRUE,	FALSE,	&conf->server,		NULL,			""},
++		{"startCtx",	FALSE,	FALSE,	&conf->startCtx,	NULL,			""},
++		{"ctrlGroup",	FALSE,	FALSE,	&conf->ctrlGroup,	NULL,			""},
++		{"defGid",	FALSE,	FALSE,	NULL,			&conf->defGid,		"100"},
++		{"defShell",	FALSE,	FALSE,	&conf->defShell,	NULL,			"/bin/bash"},
++		{"fallbackUid",	FALSE,	FALSE,	NULL,			&conf->fallbackUid,	"-1"},
++		{"fallbackGid",	FALSE,	FALSE,	NULL,			&conf->fallbackGid,	"-1"},
++		{"doPasswd",	FALSE,	FALSE,	NULL,			&conf->doPassword,	"0"},
++		{"doGroup",	FALSE,	FALSE,	NULL,			&conf->doGroup,		"0"},
++		{"doShadow",	FALSE,	FALSE,	NULL,			&conf->doShadow,	"0"},
++		{NULL,		FALSE,	FALSE,	NULL,			NULL,			NULL}
+ 		};
+ 
+ 		char cfgline[16384];
+ 		size_t seclen = strlen(mySection);
+ 
+-
+ #ifdef DEBUG
+ // DO NOT DO IT A a second call (using test_ncp_nss -2) coredump !!!
+-//		printResults("before reading CFG",check_confs);
++//		printResults("before reading CFG", check_confs);
+ #endif
+ 		ncpt_mutex_lock(&cfg->mutex);
+ 		//rewind(cfg->file);
+@@ -270,13 +286,13 @@ static struct nss_ncp_conf *read_conf_fi
+ 					cptr++;
+ 				if (!*cptr)
+ 					continue;	//empty line
+-				if (*cptr == '[') 	// start of another section
++				if (*cptr == '[')	// start of another section
+ 					goto ssend;
+-				for  (ptr=check_confs; ptr->option; ptr++) {
+-					size_t keylen=strlen(ptr->option);
+-					if (!strncasecmp(cptr, ptr->option,keylen)) {
++				for (ptr = check_confs; ptr->option; ptr++) {
++					size_t keylen = strlen(ptr->option);
++					if (!strncasecmp(cptr, ptr->option, keylen)) {
+ 						cptr += keylen;
+-						process_line (cptr,ptr);
++						process_line(cptr, ptr);
+ 					}
+ 				}
+ 			}
+@@ -284,22 +300,22 @@ static struct nss_ncp_conf *read_conf_fi
+ 
+ ssend:
+ #ifdef DEBUG
+-		printResults("after reading CFG no error",check_confs);
+-#endif
+-#ifdef DEBUG
+-		printConf("before fixing ",conf);
+-#endif
+-
+-		if (!fix_conf (check_confs)) {   // fill in missing values with default,
+-#ifdef DEBUG
+-			printConf("after fixing ",conf);
++		printResults("after reading CFG no error", check_confs);
++#endif
++#ifdef DEBUG
++		printConf("before fixing ", conf);
++#endif
++
++		if (!fix_conf (check_confs)) {	// fill in missing values with default,
++#ifdef DEBUG
++			printConf("after fixing ", conf);
+ #endif
+ 			ncpt_mutex_unlock(&cfg->mutex);
+ 			return conf;
+ 		}
+ 
+ #ifdef DEBUG
+-		printResults("after reading CFG error",check_confs);
++		printResults("after reading CFG error", check_confs);
+ #endif
+ 		ncpt_mutex_unlock(&cfg->mutex);
+ 		free_nss_ncp_conf(conf);
+@@ -308,7 +324,9 @@ ssend:
+ 
+ }
+ 
+-struct nss_ncp_conf* parse_conf(void) {
++struct nss_ncp_conf*
++parse_conf(void)
++{
+ 	struct cfgFile *cfg;
+ 	struct nss_ncp_conf *conf;
+ #ifdef DEBUG
+@@ -317,11 +335,11 @@ struct nss_ncp_conf* parse_conf(void) {
+ 	cfg = cfgOpenFile(GLOBALCFGFILE, FALSE);
+ 	if (!cfg)
+ 		return NULL;
+-	conf=read_conf_file(NSS_SECTION,cfg);
++	conf = read_conf_file(NSS_SECTION, cfg);
+ 	cfgClose(cfg);
+ #ifdef DEBUG
+ 	if (conf)
+-		printConf("final value ",conf);
++		printConf("final value ", conf);
+ #endif
+ 
+ 	return conf;
+

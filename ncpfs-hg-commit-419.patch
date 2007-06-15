@@ -1,0 +1,33 @@
+changeset:   419:56ca340a8425
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Sat May 28 18:48:12 2005 +0000
+files:       sutil/Makefile.in util/Makefile.in
+description:
+Link utils with LIBICONV in addition to INTLLIBS...
+
+
+diff -r 9bf8cc97936c -r 56ca340a8425 sutil/Makefile.in
+--- a/sutil/Makefile.in	Sat May 28 15:48:03 2005 +0000
++++ b/sutil/Makefile.in	Sat May 28 18:48:12 2005 +0000
+@@ -13,7 +13,7 @@ USE_KERNEL = @USE_KERNEL@
+ USE_KERNEL = @USE_KERNEL@
+ NDS_SUPPORT = @NDS_SUPPORT@
+ 
+-LIBS = @INTLLIBS@ @LIBS@
++LIBS = @INTLLIBS@ @LIBICONV@ @LIBS@
+ 
+ # environ in ncpmount
+ CCFLAGS += -D_GNU_SOURCE
+diff -r 9bf8cc97936c -r 56ca340a8425 util/Makefile.in
+--- a/util/Makefile.in	Sat May 28 15:48:03 2005 +0000
++++ b/util/Makefile.in	Sat May 28 18:48:12 2005 +0000
+@@ -14,7 +14,7 @@ NDS_SUPPORT = @NDS_SUPPORT@
+ NDS_SUPPORT = @NDS_SUPPORT@
+ MOUNT2 = @MOUNT2@
+ 
+-LIBS = @INTLLIBS@ @LIBS@
++LIBS = @INTLLIBS@ @LIBICONV@ @LIBS@
+ 
+ O_OTHER = dsqueue.o
+ O_USERUTILS = slist.o pqlist.o nwfsinfo.o pserver.o nprint.o nsend.o \
+

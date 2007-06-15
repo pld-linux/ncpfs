@@ -1,0 +1,94 @@
+changeset:   427:225fa587c2d8
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Sun Jun 05 14:35:13 2005 +0000
+files:       ipx-1.0/Samples/rip.c ipx-1.0/Samples/sap.c
+description:
+Fix problems in ipx samples when packet with zero or 1 byte received.
+
+
+diff -r 08cd551d8c1c -r 225fa587c2d8 ipx-1.0/Samples/rip.c
+--- a/ipx-1.0/Samples/rip.c	Sun Jun 05 14:23:57 2005 +0000
++++ b/ipx-1.0/Samples/rip.c	Sun Jun 05 14:35:13 2005 +0000
+@@ -36,6 +36,8 @@ main(int argc, char **argv)
+ 	}
+ 	while (1)
+ 	{
++		size_t rclen;
++
+ 		len = sizeof(sipx);
+ 		result = recvfrom(s, msg, sizeof(msg), 0,
+ 				  (struct sockaddr *) &sipx, &len);
+@@ -44,8 +46,12 @@ main(int argc, char **argv)
+ 			perror("IPX: recvfrom");
+ 			exit(-1);
+ 		}
++		if (result < 2) {
++			fprintf(stderr, "Received packet is too short to be RIP packet (%d bytes)\n", result);
++			continue;
++		}
++		rclen = result - 2;
+ 		bptr = msg;
+-		result -= 2;
+ 		printf("RIP packet from: %08X:%02X%02X%02X%02X%02X%02X\n",
+ 		       (u_int32_t)htonl(sipx.sipx_network),
+ 		       sipx.sipx_node[0], sipx.sipx_node[1],
+@@ -53,11 +59,11 @@ main(int argc, char **argv)
+ 		       sipx.sipx_node[6], sipx.sipx_node[5]);
+ 		bptr += 2;
+ 		rp = (struct rip_data *) bptr;
+-		while (result >= sizeof(struct rip_data))
++		while (rclen >= sizeof(struct rip_data))
+ 		{
+ 			printf("\tNET: %08X HOPS: %d\n", (u_int32_t)ntohl(rp->rip_net),
+ 			       ntohs(rp->rip_hops));
+-			result -= sizeof(struct rip_data);
++			rclen -= sizeof(struct rip_data);
+ 			rp++;
+ 		}
+ 	}
+diff -r 08cd551d8c1c -r 225fa587c2d8 ipx-1.0/Samples/sap.c
+--- a/ipx-1.0/Samples/sap.c	Sun Jun 05 14:23:57 2005 +0000
++++ b/ipx-1.0/Samples/sap.c	Sun Jun 05 14:35:13 2005 +0000
+@@ -47,6 +47,8 @@ main(int argc, char **argv)
+ 	}
+ 	while (1)
+ 	{
++		size_t rclen;
++
+ 		len = 1024;
+ 		result = recvfrom(s, msg, sizeof(msg), 0,
+ 				  (struct sockaddr *) &sipx, &len);
+@@ -55,16 +57,20 @@ main(int argc, char **argv)
+ 			perror("IPX: recvfrom: ");
+ 			exit(-1);
+ 		}
++		if (result < 2) {
++			fprintf(stderr, "Received packet is too short to be SAP packet (%d bytes)\n", result);
++			continue;
++		}
++		rclen = result - 2;
+ 		bptr = msg;
+-		result -= 2;
+ 		printf("SAP: OP is %x %x\n", bptr[0], bptr[1]);
+-		printf("Length is %d\n", result);
++		printf("Length is %u\n", rclen);
+ 		if (bptr[1] != 2)
+ 			continue;
+ 
+ 		bptr += 2;
+ 		sp = (struct sap_data *) bptr;
+-		while (result >= sizeof(struct sap_data))
++		while (rclen >= sizeof(struct sap_data))
+ 		{
+ 			int i;
+ 
+@@ -83,7 +89,7 @@ main(int argc, char **argv)
+ 			       sp->sap_node[4],
+ 			       sp->sap_node[5],
+ 			       ntohs(sp->sap_sock));
+-			result -= sizeof(struct sap_data);
++			rclen -= sizeof(struct sap_data);
+ 			sp++;
+ 		}
+ 	}
+

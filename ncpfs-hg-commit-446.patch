@@ -1,0 +1,413 @@
+changeset:   446:07b8031b5209
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Sat Jul 23 22:22:26 2005 +0100
+files:       man/nwgrant.8 man/nwrevoke.8 util/nwgrant.c util/nwrevoke.c
+description:
+Add ability to specify object by its ID to nwgrant and nwrevoke.
+
+To make long story short, upgrade from Netware5 to Netware6 
+kindly converted all rights granted to [Public] to rights
+granted to non-existant object with ID 0xFFFFFFFF.  And
+patched nwrevoke was only tool willing to remove them.
+
+
+diff -r 66c5f4287bbb -r 07b8031b5209 man/nwgrant.8
+--- a/man/nwgrant.8	Sat Jul 23 21:58:13 2005 +0100
++++ b/man/nwgrant.8	Sat Jul 23 22:22:26 2005 +0100
+@@ -2,42 +2,17 @@
+ .SH NAME
+ nwgrant \- Add Trustee Rights to a directory
+ .SH SYNOPSIS
+-.B nwgrant
+-[
+-.B -h
+-] [
+-.B -S
+-.I server
+-] [
+-.B -U
+-.I user name
+-] [
+-.B -P
+-.I password
+-|
+-.B -n
+-] [
+-.B -C
+-] [
+-.B -o
+-.I object name
+-] [
+-.B -t
+-.I type
+-] [
+-.B -r
+-.I rights
+-]
+-.B file/directory
++\fBnwgrant\fP [ \fB-h\fP ] [ \fB-S\fP \fIserver\fP ] 
++[ \fB-U\fP \fIuser name\fP ] [ \fB-P\fP \fIpassword\fP | \fB-n\fP ]
++[ \fB-C\fP ] [ \fB-o\fP \fIobject name\fP | \fB-O\fP \fIobject id\fP ] 
++[ \fB-t\fP \fItype\fP ] [ \fB-r\fP \fIrights\fP ] \fBfile/directory\fP
+ 
+ .SH DESCRIPTION
+ .B nwgrant
+ adds the specified bindery object with the corresponding trustee
+ rights to the directory.
+ 
+-.B nwgrant
+-looks up the file
+-.I $HOME/.nwclient
++\fBnwgrant\fP looks up the file \fI$HOME/.nwclient\fP
+ to find a file server, a user name and possibly a password. See
+ nwclient(5) for more information. Please note that the access
+ permissions of $HOME/.nwclient MUST be 600 for security reasons.
+@@ -68,10 +43,7 @@ is the user name to use for login.
+ .I password
+ .RS 3
+ .B password
+-is the password to use for login. If neither
+-.B -n
+-nor
+-.B -P
++is the password to use for login. If neither \fB-n\fP nor \fB-P\fP
+ are given, and the user has no open connection to the server, nwgrant
+ prompts for a password.
+ .RE
+@@ -96,11 +68,16 @@ The name of the object to be added as tr
+ The name of the object to be added as trustee.
+ .RE
+ 
++.B -O
++.I object id
++.RS 3
++The id of the object to be added as trustee.
++.RE
++
+ .B -t
+ .I object type
+ .RS 3
+-The type of the object.
+-.I Object type
++The type of the object. \fIObject type\fP
+ must be specified as a decimal value. Common values are 1 for user
+ objects, 2 for group objects and 3 for print queues. Other values are
+ allowed, but are usually used for specialized applications. If you
+@@ -111,18 +88,13 @@ NDS name.
+ .B -r
+ .I rights
+ .RS 3
+-You must tell
+-.B nwgrant
+-which rights it should grant to the bindery object.
+-The new rights for the object is specified by
+-.I rights,
++You must tell \fBnwgrant\fP which rights it should grant to the bindery 
++object.  The new rights for the object is specified by \fIrights\fP,
+ which can be either a hexadecimal number representing the sum of all
+ the individual rights to be granted or a string containing characters
+-representing each right.  If rights are represented in string format
+-then the string must be bounded with square brackets.  Characters
+-within the brackets may be in any order and in either case.  Spaces are
+-allowed between the brackets - in which case the entire string should be
+-quoted.
++representing each right.  Characters within the brackets may be in
++any order and in either case.  Spaces are allowed between the 
++brackets - in which case the entire string should be quoted.
+ Hexadecimal and character values for the rights are shown in this table:
+ 
+     00 = no access
+diff -r 66c5f4287bbb -r 07b8031b5209 man/nwrevoke.8
+--- a/man/nwrevoke.8	Sat Jul 23 21:58:13 2005 +0100
++++ b/man/nwrevoke.8	Sat Jul 23 22:22:26 2005 +0100
+@@ -2,33 +2,10 @@
+ .SH NAME
+ nwrevoke \- Revoke a Trustee Right from a directory
+ .SH SYNOPSIS
+-.B nwrevoke
+-[
+-.B -h
+-] [
+-.B -S
+-.I server
+-] [
+-.B -U
+-.I user name
+-] [
+-.B -P
+-.I password
+-|
+-.B -n
+-] [
+-.B -C
+-] [
+-.B -o
+-.I object name
+-] [
+-.B -t
+-.I type
+-] [
+-.B -r
+-.I rights
+-]
+-.B file/directory
++\fBnwrevoke\fP [ \fB-h\fP ] [ \fB-S\fP \fIserver\fP ] 
++[ \fB-U\fP \fIuser name\fP ] [ \fB-P\fP \fIpassword\fP | \fB-n\fP ] 
++[ \fB-C\fP ] [ \fB-o\fP \fIobject name\fP | \fB-O\fP \fIobject ID\fP ] 
++[ \fB-t\fP \fItype\fP ] \fBfile/directory\fP
+ 
+ .SH DESCRIPTION
+ .B nwrevoke
+@@ -80,7 +57,12 @@ this conversion by \fB-C\fP.
+ 
+ \fB-o\fP \fIobject name\fP
+ .RS 3
+-The name of the object to be added as trustee.
++The name of the object to be revoked as trustee.
++.RE
++
++\fB-O\fP \fIobject ID\fP
++.RS 3
++The ID of the object to be revoked as trustee.
+ .RE
+ 
+ \fB-t\fP \fIobject type\fP
+diff -r 66c5f4287bbb -r 07b8031b5209 util/nwgrant.c
+--- a/util/nwgrant.c	Sat Jul 23 21:58:13 2005 +0100
++++ b/util/nwgrant.c	Sat Jul 23 22:22:26 2005 +0100
+@@ -46,6 +46,7 @@
+ #include <unistd.h>
+ #include <stdlib.h>
+ #include <string.h>
++#include <ctype.h>
+ 
+ #include "private/libintl.h"
+ #define _(X) gettext(X)
+@@ -73,6 +74,7 @@ help(void)
+ 	       "\n"
+ 	       "-o object_name Name of object added as trustee\n"
+ 	       "-t type        Object type (decimal value)\n"
++	       "-O object_id   Object identifier\n"
+ 	       "-r rights      Rights mask (see manual page)\n"
+ 	       "\n"
+ 	       "directory\n"
+@@ -85,7 +87,6 @@ main(int argc, char *argv[])
+ 	struct ncp_conn *conn;
+ 	char *object_name = NULL;
+ 	int object_type = -1;
+-	struct ncp_bindery_object o;
+ 	u_int16_t rights = ~0;
+ 	int perr = 0;
+ 	const char *path = NULL;
+@@ -98,6 +99,8 @@ main(int argc, char *argv[])
+ 	int enclen;
+ 	TRUSTEE_INFO tstinfo;
+ 	NWCCODE nwerr;
++	NWObjectID object_id;
++	int object_id_valid = 0;
+ 
+ 	setlocale(LC_ALL, "");
+ 	bindtextdomain(NCPFS_PACKAGE, LOCALEDIR);
+@@ -109,10 +112,14 @@ main(int argc, char *argv[])
+ 	{
+ 		useConn = 1;
+ 	}
+-	while ((opt = getopt(argc, argv, "h?o:t:r:")) != EOF)
++	while ((opt = getopt(argc, argv, "h?O:o:t:r:")) != EOF)
+ 	{
+ 		switch (opt)
+ 		{
++		case 'O':
++			object_id = strtoul(optarg, NULL, 0);
++			object_id_valid = 1;
++			break;
+ 		case 'o':
+ 			object_name = optarg;
+ 			str_upper(object_name);
+@@ -121,10 +128,14 @@ main(int argc, char *argv[])
+ 			object_type = atoi(optarg);
+ 			break;
+ 		case 'r':
+-			if (*optarg == '[') {
+-				perr = ncp_str_to_perms(optarg, &rights);
+-			} else {
+-				rights = strtol(optarg, NULL, 16);
++			perr = ncp_str_to_perms(optarg, &rights);
++			if (perr) {
++				char* end;
++
++				rights = strtol(optarg, &end, 16);
++				if (!*end || isspace(*end)) {
++					perr = 0;
++				}
+ 			}
+ 			break;
+ 		case 'h':
+@@ -137,12 +148,6 @@ main(int argc, char *argv[])
+ 		}
+ 	}
+ 
+-	if (object_name == NULL)
+-	{
+-		fprintf(stderr, _("%s: You must specify an object name\n"),
+-			argv[0]);
+-		goto finished;
+-	}
+ 	if (perr < 0)
+ 	{
+ 		fprintf(stderr, _("%s: You must give a valid rights string\n"),
+@@ -181,7 +186,13 @@ main(int argc, char *argv[])
+ 		path = volume;
+ 	}
+ 
+-	if (object_type < 0) {
++	if (object_id_valid) {
++		/* nothing */
++	} else if (object_name == NULL)	{
++		fprintf(stderr, _("%s: You must specify an object name\n"),
++			argv[0]);
++		goto finished;
++	} else if (object_type < 0) {
+ #ifdef NDS_SUPPORT
+ 		u_int32_t flags;
+ 		NWDSContextHandle ctx;
+@@ -201,7 +212,7 @@ failDS:;
+ 			flags |= DCV_XLATE_STRINGS | DCV_TYPELESS_NAMES;
+ 			NWDSSetContext(ctx, DCK_FLAGS, &flags);
+ 		}
+-		nwerr = NWDSMapNameToID(ctx, conn, object_name, &o.object_id);
++		nwerr = NWDSMapNameToID(ctx, conn, object_name, &object_id);
+ 		if (nwerr) {
+ 			goto failDS;
+ 		}
+@@ -212,12 +223,15 @@ failDS:;
+ 		goto finished;
+ #endif
+ 	} else {
++		struct ncp_bindery_object o;
++
+ 		if ((nwerr = ncp_get_bindery_object_id(conn, object_type, object_name, &o)) != 0)
+ 		{
+ 			fprintf(stderr, _("%s: Could not find object %s: %s\n"),
+ 				progname, object_name, strnwerror(nwerr));
+ 			goto finished;
+ 		}
++		object_id = o.object_id;
+ 	}
+ 	enclen = ncp_path_to_NW_format(path, encpath, sizeof(encpath));
+ 	if (enclen < 0) {
+@@ -225,7 +239,7 @@ failDS:;
+ 			progname, strerror(-enclen));
+ 		goto finished;
+ 	}
+-	tstinfo.objectID = o.object_id;
++	tstinfo.objectID = object_id;
+ 	tstinfo.objectRights = rights;
+ 	nwerr = ncp_ns_trustee_add(conn, NW_NS_DOS, SA_ALL,
+ 			NCP_DIRSTYLE_NOHANDLE, 0, 0, encpath, enclen, &tstinfo, 1, ~0);
+diff -r 66c5f4287bbb -r 07b8031b5209 util/nwrevoke.c
+--- a/util/nwrevoke.c	Sat Jul 23 21:58:13 2005 +0100
++++ b/util/nwrevoke.c	Sat Jul 23 22:22:26 2005 +0100
+@@ -65,6 +65,7 @@ help(void)
+ 	       "\n"
+ 	       "-o object_name Name of object removed as trustee\n"
+ 	       "-t type        Object type (decimal value)\n"
++	       "-O object_id   Object identifier\n"
+ 	       "\n"
+ 	       "file/directory\n"
+ 	       "\n"));
+@@ -76,7 +77,6 @@ main(int argc, char *argv[])
+ 	struct ncp_conn *conn;
+ 	char *object_name = NULL;
+ 	int object_type = -1;
+-	struct ncp_bindery_object o;
+ 	const char *path = NULL;
+ 	long err;
+ 	int result = 1;
+@@ -87,6 +87,8 @@ main(int argc, char *argv[])
+ 	TRUSTEE_INFO tstinfo;
+ 	int useConn = 0;
+ 	NWDSCCODE nwerr;
++	NWObjectID object_id;
++	int object_id_valid = 0;
+ 
+ 	setlocale(LC_ALL, "");
+ 	bindtextdomain(NCPFS_PACKAGE, LOCALEDIR);
+@@ -98,10 +100,14 @@ main(int argc, char *argv[])
+ 	{
+ 		useConn = 1;
+ 	}
+-	while ((opt = getopt(argc, argv, "h?o:t:")) != EOF)
++	while ((opt = getopt(argc, argv, "h?o:t:O:")) != EOF)
+ 	{
+ 		switch (opt)
+ 		{
++		case 'O':
++			object_id = strtoul(optarg, NULL, 0);
++			object_id_valid = 1;
++			break;
+ 		case 'o':
+ 			object_name = optarg;
+ 			str_upper(object_name);
+@@ -119,12 +125,6 @@ main(int argc, char *argv[])
+ 		}
+ 	}
+ 
+-	if (object_name == NULL)
+-	{
+-		fprintf(stderr, _("%s: You must specify an object name\n"),
+-			argv[0]);
+-		goto finished;
+-	}
+ 	if (!useConn) {
+ 		if (optind != argc - 1)
+ 		{
+@@ -150,7 +150,13 @@ main(int argc, char *argv[])
+ 		strcat(volume, directory);
+ 		path = volume;
+ 	}
+-	if (object_type < 0) {
++	if (object_id_valid) {
++		/* nothing */
++	} else if (object_name == NULL) {
++		fprintf(stderr, _("%s: You must specify an object name\n"),
++			argv[0]);
++		goto finished;
++	} else if (object_type < 0) {
+ #ifdef NDS_SUPPORT
+ 		u_int32_t flags;
+ 		NWDSContextHandle ctx;
+@@ -170,7 +176,7 @@ failDS:;
+ 		if (!NWDSGetContext(ctx, DCK_FLAGS, &flags)) {
+ 			flags |= DCV_XLATE_STRINGS | DCV_TYPELESS_NAMES;
+ 		}
+-		nwerr = NWDSMapNameToID(ctx, conn, object_name, &o.object_id);
++		nwerr = NWDSMapNameToID(ctx, conn, object_name, &object_id);
+ 		if (nwerr) {
+ 			NWDSFreeContext(ctx);
+ 			goto failDS;
+@@ -182,19 +188,22 @@ failDS:;
+ 		goto finished;
+ #endif
+ 	} else {
++		struct ncp_bindery_object o;
++
+ 		nwerr = ncp_get_bindery_object_id(conn, object_type, object_name, &o);
+ 		if (nwerr != 0) {
+ 			fprintf(stderr, _("%s: Could not find object %s: %s\n"),
+ 				progname, object_name, strnwerror(nwerr));
+ 			goto finished;
+ 		}
++		object_id = o.object_id;
+ 	}
+ 	enclen = ncp_path_to_NW_format(path, encpath, sizeof(encpath));
+ 	if (enclen < 0) {
+ 		fprintf(stderr, _("%s: Invalid path: %s\n"), progname, strerror(-enclen));
+ 		goto finished;
+ 	}
+-	tstinfo.objectID = o.object_id;
++	tstinfo.objectID = object_id;
+ 	tstinfo.objectRights = 0;
+ 	nwerr = ncp_ns_trustee_del(conn, NW_NS_DOS, 0xFF, 0, 0,
+ 			encpath, enclen, &tstinfo, 1);
+

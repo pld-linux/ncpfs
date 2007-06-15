@@ -1,0 +1,2931 @@
+changeset:   436:9aa9e7b516dd
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Sun Jul 03 21:49:28 2005 +0100
+files:       po/POTFILES.in po/ncpfs.pot
+description:
+Update POTFILES list and regenerate translation template
+
+It seems that 'make update-po' is broken for some time.  Fix
+problem with POTFILES referencing pqrm.c, which does not
+exist anymore.  And some files with i18n messages were not
+listed in POTFILES.  So fix both, and regenerate translation
+template...
+
+
+diff -r 12722b2b7268 -r 9aa9e7b516dd po/POTFILES.in
+--- a/po/POTFILES.in	Sun Jul 03 21:44:37 2005 +0100
++++ b/po/POTFILES.in	Sun Jul 03 21:49:28 2005 +0100
+@@ -43,17 +43,20 @@ util/nwfsinfo.c
+ util/nwfsinfo.c
+ util/nwfstime.c
+ util/nwgrant.c
++util/nwlistsalvage.c
+ util/nwmsg.c
+ util/nwpasswd.c
++util/nwpjmv.c
++util/nwpqjob.c
+ util/nwpurge.c
+ util/nwrevoke.c
+ util/nwrights.c
++util/nwsalvage.c
+ util/nwtrustee.c
+ util/nwtrustee2.c
+ util/nwuserlist.c
+ util/nwvolinfo.c
+ util/pqlist.c
+-util/pqrm.c
+ util/pqstat.c
+ util/pserver.c
+ util/slist.c
+diff -r 12722b2b7268 -r 9aa9e7b516dd po/ncpfs.pot
+--- a/po/ncpfs.pot	Sun Jul 03 21:44:37 2005 +0100
++++ b/po/ncpfs.pot	Sun Jul 03 21:49:28 2005 +0100
+@@ -7,7 +7,8 @@ msgid ""
+ msgid ""
+ msgstr ""
+ "Project-Id-Version: PACKAGE VERSION\n"
+-"POT-Creation-Date: 2003-04-23 22:12+0200\n"
++"Report-Msgid-Bugs-To: vandrove@vc.cvut.cz\n"
++"POT-Creation-Date: 2005-07-03 22:05+0200\n"
+ "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+ "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+ "Language-Team: LANGUAGE <LL@li.org>\n"
+@@ -35,6 +36,7 @@ msgstr ""
+ 
+ #: ipx-1.0/ipx_configure.c:88 ipx-1.0/ipx_interface.c:159 util/ipx_probe.c:207
+ #: util/ipx_probe.c:373
++#, c-format
+ msgid "Probably you have no IPX support in your kernel\n"
+ msgstr ""
+ 
+@@ -219,84 +221,85 @@ msgid "%s: Network %08lX is directly con
+ msgid "%s: Network %08lX is directly connected.\n"
+ msgstr ""
+ 
+-#: lib/ncplib.c:1034 lib/ncplib.c:1065 lib/ncplib.c:1102
++#: lib/ncplib.c:1079 lib/ncplib.c:1110 lib/ncplib.c:1147
+ #, c-format
+ msgid "ncp_request_error: %d\n"
+ msgstr ""
+ 
+-#: lib/ncplib.c:1641 lib/ncplib.c:3671 sutil/ncpmount.c:560
+-#: sutil/ncpmount.c:580 sutil/ncplogin.c:878 sutil/ncplogin.c:896
++#: lib/ncplib.c:1697 lib/ncplib.c:3746 sutil/ncpmount.c:655
++#: sutil/ncpmount.c:680 sutil/ncplogin.c:876 sutil/ncplogin.c:895
++#, c-format
+ msgid "Your password has expired\n"
+ msgstr ""
+ 
+-#: lib/ncplib.c:2333
++#: lib/ncplib.c:2405
+ #, c-format
+ msgid "Logging into %s as %s\n"
+ msgstr ""
+ 
+-#: lib/ncplib.c:2336
++#: lib/ncplib.c:2408
+ msgid "Password: "
+ msgstr ""
+ 
+-#: lib/ncplib.c:2583
++#: lib/ncplib.c:2658
+ #, c-format
+ msgid "ncpfs: string too long: %s\n"
+ msgstr ""
+ 
+-#: lib/ncplib.c:3677 sutil/ncpmount.c:586 sutil/ncplogin.c:901
++#: lib/ncplib.c:3752 sutil/ncpmount.c:686 sutil/ncplogin.c:900
+ #, c-format
+ msgid "You have %d login attempts left\n"
+ msgstr ""
+ 
+-#: lib/ncplib.c:3798
++#: lib/ncplib.c:3875
+ msgid "Error in ncp_request\n"
+ msgstr ""
+ 
+-#: lib/ncplib.c:3804
++#: lib/ncplib.c:3881
+ msgid "Fragment too short\n"
+ msgstr ""
+ 
+-#: lib/ncplib.c:3822
++#: lib/ncplib.c:3899
+ #, c-format
+ msgid "Fragment too large, len=%d, max=%d\n"
+ msgstr ""
+ 
+-#: lib/ncplib.c:3835
++#: lib/ncplib.c:3912
+ msgid "Why next fragment?\n"
+ msgstr ""
+ 
+-#: lib/ncplib.c:3841
++#: lib/ncplib.c:3918
+ msgid "Fragmented\n"
+ msgstr ""
+ 
+-#: lib/ncplib.c:3845
++#: lib/ncplib.c:3922
+ #, c-format
+ msgid "InBufLen after request=%d, FirstReply=%d\n"
+ msgstr ""
+ 
+-#: lib/ncplib.c:3850
++#: lib/ncplib.c:3927
+ #, c-format
+ msgid "NDS error %d\n"
+ msgstr ""
+ 
+-#: lib/filemgmt.c:127
++#: lib/filemgmt.c:131
+ #, c-format
+ msgid "ncpfs: volume name too long: %d\n"
+ msgstr ""
+ 
+-#: lib/ndslib.c:1344
++#: lib/ndslib.c:1402
+ #, c-format
+ msgid ""
+ "User %s not found in current context.\n"
+ "Trying server context...\n"
+ msgstr ""
+ 
+-#: lib/ndslib.c:1366
++#: lib/ndslib.c:1424
+ #, c-format
+ msgid "error %d logging in\n"
+ msgstr ""
+ 
+-#: lib/ndslib.c:1374
++#: lib/ndslib.c:1432
+ #, c-format
+ msgid "error %d authenticating\n"
+ msgstr ""
+@@ -670,80 +673,89 @@ msgid "Unknown error %d (0x%X)"
+ msgid "Unknown error %d (0x%X)"
+ msgstr ""
+ 
+-#: sutil/ncpmount.c:137
++#: sutil/ncpmount.c:139
+ #, c-format
+ msgid "Specified tree name `%s' is too long\n"
+ msgstr ""
+ 
+-#: sutil/ncpmount.c:283 sutil/ncplogin.c:457
++#: sutil/ncpmount.c:295 sutil/ncplogin.c:463
+ #, c-format
+ msgid "Unknown namespace \"%s\"\n"
+ msgstr ""
+ 
+-#: sutil/ncpmount.c:322 sutil/ncplogin.c:499
++#: sutil/ncpmount.c:334 sutil/ncplogin.c:505
+ #, c-format
+ msgid "ncpfs version %s\n"
+ msgstr ""
+ 
+-#: sutil/ncpmount.c:339
++#: sutil/ncpmount.c:351
+ msgid "Both tree and server name were specified. It is not allowed.\n"
+ msgstr ""
+ 
+-#: sutil/ncpmount.c:343 sutil/ncpumount.c:428 sutil/ncplogin.c:343
++#: sutil/ncpmount.c:355 sutil/ncpumount.c:428 sutil/ncplogin.c:349
+ #, c-format
+ msgid "%s must be installed suid root\n"
+ msgstr ""
+ 
+-#: sutil/ncpmount.c:354 sutil/ncplogin.c:705
++#: sutil/ncpmount.c:366 sutil/ncplogin.c:711
+ #, c-format
+ msgid "Could not find mount point %s: %s\n"
+ msgstr ""
+ 
+-#: sutil/ncpmount.c:359
++#: sutil/ncpmount.c:371
+ #, c-format
+ msgid "Cannot to mount on %s: %s\n"
+ msgstr ""
+ 
+-#: sutil/ncpmount.c:367 sutil/ncplogin.c:525
++#: sutil/ncpmount.c:379 sutil/ncplogin.c:531
+ #, c-format
+ msgid "Cannot impersonate as requested: %s\n"
+ msgstr ""
+ 
+-#: sutil/ncpmount.c:378
++#: sutil/ncpmount.c:389
+ msgid "You must specify NDS volume name if you specified tree name.\n"
+ msgstr ""
+ 
+-#: sutil/ncpmount.c:382
++#: sutil/ncpmount.c:393 sutil/ncpmount.c:458
+ msgid "in create context"
+ msgstr ""
+ 
+-#: sutil/ncpmount.c:394
++#: sutil/ncpmount.c:405
+ msgid "in tree search"
+ msgstr ""
+ 
+-#: sutil/ncpmount.c:401 sutil/ncpmount.c:554
++#: sutil/ncpmount.c:412 sutil/ncpmount.c:644
+ msgid "in nds login"
+ msgstr ""
+ 
+-#: sutil/ncpmount.c:411
++#: sutil/ncpmount.c:422
+ msgid "in volume search"
+ msgstr ""
+ 
+-#: sutil/ncpmount.c:428 sutil/ncplogin.c:176
++#: sutil/ncpmount.c:441 sutil/ncplogin.c:180
+ #, c-format
+ msgid "Volume path `%s' is invalid: `%s'\n"
+ msgstr ""
+ 
+-#: sutil/ncpmount.c:436 sutil/ncplogin.c:184
++#: sutil/ncpmount.c:450 sutil/ncplogin.c:190
+ #, c-format
+ msgid "Volume name `%s' is too long\n"
+ msgstr ""
+ 
+-#: sutil/ncpmount.c:446 sutil/ncplogin.c:723
++#: sutil/ncpmount.c:467
++#, c-format
++msgid "opening mount %s"
++msgstr ""
++
++#: sutil/ncpmount.c:475
++msgid "retrieving user name"
++msgstr ""
++
++#: sutil/ncpmount.c:487 sutil/ncplogin.c:729
+ msgid "in find_conn_spec"
+ msgstr ""
+ 
+-#: sutil/ncpmount.c:483 sutil/ncpmount.c:513
++#: sutil/ncpmount.c:529 sutil/ncpmount.c:569
+ #, c-format
+ msgid ""
+ "You already have mounted server %s\n"
+@@ -751,55 +763,70 @@ msgid ""
+ "on mount point %s\n"
+ msgstr ""
+ 
+-#: sutil/ncpmount.c:496 sutil/ncplogin.c:766
++#: sutil/ncpmount.c:546 sutil/ncplogin.c:772
+ #, c-format
+ msgid "Get host address `%s': %s\n"
+ msgstr ""
+ 
+-#: sutil/ncpmount.c:520 sutil/ncplogin.c:783 sutil/ncplogin.c:791
++#: sutil/ncpmount.c:580 sutil/ncplogin.c:791 sutil/ncplogin.c:799
+ #, c-format
+ msgid "when trying to find %s"
+ msgstr ""
+ 
+-#: sutil/ncpmount.c:540
++#: sutil/ncpmount.c:602 sutil/ncplogin.c:816 sutil/ncplogin.c:836
++#, c-format
++msgid "Cannot allocate memory for mtab entry: %s\n"
++msgstr ""
++
++#: sutil/ncpmount.c:613
+ msgid "in mount(2)"
+ msgstr ""
+ 
+-#: sutil/ncpmount.c:555 sutil/ncplogin.c:872
++#: sutil/ncpmount.c:636
++msgid "in authenticate connection"
++msgstr ""
++
++#: sutil/ncpmount.c:645 sutil/ncplogin.c:869
++#, c-format
+ msgid "Login denied.\n"
+ msgstr ""
+ 
+-#: sutil/ncpmount.c:574 sutil/ncplogin.c:889
++#: sutil/ncpmount.c:669 sutil/ncplogin.c:887
+ msgid "in login"
+ msgstr ""
+ 
+-#: sutil/ncpmount.c:575 sutil/ncplogin.c:890
++#: sutil/ncpmount.c:670 sutil/ncplogin.c:888
++#, c-format
+ msgid "Login denied\n"
+ msgstr ""
+ 
+-#: sutil/ncpmount.c:597 sutil/ncplogin.c:931
++#: sutil/ncpmount.c:701
++msgid "in free context"
++msgstr ""
++
++#: sutil/ncpmount.c:712 sutil/ncplogin.c:931
+ #, c-format
+ msgid "Cannot access path \"%s\": %s\n"
+ msgstr ""
+ 
+-#: sutil/ncpmount.c:609 sutil/ncplogin.c:947
++#: sutil/ncpmount.c:724 sutil/ncplogin.c:949
+ #, c-format
+ msgid "usage: %s [options] mount-point\n"
+ msgstr ""
+ 
+-#: sutil/ncpmount.c:610 sutil/ncplogin.c:951
++#: sutil/ncpmount.c:725 sutil/ncplogin.c:953
+ #, c-format
+ msgid "Try `%s -h' for more information\n"
+ msgstr ""
+ 
+-#: sutil/ncpmount.c:616 sutil/ncplogin.c:961
++#: sutil/ncpmount.c:731 sutil/ncplogin.c:963
+ #, c-format
+ msgid ""
+ "\n"
+ "usage: %s [options] mount-point\n"
+ msgstr ""
+ 
+-#: sutil/ncpmount.c:620
++#: sutil/ncpmount.c:735
+ #, c-format
+ msgid ""
+ "\n"
+@@ -831,17 +858,17 @@ msgid ""
+ "\n"
+ msgstr ""
+ 
+-#: sutil/ncpmount.c:649
++#: sutil/ncpmount.c:764
+ msgid "-b             Force bindery login to NDS servers\n"
+ msgstr ""
+ 
+-#: sutil/ncpmount.c:655 sutil/ncplogin.c:1003
++#: sutil/ncpmount.c:770 sutil/ncplogin.c:1005
+ msgid ""
+ "-i level       Signature level, 0=never, 1=supported, 2=preferred, "
+ "3=required\n"
+ msgstr ""
+ 
+-#: sutil/ncpumount.c:83 sutil/ncplogin.c:949 util/ipx_probe.c:51
++#: sutil/ncpumount.c:83 sutil/ncplogin.c:951 util/ipx_probe.c:51
+ #: util/ipx_probe.c:61 util/nwauth.c:51 util/nwauth.c:58 util/nwbocreate.c:44
+ #: util/nwbocreate.c:51 util/nwbols.c:49 util/nwboprops.c:39
+ #: util/nwboprops.c:46 util/nwborm.c:39 util/nwbpadd.c:43 util/nwbpcreate.c:44
+@@ -866,6 +893,7 @@ msgstr ""
+ msgstr ""
+ 
+ #: sutil/ncpumount.c:93
++#, c-format
+ msgid ""
+ "\n"
+ "mount-point    Disconnect specified mount-point\n"
+@@ -953,6 +981,7 @@ msgstr ""
+ msgstr ""
+ 
+ #: sutil/ncpumount.c:351
++#, c-format
+ msgid "Successfully logged out from all trees.\n"
+ msgstr ""
+ 
+@@ -1033,6 +1062,7 @@ msgstr ""
+ msgstr ""
+ 
+ #: sutil/nwsfind.c:67
++#, c-format
+ msgid ""
+ "\n"
+ "-t             Server type, default: File server\n"
+@@ -1046,122 +1076,131 @@ msgid "%s: Server name too long\n"
+ msgid "%s: Server name too long\n"
+ msgstr ""
+ 
+-#: sutil/nwsfind.c:153 util/nwauth.c:144 util/nwauth.c:150
++#: sutil/nwsfind.c:153 util/nwauth.c:135 util/nwauth.c:141
+ msgid "when trying to find server"
+ msgstr ""
+ 
+-#: sutil/ncplogin.c:205
++#: sutil/ncplogin.c:174
++msgid "Cannot allocate memory for path\n"
++msgstr ""
++
++#: sutil/ncplogin.c:211
+ #, c-format
+ msgid "Context name `%s' is too long\n"
+ msgstr ""
+ 
+-#: sutil/ncplogin.c:486
++#: sutil/ncplogin.c:492
+ #, c-format
+ msgid "invalid option: %c\n"
+ msgstr ""
+ 
+-#: sutil/ncplogin.c:534
++#: sutil/ncplogin.c:540
+ msgid "You must specify a volume to mount using -V option.\n"
+ msgstr ""
+ 
+-#: sutil/ncplogin.c:538
++#: sutil/ncplogin.c:544
+ msgid "Cannot have both -T tree and -S server options\n"
+ msgstr ""
+ 
+-#: sutil/ncplogin.c:545
++#: sutil/ncplogin.c:551
+ #, c-format
+ msgid "Unable to open connection to %s.\n"
+ msgstr ""
+ 
+-#: sutil/ncplogin.c:550
++#: sutil/ncplogin.c:556
+ #, c-format
+ msgid "%s is not a NDS server, so background authentication will fail.\n"
+ msgstr ""
+ 
+-#: sutil/ncplogin.c:552
++#: sutil/ncplogin.c:558
+ #, c-format
+ msgid "%s is not a NDS server, so NDS authentication will fail.\n"
+ msgstr ""
+ 
+-#: sutil/ncplogin.c:558 sutil/ncplogin.c:591
++#: sutil/ncplogin.c:564 sutil/ncplogin.c:597
+ #, c-format
+ msgid "Cannot create NDS context handle: %s\n"
+ msgstr ""
+ 
+-#: sutil/ncplogin.c:563
++#: sutil/ncplogin.c:569
+ #, c-format
+ msgid "Server %s belong to tree %s and you are not authenticated to it.\n"
+ msgstr ""
+ 
+-#: sutil/ncplogin.c:568
++#: sutil/ncplogin.c:574
+ #, c-format
+ msgid "Server %s belong to tree %s and you are already authenticated to it.\n"
+ msgstr ""
+ 
+-#: sutil/ncplogin.c:596
++#: sutil/ncplogin.c:602
+ #, c-format
+ msgid "You are not authenticated to tree %s.\n"
+ msgstr ""
+ 
+-#: sutil/ncplogin.c:601
++#: sutil/ncplogin.c:607
+ #, c-format
+ msgid "You are already authenticated to tree %s.\n"
+ msgstr ""
+ 
+-#: sutil/ncplogin.c:613
++#: sutil/ncplogin.c:619
+ #, c-format
+ msgid "NWDSGetContext/NWDSSetContext (DCK_FLAGS) failed: %s.\n"
+ msgstr ""
+ 
+-#: sutil/ncplogin.c:622
++#: sutil/ncplogin.c:628
+ #, c-format
+ msgid "NWDSSetContext(DCK_NAME_CTX) failed: %s\n"
+ msgstr ""
+ 
+-#: sutil/ncplogin.c:633
++#: sutil/ncplogin.c:639
+ #, c-format
+ msgid "Cannot resolve volume name %s on tree %s (using context %s). Err:%s\n"
+ msgstr ""
+ 
+-#: sutil/ncplogin.c:647
++#: sutil/ncplogin.c:653
+ #, c-format
+ msgid "Cannot attach to tree %s. Err:%s\n"
+ msgstr ""
+ 
+-#: sutil/ncplogin.c:653
++#: sutil/ncplogin.c:659
+ #, c-format
+ msgid "Cannot get server name from connection to tree %s. Err:%s\n"
+ msgstr ""
+ 
+-#: sutil/ncplogin.c:671
++#: sutil/ncplogin.c:677
+ msgid "No user name found in cmd line nor in env\n"
+ msgstr ""
+ 
+-#: sutil/ncplogin.c:696
++#: sutil/ncplogin.c:702
+ #, c-format
+ msgid "Could not autocreate mount point %s: %s\n"
+ msgstr ""
+ 
+-#: sutil/ncplogin.c:712
++#: sutil/ncplogin.c:718
+ #, c-format
+ msgid "Cannot mount on %s: %s\n"
+ msgstr ""
+ 
+-#: sutil/ncplogin.c:841
+-#, c-format
+-msgid "NWDSWhoAmi returned %s\n"
+-msgstr ""
+-
+-#: sutil/ncplogin.c:850
++#: sutil/ncplogin.c:825
++#, c-format
++msgid "Cannot retrieve user identity: %s\n"
++msgstr ""
++
++#: sutil/ncplogin.c:830
++#, c-format
++msgid "Cannot parse user name: %s\n"
++msgstr ""
++
++#: sutil/ncplogin.c:845
+ #, c-format
+ msgid "already mounted:%s\n"
+ msgstr ""
+ 
+-#: sutil/ncplogin.c:852
++#: sutil/ncplogin.c:847
+ msgid "failed in mount(2)"
+ msgstr ""
+ 
+-#: sutil/ncplogin.c:871
++#: sutil/ncplogin.c:868
+ msgid "failed in nds login"
+ msgstr ""
+ 
+@@ -1175,14 +1214,14 @@ msgid "Cannot authenticate connection: %
+ msgid "Cannot authenticate connection: %s\n"
+ msgstr ""
+ 
+-#: sutil/ncplogin.c:939
++#: sutil/ncplogin.c:941
+ #, c-format
+ msgid "mounted on:%s\n"
+ msgstr ""
+ 
+-#: sutil/ncplogin.c:964 util/ncptest.c:317 util/nwborm.c:45
++#: sutil/ncplogin.c:966 util/ncptest.c:317 util/nwborm.c:45
+ #: util/nwbpcreate.c:50 util/nwbprm.c:46 util/nwbpvalues.c:58
+-#: util/nwfsinfo.c:51 util/nwfstime.c:52 util/nwpasswd.c:45
++#: util/nwfsinfo.c:51 util/nwfstime.c:52 util/nwpasswd.c:45 util/nwpjmv.c:67
+ #: util/nwtrustee.c:48 util/nwuserlist.c:80 util/nwvolinfo.c:47
+ #: util/pserver.c:65
+ #, c-format
+@@ -1191,11 +1230,11 @@ msgid ""
+ "usage: %s [options]\n"
+ msgstr ""
+ 
+-#: sutil/ncplogin.c:968
++#: sutil/ncplogin.c:970
+ msgid " mount_point is optional if -a option specified\n"
+ msgstr ""
+ 
+-#: sutil/ncplogin.c:972
++#: sutil/ncplogin.c:974
+ #, c-format
+ msgid ""
+ "\n"
+@@ -1206,7 +1245,8 @@ msgid ""
+ "-E             Echo value of final mount_point\n"
+ msgstr ""
+ 
+-#: sutil/ncplogin.c:982
++#: sutil/ncplogin.c:984
++#, c-format
+ msgid ""
+ "\n"
+ "-U username    Username sent to server\n"
+@@ -1221,7 +1261,8 @@ msgid ""
+ "               asked for a password.\n"
+ msgstr ""
+ 
+-#: sutil/ncplogin.c:995
++#: sutil/ncplogin.c:997
++#, c-format
+ msgid ""
+ "\n"
+ "-V volume      Volume to mount\n"
+@@ -1230,12 +1271,12 @@ msgid ""
+ "-R path        Path in volume to 'map root'\n"
+ msgstr ""
+ 
+-#: sutil/ncplogin.c:1008
++#: sutil/ncplogin.c:1010
+ msgid ""
+ "-a             Autocreate mounting point if needed in ~/ncp/SERVER/VOLUME\n"
+ msgstr ""
+ 
+-#: sutil/ncplogin.c:1012
++#: sutil/ncplogin.c:1014
+ #, c-format
+ msgid ""
+ "\n"
+@@ -1260,184 +1301,206 @@ msgid "Error: \"/proc/filesystems\" coul
+ msgid "Error: \"/proc/filesystems\" could not be read:"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:247
++#: sutil/ncpm_common.c:251
+ msgid "Cannot get kernel release\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:250
++#: sutil/ncpm_common.c:254
+ #, c-format
+ msgid "Cannot convert kernel release \"%s\" to number\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:446 sutil/ncpm_common.c:491
++#: sutil/ncpm_common.c:392 sutil/ncpm_common.c:405 sutil/ncpm_common.c:606
++#: sutil/ncpm_common.c:1466 sutil/ncpm_common.c:1737
++#, c-format
++msgid "Cannot relinquish superuser rights: %s\n"
++msgstr ""
++
++#: sutil/ncpm_common.c:498 sutil/ncpm_common.c:543
+ #, c-format
+ msgid "Could not create pipe: %s\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:450 sutil/ncpm_common.c:497
++#: sutil/ncpm_common.c:502 sutil/ncpm_common.c:549
+ #, c-format
+ msgid "Could not fork: %s\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:606
++#: sutil/ncpm_common.c:669
+ #, c-format
+ msgid "Unsupported mount protocol version %d\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:656
++#: sutil/ncpm_common.c:726
+ msgid ""
+ "Remote directory is specified but kernel does not support subdir mounts\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:659
++#: sutil/ncpm_common.c:729
+ msgid ""
+ "Remote directory is specified but ncpmount does not support subdir mounts\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1359
++#: sutil/ncpm_common.c:1439 sutil/ncpm_common.c:1722
++#, c-format
++msgid "Cannot switch to superuser: %s\n"
++msgstr ""
++
++#: sutil/ncpm_common.c:1443
+ #, c-format
+ msgid "Can't get %s~ lock file\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1365
++#: sutil/ncpm_common.c:1449
+ #, c-format
+ msgid "Can't open %s\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1369
++#: sutil/ncpm_common.c:1453
+ msgid "Can't write mount entry\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1373
++#: sutil/ncpm_common.c:1457
+ #, c-format
+ msgid "Can't set perms on %s\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1379
++#: sutil/ncpm_common.c:1463
+ #, c-format
+ msgid "Can't remove %s~\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1397
++#: sutil/ncpm_common.c:1484
+ #, c-format
+ msgid "Value `%s' for option `%s' is not a number\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1401
++#: sutil/ncpm_common.c:1488
+ #, c-format
+ msgid "Ignoring unneeded value for option `%s'\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1406
++#: sutil/ncpm_common.c:1493
+ #, c-format
+ msgid "Required parameter for option `%s' missing\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1426
++#: sutil/ncpm_common.c:1517
++msgid "You are not allowed to clear nosuid and nodev flags\n"
++msgstr ""
++
++#: sutil/ncpm_common.c:1527
++msgid "You are not allowed to clear noexec flag\n"
++msgstr ""
++
++#: sutil/ncpm_common.c:1533
+ msgid "Remounting not supported, sorry\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1435
++#: sutil/ncpm_common.c:1542
+ msgid "Timeout must be between 1 and 900 secs inclusive\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1442
++#: sutil/ncpm_common.c:1549
+ msgid "Retry count must be between 1 and 65536 inclusive\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1473
++#: sutil/ncpm_common.c:1580
+ #, c-format
+ msgid "Specified server name `%s' is too long\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1484
++#: sutil/ncpm_common.c:1591
+ #, c-format
+ msgid "NCP signature level must be number between 0 and 3. You specified %u\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1491
++#: sutil/ncpm_common.c:1598
+ #, c-format
+ msgid "NCP cache time to live must be less than 20000 ms. You specified %u\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1501
++#: sutil/ncpm_common.c:1608
+ #, c-format
+ msgid "File mode `%s' is not valid octal number\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1510
++#: sutil/ncpm_common.c:1617
+ #, c-format
+ msgid "Directory mode `%s' is not valid octal number\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1516
++#: sutil/ncpm_common.c:1623
+ #, c-format
+ msgid "I/O charset name `%s' is too long\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1523
++#: sutil/ncpm_common.c:1630
+ #, c-format
+ msgid "Codepage name `%s' is too long\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1598
++#: sutil/ncpm_common.c:1705
+ #, c-format
+ msgid "Unknown option `%s', ignoring it\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1607
++#: sutil/ncpm_common.c:1714
+ msgid "attempt to open mount point"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1627
++#: sutil/ncpm_common.c:1742
++#, c-format
+ msgid ""
+ "Your kernel does not support character mapping. You should upgrade to latest "
+ "version.\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1629
++#: sutil/ncpm_common.c:1744
+ msgid "Warning: Unable to load NLS charsets"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1636
++#: sutil/ncpm_common.c:1751
++#, c-format
+ msgid ""
+ "Your kernel does not support filename caching. You should upgrade to latest "
+ "kernel version.\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1638
++#: sutil/ncpm_common.c:1753
+ #, c-format
+ msgid "Warning: Cannot enable filename caching: %s\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1650
++#: sutil/ncpm_common.c:1765
+ #, c-format
+ msgid "Unable to negotiate requested security level: %s\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1666 sutil/ncpm_common.c:1689 sutil/ncpm_common.c:1709
++#: sutil/ncpm_common.c:1781 sutil/ncpm_common.c:1804 sutil/ncpm_common.c:1824
+ msgid "opening ncp_socket"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1682 sutil/ncpm_common.c:1702
++#: sutil/ncpm_common.c:1797 sutil/ncpm_common.c:1817
+ msgid "Invalid transport requested"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1715
++#: sutil/ncpm_common.c:1830
+ #, c-format
+ msgid "%s: Could not open wdog socket: %s\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1726
++#: sutil/ncpm_common.c:1841
+ msgid "No transport available\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1731
++#: sutil/ncpm_common.c:1846
+ #, c-format
+ msgid "bind failed: %s\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1733
++#: sutil/ncpm_common.c:1848
++#, c-format
+ msgid ""
+ "\n"
+ "Maybe you want to use \n"
+@@ -1446,26 +1509,26 @@ msgid ""
+ "\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1746
++#: sutil/ncpm_common.c:1861
+ msgid "getsockname ncp socketfailed"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1755
++#: sutil/ncpm_common.c:1870
+ #, c-format
+ msgid "bind(wdog_sock, ): %s\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1763
++#: sutil/ncpm_common.c:1878
+ #, c-format
+ msgid "Could not open message socket: %s\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1771
++#: sutil/ncpm_common.c:1886
+ #, c-format
+ msgid "bind(message_sock, ): %s\n"
+ msgstr ""
+ 
+-#: sutil/ncpm_common.c:1780
++#: sutil/ncpm_common.c:1895
+ #, c-format
+ msgid "connect(ncp_fd, ): %s\n"
+ msgstr ""
+@@ -1483,8 +1546,9 @@ msgid "Cannot retrieve password from fil
+ msgid "Cannot retrieve password from file descriptor\n"
+ msgstr ""
+ 
+-#: sutil/mount_login.c:97 util/nwauth.c:160 util/nwauth.c:169
+-#: util/nwpasswd.c:141 util/nwpasswd.c:149 util/nwpasswd.c:157
++#: sutil/mount_login.c:97 util/nwauth.c:151 util/nwauth.c:160
++#: util/nwpasswd.c:143 util/nwpasswd.c:151 util/nwpasswd.c:159
++#, c-format
+ msgid "Password too long\n"
+ msgstr ""
+ 
+@@ -1550,6 +1614,7 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/ipx_probe.c:58
++#, c-format
+ msgid ""
+ "\n"
+ "Probe an interface for ipx networks\n"
+@@ -1557,6 +1622,7 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/ipx_probe.c:62
++#, c-format
+ msgid ""
+ "\n"
+ "-v              Verbose output\n"
+@@ -1587,6 +1653,7 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/ipx_probe.c:315
++#, c-format
+ msgid "no network found\n"
+ msgstr ""
+ 
+@@ -1636,7 +1703,7 @@ msgid "       %s [-vmMnppt] [-s amt] -r 
+ msgid "       %s [-vmMnppt] [-s amt] -r sourcedir directory\n"
+ msgstr ""
+ 
+-#: util/ncopy.c:157 util/ncopy.c:874
++#: util/ncopy.c:157 util/ncopy.c:877
+ msgid "not a directory"
+ msgstr ""
+ 
+@@ -1655,7 +1722,7 @@ msgid "%s: No destination specified.\n"
+ msgid "%s: No destination specified.\n"
+ msgstr ""
+ 
+-#: util/ncopy.c:250 util/ncopy.c:874
++#: util/ncopy.c:250 util/ncopy.c:877
+ #, c-format
+ msgid "%s: %s: %s\n"
+ msgstr ""
+@@ -1720,178 +1787,179 @@ msgid "%s: Unable to open destination fi
+ msgid "%s: Unable to open destination file: %s\n"
+ msgstr ""
+ 
+-#: util/ncopy.c:552
++#: util/ncopy.c:555
+ msgid "NetWare copy"
+ msgstr ""
+ 
+-#: util/ncopy.c:558 util/ncopy.c:566
++#: util/ncopy.c:561 util/ncopy.c:569
+ #, c-format
+ msgid "%s: Close failed for %s\n"
+ msgstr ""
+ 
+-#: util/ncopy.c:590
++#: util/ncopy.c:593
+ #, c-format
+ msgid "MAC namespace is not supported on source %s: %s\n"
+ msgstr ""
+ 
+-#: util/ncopy.c:602
++#: util/ncopy.c:605
+ #, c-format
+ msgid "Unable to open MAC resource fork on source %s: %s\n"
+ msgstr ""
+ 
+-#: util/ncopy.c:641
++#: util/ncopy.c:644
+ #, c-format
+ msgid "MAC namespace is not supported on destination %s: %s\n"
+ msgstr ""
+ 
+-#: util/ncopy.c:651
++#: util/ncopy.c:654
+ #, c-format
+ msgid "Unable to create MAC resource fork on destination %s: %s\n"
+ msgstr ""
+ 
+-#: util/ncopy.c:664
++#: util/ncopy.c:667
+ #, c-format
+ msgid ""
+ "Unable to copy MAC resource fork of %s because of %s does not support "
+ "resource forks\n"
+ msgstr ""
+ 
+-#: util/ncopy.c:691
++#: util/ncopy.c:694
+ #, c-format
+ msgid "Unable to copy MAC resource fork: %s: %s\n"
+ msgstr ""
+ 
+-#: util/ncopy.c:700
++#: util/ncopy.c:703
+ msgid "NetWare copy (resource fork)"
+ msgstr ""
+ 
+-#: util/ncopy.c:732 util/ncopy.c:750
++#: util/ncopy.c:735 util/ncopy.c:753
+ #, c-format
+ msgid "Cannot set trustees on %s because of %s\n"
+ msgstr ""
+ 
+-#: util/ncopy.c:734 util/ncopy.c:761
++#: util/ncopy.c:737 util/ncopy.c:764
+ msgid "not NetWare filesystem"
+ msgstr ""
+ 
+-#: util/ncopy.c:759 util/ncopy.c:799
++#: util/ncopy.c:762 util/ncopy.c:802
+ #, c-format
+ msgid "Cannot set file attributes on %s because of %s\n"
+ msgstr ""
+ 
+-#: util/ncopy.c:842
++#: util/ncopy.c:845
+ #, c-format
+ msgid ""
+ "Param Src   '%s'\n"
+ "Param Dest  '%s'\n"
+ msgstr ""
+ 
+-#: util/ncopy.c:849
++#: util/ncopy.c:852
+ #, c-format
+ msgid "%s: Cannot open %s, %s\n"
+ msgstr ""
+ 
+-#: util/ncopy.c:855
++#: util/ncopy.c:858
+ #, c-format
+ msgid "%s: Cannot stat %s, %s\n"
+ msgstr ""
+ 
+-#: util/ncopy.c:881
++#: util/ncopy.c:884
+ #, c-format
+ msgid "%s: Cannot chmod %s: %s\n"
+ msgstr ""
+ 
+-#: util/ncopy.c:888
++#: util/ncopy.c:891
+ #, c-format
+ msgid "%s: Cannot create %s: %s\n"
+ msgstr ""
+ 
+-#: util/ncopy.c:898 util/ncopy.c:965
++#: util/ncopy.c:901 util/ncopy.c:968
+ #, c-format
+ msgid "%s: Cannot create %s, %s\n"
+ msgstr ""
+ 
+-#: util/ncopy.c:911
++#: util/ncopy.c:914
+ #, c-format
+ msgid "%s: Cannot read %s: %s\n"
+ msgstr ""
+ 
+-#: util/ncopy.c:938
++#: util/ncopy.c:941
+ #, c-format
+ msgid "%s: %s: omitting directory\n"
+ msgstr ""
+ 
+-#: util/ncopy.c:1052
++#: util/ncopy.c:1055
+ #, c-format
+ msgid "%s: Reset to ignore SIGHUP signal failed: %s"
+ msgstr ""
+ 
+-#: util/ncopy.c:1059
++#: util/ncopy.c:1062
+ #, c-format
+ msgid "%s: Reset to ignore SIGINT signal failed: %s"
+ msgstr ""
+ 
+-#: util/ncopy.c:1066
++#: util/ncopy.c:1069
+ #, c-format
+ msgid "%s: Reset to ignore SIGQUIT signal failed: %s"
+ msgstr ""
+ 
+-#: util/ncopy.c:1073
++#: util/ncopy.c:1076
+ #, c-format
+ msgid "%s: Reset to ignore SIGTERM signal failed: %s"
+ msgstr ""
+ 
+-#: util/ncopy.c:1085
++#: util/ncopy.c:1088
+ #, c-format
+ msgid "%s: unclean close of output file"
+ msgstr ""
+ 
+-#: util/ncopy.c:1104
++#: util/ncopy.c:1107
+ #, c-format
+ msgid "%s: Get HANGUP signal action failed: %s"
+ msgstr ""
+ 
+-#: util/ncopy.c:1111
++#: util/ncopy.c:1114
+ #, c-format
+ msgid "%s: Reset HANGUP signal action failed: %s"
+ msgstr ""
+ 
+-#: util/ncopy.c:1117
++#: util/ncopy.c:1120
+ #, c-format
+ msgid "%s: Get INTERRUPT signal action failed: %s"
+ msgstr ""
+ 
+-#: util/ncopy.c:1124
++#: util/ncopy.c:1127
+ #, c-format
+ msgid "%s: Reset INTERRUPT signal action failed: %s"
+ msgstr ""
+ 
+-#: util/ncopy.c:1130
++#: util/ncopy.c:1133
+ #, c-format
+ msgid "%s: Get QUIT signal action failed: %s"
+ msgstr ""
+ 
+-#: util/ncopy.c:1137
++#: util/ncopy.c:1140
+ #, c-format
+ msgid "%s: Reset QUIT signal action failed: %s"
+ msgstr ""
+ 
+-#: util/ncopy.c:1143
++#: util/ncopy.c:1146
+ #, c-format
+ msgid "%s: Get TERMINATE signal action failed: %s"
+ msgstr ""
+ 
+-#: util/ncopy.c:1150
++#: util/ncopy.c:1153
+ #, c-format
+ msgid "%s: Reset TERMINATE signal action failed: %s"
+ msgstr ""
+ 
+-#: util/ncopy.c:1181
++#: util/ncopy.c:1184
+ #, c-format
+ msgid "%s version %s\n"
+ msgstr ""
+ 
+ #: util/ncptest.c:109
++#, c-format
+ msgid ""
+ "\n"
+ "test_create:\n"
+@@ -1903,36 +1971,44 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/ncptest.c:117
++#, c-format
+ msgid "lookup public error\n"
+ msgstr ""
+ 
+ #: util/ncptest.c:123
++#, c-format
+ msgid "alloc_dir_handle error\n"
+ msgstr ""
+ 
+ #: util/ncptest.c:129
++#, c-format
+ msgid "create error\n"
+ msgstr ""
+ 
+ #: util/ncptest.c:134
++#, c-format
+ msgid "dealloc error\n"
+ msgstr ""
+ 
+ #: util/ncptest.c:137
++#, c-format
+ msgid "test_create: Passed.\n"
+ msgstr ""
+ 
+ #: util/ncptest.c:173
++#, c-format
+ msgid ""
+ "\n"
+ "test_readdir:\n"
+ msgstr ""
+ 
+ #: util/ncptest.c:181
++#, c-format
+ msgid "lookup blub error\n"
+ msgstr ""
+ 
+ #: util/ncptest.c:186
++#, c-format
+ msgid "init error\n"
+ msgstr ""
+ 
+@@ -1952,10 +2028,12 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/ncptest.c:222
++#, c-format
+ msgid "path translation error\n"
+ msgstr ""
+ 
+ #: util/ncptest.c:225
++#, c-format
+ msgid "Search in subdir '"
+ msgstr ""
+ 
+@@ -1965,6 +2043,7 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/ncptest.c:231
++#, c-format
+ msgid "init search2 error\n"
+ msgstr ""
+ 
+@@ -1974,20 +2053,24 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/ncptest.c:264
++#, c-format
+ msgid "test_readdir: Passed.\n"
+ msgstr ""
+ 
+ #: util/ncptest.c:275
++#, c-format
+ msgid ""
+ "\n"
+ "test_rights:\n"
+ msgstr ""
+ 
+ #: util/ncptest.c:283
++#, c-format
+ msgid "lookup me error\n"
+ msgstr ""
+ 
+ #: util/ncptest.c:290
++#, c-format
+ msgid "get sys rights error\n"
+ msgstr ""
+ 
+@@ -1997,6 +2080,7 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/ncptest.c:299
++#, c-format
+ msgid "get me rights error\n"
+ msgstr ""
+ 
+@@ -2006,6 +2090,7 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/ncptest.c:303
++#, c-format
+ msgid "test_rights: Passed.\n"
+ msgstr ""
+ 
+@@ -2015,6 +2100,7 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/ncptest.c:319
++#, c-format
+ msgid ""
+ "\n"
+ "-h             Print this help text\n"
+@@ -2036,7 +2122,7 @@ msgid "when initializing connection"
+ msgid "when initializing connection"
+ msgstr ""
+ 
+-#: util/nprint.c:110 util/pserver.c:191
++#: util/nprint.c:110 util/nwpjmv.c:165 util/pserver.c:186
+ msgid "No Description"
+ msgstr ""
+ 
+@@ -2084,12 +2170,13 @@ msgid "Cannot start print job: %s\n"
+ msgid "Cannot start print job: %s\n"
+ msgstr ""
+ 
+-#: util/nprint.c:318 util/nprint.c:325 util/pserver.c:59
++#: util/nprint.c:318 util/nprint.c:325 util/nwpjmv.c:61 util/pserver.c:59
+ #, c-format
+ msgid "usage: %s [options] file\n"
+ msgstr ""
+ 
+ #: util/nprint.c:326
++#, c-format
+ msgid ""
+ "\n"
+ "-S server      Server name to be used\n"
+@@ -2160,6 +2247,7 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/nsend.c:121
++#, c-format
+ msgid ""
+ "\n"
+ "-h              Prints this help text\n"
+@@ -2179,9 +2267,9 @@ msgstr ""
+ 
+ #: util/nsend.c:162 util/nwbocreate.c:115 util/nwboprops.c:83 util/nwborm.c:80
+ #: util/nwbpadd.c:95 util/nwbpcreate.c:119 util/nwbprm.c:83 util/nwbpset.c:91
+-#: util/nwfsinfo.c:132 util/nwfstime.c:86 util/nwrights.c:102
+-#: util/nwtrustee.c:98 util/nwuserlist.c:201 util/pqlist.c:176 util/pqrm.c:59
+-#: util/pqstat.c:138 util/pserver.c:365
++#: util/nwfsinfo.c:137 util/nwfstime.c:90 util/nwpjmv.c:351 util/nwpqjob.c:87
++#: util/nwrights.c:102 util/nwtrustee.c:98 util/nwuserlist.c:205
++#: util/pqlist.c:176 util/pqstat.c:138 util/pserver.c:360
+ msgid "when initializing"
+ msgstr ""
+ 
+@@ -2221,6 +2309,7 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/nwauth.c:59
++#, c-format
+ msgid ""
+ "\n"
+ "-h             Print this help text\n"
+@@ -2233,15 +2322,16 @@ msgid ""
+ "\n"
+ msgstr ""
+ 
+-#: util/nwauth.c:165
++#: util/nwauth.c:156
+ msgid "Enter password: "
+ msgstr ""
+ 
+-#: util/nwauth.c:183 util/nwpasswd.c:175
++#: util/nwauth.c:174 util/nwpasswd.c:177
+ msgid "when trying to open connection"
+ msgstr ""
+ 
+ #: util/nwbocreate.c:52
++#, c-format
+ msgid ""
+ "\n"
+ "-h             Print this help text\n"
+@@ -2292,6 +2382,7 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/nwbols.c:50
++#, c-format
+ msgid ""
+ "\n"
+ "-h             Print this help text\n"
+@@ -2315,6 +2406,7 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/nwboprops.c:47
++#, c-format
+ msgid ""
+ "\n"
+ "-h             Print this help text\n"
+@@ -2331,6 +2423,7 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/nwborm.c:47
++#, c-format
+ msgid ""
+ "\n"
+ "-h             Print this help text\n"
+@@ -2358,6 +2451,7 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/nwbpadd.c:51
++#, c-format
+ msgid ""
+ "\n"
+ "-h             Print this help text\n"
+@@ -2434,6 +2528,7 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/nwbpcreate.c:52
++#, c-format
+ msgid ""
+ "\n"
+ "-h             Print this help text\n"
+@@ -2463,6 +2558,7 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/nwbprm.c:48
++#, c-format
+ msgid ""
+ "\n"
+ "-h             Print this help text\n"
+@@ -2484,6 +2580,7 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/nwbpset.c:48
++#, c-format
+ msgid ""
+ "\n"
+ "-h             Print this help text\n"
+@@ -2497,6 +2594,7 @@ msgstr ""
+ 
+ #: util/nwbpset.c:111 util/nwbpset.c:119 util/nwbpset.c:125 util/nwbpset.c:131
+ #: util/nwbpset.c:139 util/nwbpset.c:235
++#, c-format
+ msgid "Illegal format on stdin\n"
+ msgstr ""
+ 
+@@ -2514,22 +2612,27 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/nwbpset.c:164
++#, c-format
+ msgid "Could not change property security\n"
+ msgstr ""
+ 
+ #: util/nwbpset.c:175
++#, c-format
+ msgid "Could not create property\n"
+ msgstr ""
+ 
+ #: util/nwbpset.c:217
++#, c-format
+ msgid "Could not write property\n"
+ msgstr ""
+ 
+ #: util/nwbpset.c:246
++#, c-format
+ msgid "Could not add object to set\n"
+ msgstr ""
+ 
+ #: util/nwbpvalues.c:60
++#, c-format
+ msgid ""
+ "\n"
+ "-h             Print this help text\n"
+@@ -2566,139 +2669,150 @@ msgid "%s: Could not read property value
+ msgid "%s: Could not read property value: %s\n"
+ msgstr ""
+ 
+-#: util/nwbpvalues.c:372
++#: util/nwbpvalues.c:377
+ #, c-format
+ msgid "Last Login: %x, %X"
+ msgstr ""
+ 
+-#: util/nwbpvalues.c:376
++#: util/nwbpvalues.c:381
++#, c-format
+ msgid "Never logged in\n"
+ msgstr ""
+ 
+-#: util/nwbpvalues.c:380
++#: util/nwbpvalues.c:385
++#, c-format
+ msgid " --- Account disabled ---\n"
+ msgstr ""
+ 
+-#: util/nwbpvalues.c:395
++#: util/nwbpvalues.c:400
+ #, c-format
+ msgid "Account expires on: %x"
+ msgstr ""
+ 
+-#: util/nwbpvalues.c:411
++#: util/nwbpvalues.c:416
+ #, c-format
+ msgid "Password expires on: %x"
+ msgstr ""
+ 
+-#: util/nwbpvalues.c:413
++#: util/nwbpvalues.c:418
+ #, c-format
+ msgid ""
+ "GraceLogins left: %d\n"
+ "of max.         : %d\n"
+ msgstr ""
+ 
+-#: util/nwbpvalues.c:415
++#: util/nwbpvalues.c:420
+ #, c-format
+ msgid "PasswortChangeInterval   : %d days\n"
+ msgstr ""
+ 
+-#: util/nwbpvalues.c:420
++#: util/nwbpvalues.c:425
++#, c-format
+ msgid "New password must be different when changing\n"
+ msgstr ""
+ 
+-#: util/nwbpvalues.c:424
++#: util/nwbpvalues.c:429
++#, c-format
+ msgid "User is not allowed to change password\n"
+ msgstr ""
+ 
+-#: util/nwbpvalues.c:426
++#: util/nwbpvalues.c:431
+ #, c-format
+ msgid "Minimal password length  : %d\n"
+ msgstr ""
+ 
+-#: util/nwbpvalues.c:429
++#: util/nwbpvalues.c:434
+ #, c-format
+ msgid "Maximum no of connections: %d\n"
+ msgstr ""
+ 
+-#: util/nwbpvalues.c:434
++#: util/nwbpvalues.c:439
+ #, c-format
+ msgid "Maximum DiskQuota : %8d blocks\n"
+ msgstr ""
+ 
+-#: util/nwbpvalues.c:437
++#: util/nwbpvalues.c:442
+ #, c-format
+ msgid "Failed Logins: %5d\n"
+ msgstr ""
+ 
+-#: util/nwbpvalues.c:441
++#: util/nwbpvalues.c:446
+ #, c-format
+ msgid "Account disabled still %8d seconds\n"
+ msgstr ""
+ 
+-#: util/nwbpvalues.c:446
++#: util/nwbpvalues.c:451
+ #, c-format
+ msgid "Last 'intruder' address: %s\n"
+ msgstr ""
+ 
+-#: util/nwbpvalues.c:452
++#: util/nwbpvalues.c:457
+ #, c-format
+ msgid "RestrictionMask : %02X\n"
+ msgstr ""
+ 
+-#: util/nwbpvalues.c:466
++#: util/nwbpvalues.c:471
++#, c-format
+ msgid "Time restrictions:         1 1 1 1 1 1 1 1 1 1 2 2 2 2 ]\n"
+ msgstr ""
+ 
+-#: util/nwbpvalues.c:467
++#: util/nwbpvalues.c:472
++#, c-format
+ msgid "  Day [0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 ]\n"
+ msgstr ""
+ 
+-#: util/nwbpvalues.c:507
++#: util/nwbpvalues.c:512
+ #, c-format
+ msgid "Segment: %03d\n"
+ msgstr ""
+ 
+-#: util/nwdir.c:203
++#: util/nwdir.c:203 util/nwlistsalvage.c:56
++#, c-format
+ msgid "Nobody"
+ msgstr ""
+ 
+-#: util/nwdir.c:212
++#: util/nwdir.c:212 util/nwlistsalvage.c:65
++#, c-format
+ msgid "Unknown:N/A"
+ msgstr ""
+ 
+-#: util/nwdir.c:218
++#: util/nwdir.c:218 util/nwlistsalvage.c:71
+ #, c-format
+ msgid "Unknown:<%s>"
+ msgstr ""
+ 
+-#: util/nwdir.c:223
++#: util/nwdir.c:223 util/nwlistsalvage.c:76
++#, c-format
+ msgid "User:"
+ msgstr ""
+ 
+-#: util/nwdir.c:224
++#: util/nwdir.c:224 util/nwlistsalvage.c:77
++#, c-format
+ msgid "Group:"
+ msgstr ""
+ 
+-#: util/nwdir.c:225
++#: util/nwdir.c:225 util/nwlistsalvage.c:78
++#, c-format
+ msgid "FileServer:"
+ msgstr ""
+ 
+-#: util/nwdir.c:226
++#: util/nwdir.c:226 util/nwlistsalvage.c:79
+ #, c-format
+ msgid "Unknown(%04X):"
+ msgstr ""
+ 
+-#: util/nwdir.c:267
++#: util/nwdir.c:271 util/nwlistsalvage.c:120
+ msgid "never"
+ msgstr ""
+ 
+-#: util/nwdir.c:307
++#: util/nwdir.c:311
+ #, c-format
+ msgid ""
+ "Extended attributes: %u attributes\n"
+ "                     %u bytes in keys, %u bytes in data\n"
+ msgstr ""
+ 
+-#: util/nwdir.c:323
++#: util/nwdir.c:327
+ #, c-format
+ msgid ""
+ "  Key %u:\n"
+@@ -2707,125 +2821,143 @@ msgid ""
+ "    Value Length: %u\n"
+ msgstr ""
+ 
+-#: util/nwdir.c:361 util/nwdir.c:384
++#: util/nwdir.c:365 util/nwdir.c:388
+ #, c-format
+ msgid "  Cannot determine file size: %s\n"
+ msgstr ""
+ 
+-#: util/nwdir.c:363 util/nwdir.c:413
++#: util/nwdir.c:367 util/nwdir.c:417
+ #, c-format
+ msgid "  File size:       %10Lu"
+ msgstr ""
+ 
+-#: util/nwdir.c:368 util/nwdir.c:419
++#: util/nwdir.c:372 util/nwdir.c:423
+ #, c-format
+ msgid " (allocated %Lu)"
+ msgstr ""
+ 
+-#: util/nwdir.c:386
++#: util/nwdir.c:390
++#, c-format
+ msgid "  No datastream exist\n"
+ msgstr ""
+ 
+-#: util/nwdir.c:410
++#: util/nwdir.c:414
+ #, c-format
+ msgid "  Stream %3u size: %10Lu"
+ msgstr ""
+ 
+-#: util/nwdir.c:441
++#: util/nwdir.c:445
+ #, c-format
+ msgid "Cannot retrieve file attributes: %s\n"
+ msgstr ""
+ 
+-#: util/nwdir.c:447
++#: util/nwdir.c:451
+ #, c-format
+ msgid "Cannot retrieve file number: %s\n"
+ msgstr ""
+ 
+-#: util/nwdir.c:453
++#: util/nwdir.c:457 util/nwlistsalvage.c:174
+ #, c-format
+ msgid "Cannot retrieve file name: %s\n"
+ msgstr ""
+ 
+-#: util/nwdir.c:458
++#: util/nwdir.c:462
++#, c-format
+ msgid "Directory:\n"
+ msgstr ""
+ 
+-#: util/nwdir.c:460
++#: util/nwdir.c:464
++#, c-format
+ msgid "File:\n"
+ msgstr ""
+ 
+-#: util/nwdir.c:474
++#: util/nwdir.c:478
++#, c-format
+ msgid "  DOS:  "
+ msgstr ""
+ 
+-#: util/nwdir.c:479
++#: util/nwdir.c:483
++#, c-format
+ msgid " OS/2:  "
+ msgstr ""
+ 
+-#: util/nwdir.c:485
++#: util/nwdir.c:489
++#, c-format
+ msgid "  NFS:  "
+ msgstr ""
+ 
+-#: util/nwdir.c:491
++#: util/nwdir.c:495
++#, c-format
+ msgid "  MAC:  "
+ msgstr ""
+ 
+-#: util/nwdir.c:500
++#: util/nwdir.c:504
++#, c-format
+ msgid "Rights:\n"
+ msgstr ""
+ 
+-#: util/nwdir.c:501
++#: util/nwdir.c:505
++#, c-format
+ msgid "  Inherited: "
+ msgstr ""
+ 
+-#: util/nwdir.c:505 util/nwdir.c:524 util/nwdir.c:540 util/nwdir.c:558
+-#: util/nwdir.c:566 util/nwdir.c:573 util/nwdir.c:582
++#: util/nwdir.c:509 util/nwdir.c:528 util/nwdir.c:544 util/nwdir.c:562
++#: util/nwdir.c:570 util/nwdir.c:577 util/nwdir.c:586
+ #, c-format
+ msgid "Cannot determine: %s\n"
+ msgstr ""
+ 
+-#: util/nwdir.c:522
++#: util/nwdir.c:526
++#, c-format
+ msgid "  Effective: "
+ msgstr ""
+ 
+-#: util/nwdir.c:536
++#: util/nwdir.c:540
++#, c-format
+ msgid "Owning namespace: "
+ msgstr ""
+ 
+-#: util/nwdir.c:553
++#: util/nwdir.c:557
++#, c-format
+ msgid "Miscellaneous NetWare Information:\n"
+ msgstr ""
+ 
+-#: util/nwdir.c:554
++#: util/nwdir.c:558
++#, c-format
+ msgid "  Last update:    "
+ msgstr ""
+ 
+-#: util/nwdir.c:562
++#: util/nwdir.c:566
++#, c-format
+ msgid "  Last archived:  "
+ msgstr ""
+ 
+-#: util/nwdir.c:571
++#: util/nwdir.c:575
++#, c-format
+ msgid "  Last accessed:  "
+ msgstr ""
+ 
+-#: util/nwdir.c:578
++#: util/nwdir.c:582
++#, c-format
+ msgid "  Created/Copied: "
+ msgstr ""
+ 
+-#: util/nwdir.c:586
++#: util/nwdir.c:590
+ #, c-format
+ msgid "  Flags:          [%s%s%s%s]"
+ msgstr ""
+ 
+-#: util/nwdir.c:636
++#: util/nwdir.c:640
++#, c-format
+ msgid "Trustees:\n"
+ msgstr ""
+ 
+-#: util/nwdir.c:662
++#: util/nwdir.c:666
++#, c-format
+ msgid "File Usage:\n"
+ msgstr ""
+ 
+-#: util/nwdir.c:663
++#: util/nwdir.c:667
+ #, c-format
+ msgid ""
+ "  Use Count:              %5u  Open Count:              %5u\n"
+@@ -2834,148 +2966,151 @@ msgid ""
+ "  Locked:       %-15s  Fork Count:              %5u\n"
+ msgstr ""
+ 
+-#: util/nwdir.c:670
++#: util/nwdir.c:674
+ #, c-format
+ msgid "  Connection Count:  %10u\n"
+ msgstr ""
+ 
+-#: util/nwdir.c:674 util/nwdir.c:766
++#: util/nwdir.c:678 util/nwdir.c:770
+ #, c-format
+ msgid "    Connection: %u/%u"
+ msgstr ""
+ 
+-#: util/nwdir.c:677 util/nwdir.c:769
++#: util/nwdir.c:681 util/nwdir.c:773
++#, c-format
+ msgid ", "
+ msgstr ""
+ 
+-#: util/nwdir.c:682 util/nwuserlist.c:380
++#: util/nwdir.c:686 util/nwuserlist.c:384
+ msgid "locked"
+ msgstr ""
+ 
+-#: util/nwdir.c:682 util/nwuserlist.c:380
++#: util/nwdir.c:686 util/nwuserlist.c:384
+ msgid "open shareable"
+ msgstr ""
+ 
+-#: util/nwdir.c:683 util/nwuserlist.c:381
++#: util/nwdir.c:687 util/nwuserlist.c:385
+ msgid "logged"
+ msgstr ""
+ 
+-#: util/nwdir.c:683 util/nwuserlist.c:381
++#: util/nwdir.c:687 util/nwuserlist.c:385
+ msgid "open normal"
+ msgstr ""
+ 
+-#: util/nwdir.c:684 util/nwdir.c:689 util/nwuserlist.c:382
+-#: util/nwuserlist.c:387
++#: util/nwdir.c:688 util/nwdir.c:693 util/nwuserlist.c:386
++#: util/nwuserlist.c:391
+ msgid "rsvd"
+ msgstr ""
+ 
+-#: util/nwdir.c:685 util/nwuserlist.c:383
++#: util/nwdir.c:689 util/nwuserlist.c:387
+ msgid "TTS locked"
+ msgstr ""
+ 
+-#: util/nwdir.c:685 util/nwuserlist.c:383
++#: util/nwdir.c:689 util/nwuserlist.c:387
+ msgid "TTS"
+ msgstr ""
+ 
+-#: util/nwdir.c:686 util/nwuserlist.c:384
++#: util/nwdir.c:690 util/nwuserlist.c:388
+ msgid "read"
+ msgstr ""
+ 
+-#: util/nwdir.c:686 util/nwuserlist.c:384
++#: util/nwdir.c:690 util/nwuserlist.c:388
+ msgid "write"
+ msgstr ""
+ 
+-#: util/nwdir.c:687 util/nwuserlist.c:385
++#: util/nwdir.c:691 util/nwuserlist.c:389
+ msgid "deny read"
+ msgstr ""
+ 
+-#: util/nwdir.c:687 util/nwuserlist.c:385
++#: util/nwdir.c:691 util/nwuserlist.c:389
+ msgid "deny write"
+ msgstr ""
+ 
+-#: util/nwdir.c:688 util/nwuserlist.c:386
++#: util/nwdir.c:692 util/nwuserlist.c:390
+ msgid "detached"
+ msgstr ""
+ 
+-#: util/nwdir.c:688 util/nwuserlist.c:386
++#: util/nwdir.c:692 util/nwuserlist.c:390
+ msgid "TTS holding detach"
+ msgstr ""
+ 
+-#: util/nwdir.c:689 util/nwuserlist.c:387
++#: util/nwdir.c:693 util/nwuserlist.c:391
+ msgid "TTS holding open"
+ msgstr ""
+ 
+-#: util/nwdir.c:710 util/nwdir.c:732 util/nwuserlist.c:409
+-#: util/nwuserlist.c:432
++#: util/nwdir.c:714 util/nwdir.c:736 util/nwuserlist.c:413
++#: util/nwuserlist.c:436
+ msgid "unlocked"
+ msgstr ""
+ 
+-#: util/nwdir.c:713 util/nwuserlist.c:412
++#: util/nwdir.c:717 util/nwuserlist.c:416
+ msgid "Not locked"
+ msgstr ""
+ 
+-#: util/nwdir.c:714 util/nwuserlist.c:413
++#: util/nwdir.c:718 util/nwuserlist.c:417
+ msgid "Locked by a file lock"
+ msgstr ""
+ 
+-#: util/nwdir.c:715 util/nwuserlist.c:414
++#: util/nwdir.c:719 util/nwuserlist.c:418
+ msgid "Locked by Begin Share File Set"
+ msgstr ""
+ 
+-#: util/nwdir.c:716 util/nwuserlist.c:415
++#: util/nwdir.c:720 util/nwuserlist.c:419
+ msgid "Unknown lock state"
+ msgstr ""
+ 
+-#: util/nwdir.c:735
++#: util/nwdir.c:739
+ #, c-format
+ msgid "          Lock:   (%02X) %s\n"
+ msgstr ""
+ 
+-#: util/nwdir.c:736
++#: util/nwdir.c:740
+ #, c-format
+ msgid "                  (%02X) %s\n"
+ msgstr ""
+ 
+-#: util/nwdir.c:737
++#: util/nwdir.c:741
+ #, c-format
+ msgid "          Access: (%02X) %s\n"
+ msgstr ""
+ 
+-#: util/nwdir.c:739
++#: util/nwdir.c:743
+ #, c-format
+ msgid "          Lock:   %s\n"
+ msgstr ""
+ 
+-#: util/nwdir.c:740
++#: util/nwdir.c:744
+ #, c-format
+ msgid "                  %s\n"
+ msgstr ""
+ 
+-#: util/nwdir.c:741
++#: util/nwdir.c:745
+ #, c-format
+ msgid "          Access: %s\n"
+ msgstr ""
+ 
+-#: util/nwdir.c:762
++#: util/nwdir.c:766
++#, c-format
+ msgid "File Physical Locks:\n"
+ msgstr ""
+ 
+-#: util/nwdir.c:773
++#: util/nwdir.c:777
+ #, c-format
+ msgid "    Range: 0x%08LX-0x%08LX\n"
+ msgstr ""
+ 
+-#: util/nwdir.c:791
++#: util/nwdir.c:795
+ #, c-format
+ msgid "Unable to begin scandir: 0x%04X\n"
+ msgstr ""
+ 
+-#: util/nwdir.c:803
++#: util/nwdir.c:807
+ #, c-format
+ msgid "Unexpected error in NextDir: %s\n"
+ msgstr ""
+ 
+-#: util/nwdir.c:821
++#: util/nwdir.c:825
++#, c-format
+ msgid ""
+ "nwdir [options] [path]\n"
+ "\n"
+@@ -2993,31 +3128,32 @@ msgid ""
+ "(c) 1998 Milan Vandrovec for ncpfs-2.0.12.8\n"
+ msgstr ""
+ 
+-#: util/nwdir.c:899
++#: util/nwdir.c:903
+ #, c-format
+ msgid "Unable to initialize: 0x%04X\n"
+ msgstr ""
+ 
+-#: util/nwdir.c:932
++#: util/nwdir.c:936
+ #, c-format
+ msgid "Invalid path: %s\n"
+ msgstr ""
+ 
+-#: util/nwdir.c:936
++#: util/nwdir.c:940
++#, c-format
+ msgid "Specified path is not remote\n"
+ msgstr ""
+ 
+-#: util/nwdir.c:948
++#: util/nwdir.c:952
+ #, c-format
+ msgid "Directory %s\n"
+ msgstr ""
+ 
+-#: util/nwdir.c:954
++#: util/nwdir.c:958
+ #, c-format
+ msgid "Path does not exist: %s\n"
+ msgstr ""
+ 
+-#: util/nwdir.c:1002
++#: util/nwdir.c:1006
+ #, c-format
+ msgid "Cannot retrieve info: %s\n"
+ msgstr ""
+@@ -3030,6 +3166,7 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/nwdpvalues.c:57
++#, c-format
+ msgid ""
+ "\n"
+ "-h             Print this help text\n"
+@@ -3053,6 +3190,7 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/nwfsctrl.c:56
++#, c-format
+ msgid ""
+ "\n"
+ "-h             Print this help text\n"
+@@ -3188,6 +3326,7 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/nwfsctrl.c:432
++#, c-format
+ msgid "-p and -S are incompatible\n"
+ msgstr ""
+ 
+@@ -3202,10 +3341,11 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/nwfsctrl.c:452
++#, c-format
+ msgid "Compatibility option entered, rest of commandline ignored\n"
+ msgstr ""
+ 
+-#: util/nwfsctrl.c:479
++#: util/nwfsctrl.c:479 util/nwpasswd.c:121
+ #, c-format
+ msgid "%s: Out of memory!\n"
+ msgstr ""
+@@ -3221,6 +3361,7 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/nwfsinfo.c:53
++#, c-format
+ msgid ""
+ "\n"
+ "-h             Print this help text\n"
+@@ -3349,35 +3490,38 @@ msgid "Large files       %s\n"
+ msgid "Large files       %s\n"
+ msgstr ""
+ 
+-#: util/nwfsinfo.c:152
++#: util/nwfsinfo.c:157
+ msgid "could not get strings"
+ msgstr ""
+ 
+-#: util/nwfsinfo.c:176
++#: util/nwfsinfo.c:181
+ msgid "could not get server time"
+ msgstr ""
+ 
+-#: util/nwfsinfo.c:198 util/nwuserlist.c:257
++#: util/nwfsinfo.c:203 util/nwuserlist.c:261
+ msgid "Could not get server information"
+ msgstr ""
+ 
+-#: util/nwfsinfo.c:219
++#: util/nwfsinfo.c:224
++#, c-format
+ msgid ""
+ "Installed NCP Extensions:\n"
+ "  Name                                Number    Version\n"
+ "  -------------------------------------------------------\n"
+ msgstr ""
+ 
+-#: util/nwfsinfo.c:224
++#: util/nwfsinfo.c:229
+ #, c-format
+ msgid "  %-33s   %08X  %u.%u.%u\n"
+ msgstr ""
+ 
+-#: util/nwfsinfo.c:227
++#: util/nwfsinfo.c:232
++#, c-format
+ msgid "No NCP Extensions registered\n"
+ msgstr ""
+ 
+ #: util/nwfstime.c:54
++#, c-format
+ msgid ""
+ "\n"
+ "-h             Print this help text\n"
+@@ -3393,11 +3537,11 @@ msgid ""
+ "\n"
+ msgstr ""
+ 
+-#: util/nwfstime.c:119
++#: util/nwfstime.c:123
+ msgid "when setting file server time"
+ msgstr ""
+ 
+-#: util/nwfstime.c:129
++#: util/nwfstime.c:133
+ msgid "when getting file server time"
+ msgstr ""
+ 
+@@ -3409,6 +3553,7 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/nwgrant.c:66
++#, c-format
+ msgid ""
+ "\n"
+ "-h             Print this help text\n"
+@@ -3462,8 +3607,67 @@ msgid "%s: Could not add trustee rights:
+ msgid "%s: Could not add trustee rights: %s\n"
+ msgstr ""
+ 
+-#: util/nwmsg.c:88 util/nwpurge.c:136 contrib/tknwmsg/nwmsg.c:88
++#: util/nwlistsalvage.c:131
++#, c-format
++msgid ""
++"usage: nwlistsalvage [options] [directory]\n"
++"\n"
++"-h              Print this help text\n"
++"-n <namespace>  Namespace for file access.\n"
++"                  DOS\n"
++"                  LONG - Default\n"
++"                  MAC\n"
++"                  NFS\n"
++"                  FTAM\n"
++"-v              Verbose\n"
++"\n"
++"directory  Directory to examine for salvageable files.  Default is ./\n"
++"\n"
++msgstr ""
++
++#: util/nwlistsalvage.c:189
++#, c-format
++msgid "Cannot retrieve creation info: %s\n"
++msgstr ""
++
++#: util/nwlistsalvage.c:198
++#, c-format
++msgid "Cannot retrieve modified info: %s\n"
++msgstr ""
++
++#: util/nwlistsalvage.c:262 util/nwsalvage.c:137
++#, c-format
++msgid "Unrecognized namespace for option '-%c'\n"
++msgstr ""
++
++#: util/nwlistsalvage.c:268 util/nwpurge.c:125 util/nwsalvage.c:150
++#, c-format
++msgid "Unexpected option `-%c'\n"
++msgstr ""
++
++#: util/nwlistsalvage.c:279 util/nwmsg.c:88 util/nwpurge.c:136
++#: util/nwsalvage.c:163 contrib/tknwmsg/nwmsg.c:88
+ msgid "in ncp_open_mount"
++msgstr ""
++
++#: util/nwlistsalvage.c:284 util/nwpurge.c:141 util/nwrights.c:107
++#: util/nwsalvage.c:168
++msgid "when retrieving root entry"
++msgstr ""
++
++#: util/nwlistsalvage.c:292
++#, c-format
++msgid "No salvageable files were found.\n"
++msgstr ""
++
++#: util/nwlistsalvage.c:294
++#, c-format
++msgid "1 salvageable file was found.\n"
++msgstr ""
++
++#: util/nwlistsalvage.c:296
++#, c-format
++msgid "%d salvageable files were found.\n"
+ msgstr ""
+ 
+ #: util/nwmsg.c:93 contrib/tknwmsg/nwmsg.c:93
+@@ -3527,6 +3731,7 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/nwpasswd.c:47
++#, c-format
+ msgid ""
+ "\n"
+ "-h             Print this help text\n"
+@@ -3541,41 +3746,193 @@ msgid "trying to find server"
+ msgid "trying to find server"
+ msgstr ""
+ 
+-#: util/nwpasswd.c:127
++#: util/nwpasswd.c:129
+ #, c-format
+ msgid "Changing password for user %s on server %s\n"
+ msgstr ""
+ 
+-#: util/nwpasswd.c:132
++#: util/nwpasswd.c:134
+ msgid "Enter old password: "
+ msgstr ""
+ 
+-#: util/nwpasswd.c:136
++#: util/nwpasswd.c:138
+ #, c-format
+ msgid "Enter password for %s: "
+ msgstr ""
+ 
+-#: util/nwpasswd.c:146
++#: util/nwpasswd.c:148
+ msgid "Enter new password: "
+ msgstr ""
+ 
+-#: util/nwpasswd.c:154
++#: util/nwpasswd.c:156
+ msgid "Re-Enter new password: "
+ msgstr ""
+ 
+-#: util/nwpasswd.c:168
++#: util/nwpasswd.c:170
++#, c-format
+ msgid "You mistype the new password, try again\n"
+ msgstr ""
+ 
+-#: util/nwpasswd.c:187
++#: util/nwpasswd.c:189
+ msgid "not own password"
+ msgstr ""
+ 
+-#: util/nwpasswd.c:196
++#: util/nwpasswd.c:198
+ msgid "trying to change password"
+ msgstr ""
+ 
++#: util/nwpjmv.c:69
++#, c-format
++msgid ""
++"\n"
++"-S server      Server name to be used\n"
++"-U username    Print Server name sent to server\n"
++"-P password    Use this password\n"
++"-n             Do not use any password\n"
++"-C             Don't convert password to uppercase\n"
++"-q queue name  Name of the printing queue to use\n"
++"-c command     Name of print command, default: 'lpr'\n"
++"-j job number  ID number of job to service\n"
++"-d             Debug\n"
++msgstr ""
++
++#: util/nwpjmv.c:110 util/pserver.c:132
++#, c-format
++msgid "Queue %s not found: %s\n"
++msgstr ""
++
++#: util/nwpjmv.c:119 util/pserver.c:141
++#, c-format
++msgid "Could not attach to queue %s: %s\n"
++msgstr ""
++
++#: util/nwpjmv.c:191
++#, c-format
++msgid "Failed to change job position: %s\n"
++msgstr ""
++
++#: util/nwpjmv.c:201 util/pserver.c:216
++#, c-format
++msgid "Cannot service print job: %s\n"
++msgstr ""
++
++#: util/nwpjmv.c:211
++#, c-format
++msgid "wrong job queued: expected %08X, got %08X\n"
++msgstr ""
++
++#: util/nwpjmv.c:224 util/pserver.c:234
++#, c-format
++msgid "<Unknown>"
++msgstr ""
++
++#: util/nwpjmv.c:229 util/pserver.c:239
++#, c-format
++msgid "pipe error: %m"
++msgstr ""
++
++#: util/nwpjmv.c:234 util/pserver.c:244
++#, c-format
++msgid "fork error: %m"
++msgstr ""
++
++#: util/nwpjmv.c:260 util/pserver.c:270
++#, c-format
++msgid "waitpid: %m\n"
++msgstr ""
++
++#: util/nwpjmv.c:274 util/pserver.c:284
++#, c-format
++msgid "dup2 error: %m\n"
++msgstr ""
++
++#: util/nwpjmv.c:284 util/pserver.c:294
++#, c-format
++msgid "exec error: %m\n"
++msgstr ""
++
++#: util/nwpjmv.c:387 util/pserver.c:399
++#, c-format
++msgid "You must specify a queue\n"
++msgstr ""
++
++#: util/nwpjmv.c:402 util/nwpqjob.c:150
++#, c-format
++msgid "Cannot parse \"%s\" - jobID must be hexadecimal number\n"
++msgstr ""
++
++#: util/nwpjmv.c:408
++#, c-format
++msgid "Could not move job %08X\n"
++msgstr ""
++
++#: util/nwpqjob.c:50 util/nwpqjob.c:52 util/nwpqjob.c:59
++#, c-format
++msgid "\n"
++msgstr ""
++
++#: util/nwpqjob.c:51
++#, c-format
++msgid "usage: %s [options] <queue> <jobID> [<jobID> ...]\n"
++msgstr ""
++
++#: util/nwpqjob.c:53
++#, c-format
++msgid "-S server      Server name to be used\n"
++msgstr ""
++
++#: util/nwpqjob.c:54
++#, c-format
++msgid "-U username    User name\n"
++msgstr ""
++
++#: util/nwpqjob.c:55
++#, c-format
++msgid "-P password    Use this password\n"
++msgstr ""
++
++#: util/nwpqjob.c:56
++#, c-format
++msgid "-n             Do not use any password\n"
++msgstr ""
++
++#: util/nwpqjob.c:57
++#, c-format
++msgid "-d             Delete job from queue (default for pqrm)\n"
++msgstr ""
++
++#: util/nwpqjob.c:58
++#, c-format
++msgid "-r             Resume job\n"
++msgstr ""
++
++#: util/nwpqjob.c:110
++#, c-format
++msgid "%s: At least one of -d or -r must be specified\n"
++msgstr ""
++
++#: util/nwpqjob.c:135 util/pqstat.c:182
++#, c-format
++msgid "Queue \"%s\" on server %s not found.\n"
++msgstr ""
++
++#: util/nwpqjob.c:166
++#, c-format
++msgid "Job %08X does not exist\n"
++msgstr ""
++
++#: util/nwpqjob.c:168
++#, c-format
++msgid "You have not rights to cancel job %08X\n"
++msgstr ""
++
++#: util/nwpqjob.c:170
++#, c-format
++msgid "Cannot cancel job %08X: %s\n"
++msgstr ""
++
+ #: util/nwpurge.c:38
++#, c-format
+ msgid ""
+ "usage: nwpurge [options] [directory]\n"
+ "\n"
+@@ -3593,20 +3950,13 @@ msgid "%8s-- failed (%s)\n"
+ msgid "%8s-- failed (%s)\n"
+ msgstr ""
+ 
+-#: util/nwpurge.c:125
+-#, c-format
+-msgid "Unexpected option `-%c'\n"
+-msgstr ""
+-
+-#: util/nwpurge.c:141 util/nwrights.c:107
+-msgid "when retrieving root entry"
+-msgstr ""
+-
+ #: util/nwpurge.c:148
++#, c-format
+ msgid "No files were purged from server.\n"
+ msgstr ""
+ 
+ #: util/nwpurge.c:150
++#, c-format
+ msgid "1 file was purged from server.\n"
+ msgstr ""
+ 
+@@ -3616,6 +3966,7 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/nwpurge.c:156
++#, c-format
+ msgid "1 file was not purged due to error.\n"
+ msgstr ""
+ 
+@@ -3625,6 +3976,7 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/nwrevoke.c:58
++#, c-format
+ msgid ""
+ "\n"
+ "-h             Print this help text\n"
+@@ -3647,6 +3999,7 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/nwrights.c:52
++#, c-format
+ msgid ""
+ "\n"
+ "-h             Print this help text\n"
+@@ -3665,38 +4018,94 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/nwrights.c:125
++#, c-format
+ msgid "(S): You have SUPERVISOR rights\n"
+ msgstr ""
+ 
+ #: util/nwrights.c:129
++#, c-format
+ msgid "(R): You may READ from files\n"
+ msgstr ""
+ 
+ #: util/nwrights.c:133
++#, c-format
+ msgid "(W): You may WRITE to files\n"
+ msgstr ""
+ 
+ #: util/nwrights.c:137
++#, c-format
+ msgid "(C): You may CREATE files\n"
+ msgstr ""
+ 
+ #: util/nwrights.c:141
++#, c-format
+ msgid "(E): You may ERASE files\n"
+ msgstr ""
+ 
+ #: util/nwrights.c:145
++#, c-format
+ msgid "(M): You may MODIFY directory\n"
+ msgstr ""
+ 
+ #: util/nwrights.c:149
++#, c-format
+ msgid "(F): You may SCAN for files\n"
+ msgstr ""
+ 
+ #: util/nwrights.c:153
++#, c-format
+ msgid "(A): You may change ACCESS control\n"
+ msgstr ""
+ 
++#: util/nwsalvage.c:35
++#, c-format
++msgid ""
++"usage: nwsalvage [options] directory file_id\n"
++"\n"
++"-h              Print this help text.\n"
++"-s              Silent mode.\n"
++"-n <namespace>  Namespace for accessing files.\n"
++"                  DOS\n"
++"                  LONG - Default\n"
++"                  MAC\n"
++"                  FTAM\n"
++"                  NFS\n"
++"-r <newname>    Rename the salvaged file.  255 chars max.\n"
++"directory       Directory in which salvageable file resides.\n"
++"                Default is current directory.\n"
++"\n"
++"file_id         The file identified by file_id will be salvaged.\n"
++"                Numeric file_id is obtained from nwlistsalvage.\n"
++"\n"
++msgstr ""
++
++#: util/nwsalvage.c:84
++#, c-format
++msgid "%8s%d -- failed (File already exists, or path inaccessible)\n"
++msgstr ""
++
++#: util/nwsalvage.c:86
++#, c-format
++msgid "%8s%d %s -- failed (%s)\n"
++msgstr ""
++
++#: util/nwsalvage.c:91
++#, c-format
++msgid "%8s%d %s -- salvaged \n"
++msgstr ""
++
++#: util/nwsalvage.c:98
++#, c-format
++msgid "%8sFile with scan ID '%d' was not found."
++msgstr ""
++
++#: util/nwsalvage.c:144
++#, c-format
++msgid "Filename for option '-%c' has invalid length."
++msgstr ""
++
+ #: util/nwtrustee.c:50
++#, c-format
+ msgid ""
+ "\n"
+ "-h             Print this help text\n"
+@@ -3728,6 +4137,7 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/nwtrustee2.c:53
++#, c-format
+ msgid ""
+ "\n"
+ "-v             Verbose\n"
+@@ -3752,6 +4162,7 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/nwuserlist.c:82
++#, c-format
+ msgid ""
+ "\n"
+ "-h             Print this help text\n"
+@@ -3829,7 +4240,7 @@ msgid "        %-21s%5llu %c%s\n"
+ msgid "        %-21s%5llu %c%s\n"
+ msgstr ""
+ 
+-#: util/nwuserlist.c:266
++#: util/nwuserlist.c:270
+ #, c-format
+ msgid ""
+ "\n"
+@@ -3837,22 +4248,22 @@ msgid ""
+ "---------------------------------------------------\n"
+ msgstr ""
+ 
+-#: util/nwuserlist.c:269 util/nwuserlist.c:277 util/nwuserlist.c:286
+-#: util/nwuserlist.c:295
++#: util/nwuserlist.c:273 util/nwuserlist.c:281 util/nwuserlist.c:290
++#: util/nwuserlist.c:299
+ msgid "Conn"
+ msgstr ""
+ 
+-#: util/nwuserlist.c:270 util/nwuserlist.c:278 util/nwuserlist.c:288
+-#: util/nwuserlist.c:297
++#: util/nwuserlist.c:274 util/nwuserlist.c:282 util/nwuserlist.c:292
++#: util/nwuserlist.c:301
+ msgid "User name"
+ msgstr ""
+ 
+-#: util/nwuserlist.c:271 util/nwuserlist.c:280 util/nwuserlist.c:289
+-#: util/nwuserlist.c:299
++#: util/nwuserlist.c:275 util/nwuserlist.c:284 util/nwuserlist.c:293
++#: util/nwuserlist.c:303
+ msgid "Login time"
+ msgstr ""
+ 
+-#: util/nwuserlist.c:274
++#: util/nwuserlist.c:278
+ #, c-format
+ msgid ""
+ "\n"
+@@ -3860,11 +4271,11 @@ msgid ""
+ "------------------------------------------------------------------------------\n"
+ msgstr ""
+ 
+-#: util/nwuserlist.c:279 util/nwuserlist.c:298
++#: util/nwuserlist.c:283 util/nwuserlist.c:302
+ msgid "Station Address"
+ msgstr ""
+ 
+-#: util/nwuserlist.c:283
++#: util/nwuserlist.c:287
+ #, c-format
+ msgid ""
+ "\n"
+@@ -3872,11 +4283,11 @@ msgid ""
+ "------------------------------------------------------------\n"
+ msgstr ""
+ 
+-#: util/nwuserlist.c:287 util/nwuserlist.c:296
++#: util/nwuserlist.c:291 util/nwuserlist.c:300
+ msgid "ObjectID"
+ msgstr ""
+ 
+-#: util/nwuserlist.c:292
++#: util/nwuserlist.c:296
+ #, c-format
+ msgid ""
+ "\n"
+@@ -3884,135 +4295,136 @@ msgid ""
+ "---------------------------------------------------------------------------------------\n"
+ msgstr ""
+ 
+-#: util/nwuserlist.c:315
++#: util/nwuserlist.c:319
+ #, c-format
+ msgid "%4d: %08X %-20s "
+ msgstr ""
+ 
+-#: util/nwuserlist.c:317
++#: util/nwuserlist.c:321
+ #, c-format
+ msgid "%4d: %-20s "
+ msgstr ""
+ 
+-#: util/nwuserlist.c:343
++#: util/nwuserlist.c:347
+ msgid "Unknown format"
+ msgstr ""
+ 
+-#: util/nwuserlist.c:375
++#: util/nwuserlist.c:379
+ #, c-format
+ msgid "        File: (%02X:%08X) %s\n"
+ msgstr ""
+ 
+-#: util/nwuserlist.c:377
++#: util/nwuserlist.c:381
+ #, c-format
+ msgid "        File: %s\n"
+ msgstr ""
+ 
+-#: util/nwuserlist.c:435
++#: util/nwuserlist.c:439
+ #, c-format
+ msgid "          Task: %-5u             Lock:   (%02X) %s\n"
+ msgstr ""
+ 
+-#: util/nwuserlist.c:436
++#: util/nwuserlist.c:440
+ #, c-format
+ msgid "          Fork count: %-3u                 (%02X) %s\n"
+ msgstr ""
+ 
+-#: util/nwuserlist.c:437
++#: util/nwuserlist.c:441
+ #, c-format
+ msgid "          Namespace:  (%02X) %-5s  Access: (%02X) %s\n"
+ msgstr ""
+ 
+-#: util/nwuserlist.c:439
++#: util/nwuserlist.c:443
+ #, c-format
+ msgid "          Task: %-5u        Lock:   %s\n"
+ msgstr ""
+ 
+-#: util/nwuserlist.c:440
++#: util/nwuserlist.c:444
+ #, c-format
+ msgid "          Fork count: %-3u            %s\n"
+ msgstr ""
+ 
+-#: util/nwuserlist.c:441
++#: util/nwuserlist.c:445
+ #, c-format
+ msgid "          Namespace:  %-5s  Access: %s\n"
+ msgstr ""
+ 
+-#: util/nwuserlist.c:453
++#: util/nwuserlist.c:457
+ #, c-format
+ msgid "        Semaphore: %s\n"
+ msgstr ""
+ 
+-#: util/nwuserlist.c:455
++#: util/nwuserlist.c:459
+ #, c-format
+ msgid "          Task: %-5u     Value: %-5d     Open Count: %-5u\n"
+ msgstr ""
+ 
+-#: util/nwuserlist.c:467
++#: util/nwuserlist.c:471
+ #, c-format
+ msgid "        Type: (%02X) %-9.9s Status: (%08X) %s\n"
+ msgstr ""
+ 
+-#: util/nwuserlist.c:470
++#: util/nwuserlist.c:474
+ #, c-format
+ msgid "        Use count: %-9u ExpTime: %08X  ObjType: %08X\n"
+ msgstr ""
+ 
+-#: util/nwuserlist.c:472
++#: util/nwuserlist.c:476
+ #, c-format
+ msgid "        Transaction flag: %9u  Filler: %18u\n"
+ msgstr ""
+ 
+-#: util/nwuserlist.c:474
++#: util/nwuserlist.c:478
+ #, c-format
+ msgid "        Logical lock threshold: %3u  Record lock threshold: %3u\n"
+ msgstr ""
+ 
+-#: util/nwuserlist.c:476
++#: util/nwuserlist.c:480
+ #, c-format
+ msgid "        File write flags:      0x%02X  File write state:     0x%02X\n"
+ msgstr ""
+ 
+-#: util/nwuserlist.c:478
++#: util/nwuserlist.c:482
+ #, c-format
+ msgid "        File lock count: %10u  Record lock count: %7u\n"
+ msgstr ""
+ 
+-#: util/nwuserlist.c:481
++#: util/nwuserlist.c:485
+ #, c-format
+ msgid "        Type: %-14s Status: %s\n"
+ msgstr ""
+ 
+-#: util/nwuserlist.c:485
++#: util/nwuserlist.c:489
+ msgid "Bytes read:"
+ msgstr ""
+ 
+-#: util/nwuserlist.c:485 util/nwuserlist.c:486 util/nwuserlist.c:489
++#: util/nwuserlist.c:489 util/nwuserlist.c:490 util/nwuserlist.c:493
++#: util/nwuserlist.c:494
++msgid "B"
++msgstr ""
++
+ #: util/nwuserlist.c:490
+-msgid "B"
+-msgstr ""
+-
+-#: util/nwuserlist.c:486
+ msgid "Bytes written:"
+ msgstr ""
+ 
+-#: util/nwuserlist.c:487
++#: util/nwuserlist.c:491
+ msgid "Requests:"
+ msgstr ""
+ 
+-#: util/nwuserlist.c:489
++#: util/nwuserlist.c:493
+ msgid "Held bytes read:"
+ msgstr ""
+ 
+-#: util/nwuserlist.c:490
++#: util/nwuserlist.c:494
+ msgid "Held bytes written:"
+ msgstr ""
+ 
+-#: util/nwuserlist.c:491
++#: util/nwuserlist.c:495
+ msgid "Held requests:"
+ msgstr ""
+ 
+ #: util/nwvolinfo.c:49
++#, c-format
+ msgid ""
+ "\n"
+ "-h             Print this help text\n"
+@@ -4090,37 +4502,8 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/pqlist.c:231
++#, c-format
+ msgid "No queues found\n"
+-msgstr ""
+-
+-#: util/pqrm.c:65
+-#, c-format
+-msgid "usage: %s <queue> <jobID> [<jobID> ...]\n"
+-msgstr ""
+-
+-#: util/pqrm.c:85 util/pqstat.c:182
+-#, c-format
+-msgid "Queue \"%s\" on server %s not found.\n"
+-msgstr ""
+-
+-#: util/pqrm.c:99
+-#, c-format
+-msgid "Cannot parse \"%s\" - jobID must be hexadecimal number\n"
+-msgstr ""
+-
+-#: util/pqrm.c:105
+-#, c-format
+-msgid "Job %08X does not exist\n"
+-msgstr ""
+-
+-#: util/pqrm.c:107
+-#, c-format
+-msgid "You have not rights to cancel job %08X\n"
+-msgstr ""
+-
+-#: util/pqrm.c:109
+-#, c-format
+-msgid "Cannot cancel job %08X: %s\n"
+ msgstr ""
+ 
+ #: util/pqstat.c:113
+@@ -4167,6 +4550,7 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/pqstat.c:216
++#, c-format
+ msgid "You have insufficient rights to list queue jobs\n"
+ msgstr ""
+ 
+@@ -4205,6 +4589,7 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/pserver.c:67
++#, c-format
+ msgid ""
+ "\n"
+ "-S server      Server name to be used\n"
+@@ -4221,54 +4606,6 @@ msgid ""
+ "\n"
+ msgstr ""
+ 
+-#: util/pserver.c:132
+-#, c-format
+-msgid "Queue %s not found: %s\n"
+-msgstr ""
+-
+-#: util/pserver.c:141
+-#, c-format
+-msgid "Could not attach to queue %s: %s\n"
+-msgstr ""
+-
+-#: util/pserver.c:221
+-#, c-format
+-msgid "Cannot service print job: %s\n"
+-msgstr ""
+-
+-#: util/pserver.c:239
+-msgid "<Unknown>"
+-msgstr ""
+-
+-#: util/pserver.c:244
+-#, c-format
+-msgid "pipe error: %m"
+-msgstr ""
+-
+-#: util/pserver.c:249
+-#, c-format
+-msgid "fork error: %m"
+-msgstr ""
+-
+-#: util/pserver.c:275
+-#, c-format
+-msgid "waitpid: %m\n"
+-msgstr ""
+-
+-#: util/pserver.c:289
+-#, c-format
+-msgid "dup2 error: %m\n"
+-msgstr ""
+-
+-#: util/pserver.c:299
+-#, c-format
+-msgid "exec error: %m\n"
+-msgstr ""
+-
+-#: util/pserver.c:404
+-msgid "You must specify a queue\n"
+-msgstr ""
+-
+ #: util/slist.c:68
+ msgid "in ncp_open"
+ msgstr ""
+@@ -4286,6 +4623,7 @@ msgstr ""
+ msgstr ""
+ 
+ #: util/slist.c:107
++#, c-format
+ msgid "No servers found\n"
+ msgstr ""
+ 
+

@@ -1,0 +1,25 @@
+changeset:   434:5eb60dbc36bd
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Sun Jul 03 21:43:04 2005 +0100
+files:       include/ncp/ncplib.h
+description:
+Fix compilation with gcc 3.1 and older - no always_inline attribute
+available.
+
+
+diff -r 6a7c398b04a7 -r 5eb60dbc36bd include/ncp/ncplib.h
+--- a/include/ncp/ncplib.h	Sun Jul 03 20:36:50 2005 +0100
++++ b/include/ncp/ncplib.h	Sun Jul 03 21:43:04 2005 +0100
+@@ -181,7 +181,10 @@ DSET_HL(void * buf, int pos, dword val)
+ 	DSET_LH(buf, pos, htonl(val));
+ }
+ 
+-static inline __attribute__((always_inline)) void
++static inline void
++#if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 2)
++__attribute__((always_inline)) 
++#endif
+ QSET_HL(void * buf, int pos, u_int64_t val) {
+ 	DSET_HL(buf, pos, val >> 32);
+ 	DSET_HL(buf, pos + 4, val);
+

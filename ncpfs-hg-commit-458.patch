@@ -1,0 +1,230 @@
+changeset:   458:92f2133262a8
+parent:      455:69f23e25cc66
+user:        Rodrigo Rubira Branco <rrbranco@br.ibm.com>
+date:        Wed Jun 21 23:24:15 2006 +0200
+files:       man/Makefile.in man/ncplogin.8 man/ncpmap.8
+description:
+Add ncpmap and ncplogin manpages
+
+Provide manpages for ncpmap and ncplogin.
+
+
+diff -r 69f23e25cc66 -r 92f2133262a8 man/Makefile.in
+--- a/man/Makefile.in	Sat Apr 15 04:25:06 2006 +0200
++++ b/man/Makefile.in	Wed Jun 21 23:24:15 2006 +0200
+@@ -24,7 +24,7 @@ MAN8 := nwbocreate.8 nwborm.8 nwbpadd.8 
+ 	nwgrant.8 nwrevoke.8
+ ifeq ($(USE_KERNEL),1)
+ MAN1 += ncopy.1
+-MAN8 += ncpmount.8 ncpumount.8
++MAN8 += ncpmount.8 ncpumount.8 ncplogin.8 ncpmap.8
+ endif
+ MAN8 += nwmsg.8
+ 
+diff -r 69f23e25cc66 -r 92f2133262a8 man/ncplogin.8
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/man/ncplogin.8	Wed Jun 21 23:24:15 2006 +0200
+@@ -0,0 +1,104 @@
++.\" Copyright (c) International Business Machines Corp., 2006
++.\"
++.\" This file is distributed in the hope that it will be useful,
++.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
++.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See
++.\" the GNU General Public License for more details.
++.\"
++.\" You should have received a copy of the GNU General Public License
++.\" along with this file; if not, write to the Free Software
++.\" Foundation, Inc., 59 Temple Place, Suite 330, Boston,
++.\" MA 02111-1307 USA
++.\"
++.\" HISTORY:
++.\" 2006-06-01, created by Rodrigo Rubira Branco <rrbranco@br.ibm.com>
++.TH ncplogin 8 "Jun, 01 2006" "NCPFS" "NCPFS"
++.SH NAME
++ncplogin \- establishes identity to the Netware server or tree
++.SH SYNOPSIS
++.nf
++.fam C
++\fBncplogin [OPTIONS]\fP
++.fam T
++.fi
++.SH DESCRIPTION
++\fBncplogin\fP and \fBncpmap\fP provide a way for you to split the ncpmount operation into halves, with \fBncplogin\fP establishing your identity to the server or tree. \fBncpmap\fP mounts it later.
++.SH OPTIONS
++.B -T tree        
++Tree name to be used.
++
++.B -S server
++Server name to be used.  The -S and -T options are mutually exclusive.
++
++\fB-X name_ctx\fP
++Default name context to be used.
++
++\fB-E\fP             
++Echoes the value of final mount_point.
++
++\fB-U username\fP
++Username sent to server.
++
++\fB-u uid\fP         
++Uid given the mounted files.
++
++\fB-g gid\fP         
++Gid given the mounted files.
++
++\fB-c uid\fP         
++Uid to identify the connection on which to mount.  Only appropriate for root.
++
++\fB-C\fP             
++Do not convert password to uppercase.
++
++\fB-P password\fP    
++Use this password.
++
++\fB-n\fP             
++Do not use any password.
++If neither -P nor -n is given, you are asked for a password.
++
++\fB-f mode\fP        
++Permission given the files, in octal notation.
++
++\fB-d mode\fP        
++Permission given the directories, in octal notation.
++
++\fB-t time_out\fP    
++Time, in 1/100s of a second, to wait for an answer from the server. Default is 60.
++
++\fB-r retry_count\fP 
++Number of retry attempts. Default is 5.
++
++\fB-s\fP             
++Enable renaming and deletion of read-only files.
++
++\fB-h\fP             
++Print the help text.
++
++\fB-v\fP             
++Print ncpfs version number.
++
++\fB-i level\fP       
++Signature level. 0 = never, 1 = supported, 2 = preferred, 3 = required.
++
++\fB-N os2,nfs\fP     
++Do not use the specified namespaces on mounted volume.
++
++\fB-y charset\fP     
++Character set used for input and display.
++
++\fB-p codepage\fP    
++Codepage used on volume, including letters "cp."
++
++\fB-B bcast\fP       
++Broadcast mode. 0 = all 1 = console 2 = none. Default is all.
++
++\fB-l\fP             
++Autocreate mounting point if needed in /mnt/ncp/SERVER/VOLUME.
++.SH SECURITY
++\fBncplogin\fP must be setuid to permit non-root users use of it. In these cases, mounting ncpfs will enforce nodev and nosetuid mount options.
++.SH SEE ALSO
++\fBncpmap\fP(1), \fBncpmount\fP(8)
++.SH AUTHOR
++Manpage written by Rodrigo Rubira Branco <rrbranco@br.ibm.com> with help from Petr Vandrovec <petr@vandrovec.name>.
+diff -r 69f23e25cc66 -r 92f2133262a8 man/ncpmap.8
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/man/ncpmap.8	Wed Jun 21 23:24:15 2006 +0200
+@@ -0,0 +1,94 @@
++.\" Copyright (c) International Business Machines Corp., 2006
++.\"
++.\" This file is distributed in the hope that it will be useful,
++.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
++.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See
++.\" the GNU General Public License for more details.
++.\"
++.\" You should have received a copy of the GNU General Public License
++.\" along with this file; if not, write to the Free Software
++.\" Foundation, Inc., 59 Temple Place, Suite 330, Boston,
++.\" MA 02111-1307 USA
++.\"
++.\" HISTORY:
++.\" 2006-06-01, created by Rodrigo Rubira Branco <rrbranco@br.ibm.com>
++.TH ncpmap 8 "Jun, 01 2006" "NCPFS" "NCPFS"
++.SH NAME
++ncpmap \- mounts some resource from Netware server or tree previously connected with ncplogin
++.SH SYNOPSIS
++.nf
++.fam C
++\fBncpmap [OPTIONS] [-a] [mount-point]\fP
++.fam T
++.fi
++.SH DESCRIPTION
++\fBncplogin\fP and \fBncpmap\fP provide a way to split the ncpmount operation into halves, with \fBncpmap\fP mounting the resource previously authenticated with \fBncplogin\fP.
++.SH OPTIONS
++\fBmount_point\fP is optional if you specify the -a option.
++
++\fB-T tree\fP        
++Tree name to be used.
++
++\fB-S server\fP      
++Server name to be used.  The -T and -S options are mutually exclusive.
++
++\fB-X name_ctx\fP    
++Default name context to be used.
++
++\fB-E\fP             
++Echo value of final mount_point.
++
++\fB-V volume\fP      
++Volume to mount.  This must be in binary format if -S server, or in NDS format if -T tree.
++
++\fB-R path\fP        
++Path in volume to "map root."
++
++\fB-f mode\fP        
++Permission given the files, in octal notation.
++
++\fB-d mode\fP        
++Permission given the directories, in octal notation.
++
++\fB-t time_out\fP    
++Waiting time, in 1/100s of a second, to wait for an answer from the server. Default is 60.
++
++\fB-r retry_count\fP 
++Number of retry attempts. Default is 5.
++
++\fB-s\fP             
++Enable renaming or deletion of read-only files.
++
++\fB-h\fP             
++Print help text.
++
++\fB-v\fP             
++Print ncpfs version number.
++
++\fB-i level\fP       
++Signature level. 0 = never, 1 = supported, 2 = preferred, and 3 = required.
++
++\fB-N os2,nfs\fP     
++Do not use specified namespaces on mounted volume.
++
++\fB-y charset\fP     
++Character set used for input and display.
++
++\fB-p codepage\fP    
++Codepage used on volume, including letters "cp."
++
++\fB-B bcast\fP      
++Broadcast mode. 0 = all, 1 = console, and 2 = none. Default is all.
++
++\fB-a\fP             
++Autocreate mounting point if needed in ~/ncp/SERVER/VOLUME.
++
++\fB-l\fP             
++Autocreate mounting point if needed in /mnt/ncp/SERVER/VOLUME.
++
++.SH SECURITY
++\fBncpmap\fP must be setuid to permit non-root users use of it.  In these cases, it will enforce nodev and nosetuid mount options.
++.SH SEE ALSO
++\fBncplogin\fP(1), \fBncpmount\fP(8)
++.SH AUTHOR
++Manpage written by Rodrigo Rubira Branco <rrbranco@br.ibm.com> with Petr Vandrovec <petr@vandrovec.name>.
+

@@ -1,0 +1,557 @@
+changeset:   451:4d7bb63d7050
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Sun Oct 16 04:07:06 2005 +0200
+files:       contrib/ncp_nss_lib/nss_cfgfile.c contrib/ncp_nss_lib/nss_cfgfile.h contrib/ncp_nss_lib/nss_ncp.c contrib/ncp_nss_lib/nss_ncp.h contrib/ncp_nss_lib/test_ncp_nss.c
+description:
+Fix warnings in the nss module.  Tweak some functions to not take useless
+arguments.  Fix some bugs where long ints are printed by %d...
+
+
+diff -r f18f9f05b9b8 -r 4d7bb63d7050 contrib/ncp_nss_lib/nss_cfgfile.c
+--- a/contrib/ncp_nss_lib/nss_cfgfile.c	Sun Oct 16 02:52:35 2005 +0200
++++ b/contrib/ncp_nss_lib/nss_cfgfile.c	Sun Oct 16 04:07:06 2005 +0200
+@@ -40,6 +40,7 @@
+ #include <sys/syslog.h>
+ 
+ #include "nss_cfgfile.h"
++#include "nss_ncp.h"
+ // temporary define (waiting for a better Makefile)
+ #define GLOBALCFGFILE "/etc/ncpfs.conf"
+ #ifndef GLOBALCFGFILE
+@@ -49,7 +50,7 @@
+ 
+ // #define DEBUG 1
+ 
+-static struct nss_ncp_conf* alloc_nss_ncp_conf (){
++static struct nss_ncp_conf* alloc_nss_ncp_conf (void){
+ 	struct nss_ncp_conf * conf;
+ 
+ 	conf= (struct nss_ncp_conf *)malloc(sizeof(*conf));
+@@ -61,7 +62,7 @@ static struct nss_ncp_conf* alloc_nss_nc
+ 
+ void free_nss_ncp_conf (struct nss_ncp_conf *conf){
+ #define FREEFIELD(x) do if (conf->x) {free(conf->x) ; conf->x=NULL;} while (0);
+-	if (conf && conf !=&defConf) {
++	if (conf) {
+ 		FREEFIELD(server);
+ 		FREEFIELD(startCtx);
+ 		FREEFIELD(ctrlGroup);
+@@ -107,7 +108,7 @@ struct check {
+         const char *option; 	/* configuration option */
+         int mandatory; 		/* can be empty or null */
+ 	int found;		/*set to TRUE if found in cfg file */
+-        void ** value_ptr; 	/* temporary storage place */
++        char ** value_ptr; 	/* temporary storage place */
+ 	int isNum;		/* 1 is numeric, 0 is string*/
+ 	const char* defValue;
+ };
+@@ -120,10 +121,10 @@ void printResults (const char * infos,st
+ 	for  (ptr=results; ptr->option; ptr++) {
+ 		if (ptr->isNum)
+ 			printf ("option=%s mandatory=%d found=%d value=%d isNum=%d defvalue=%s\n",
+-				ptr->option,ptr->mandatory,ptr->found,(int*)*ptr->value_ptr,ptr->isNum,ptr->defValue);
++				ptr->option,ptr->mandatory,ptr->found,*(int**)ptr->value_ptr,ptr->isNum,ptr->defValue);
+ 		else
+ 			printf ("option=%s mandatory=%d found=%d value=%s isNum=%d defvalue=%s\n",
+-				ptr->option,ptr->mandatory,ptr->found,(char*)*ptr->value_ptr,ptr->isNum,ptr->defValue);
++				ptr->option,ptr->mandatory,ptr->found,*ptr->value_ptr,ptr->isNum,ptr->defValue);
+ 	}
+ 
+ }
+@@ -175,13 +176,13 @@ static int process_line (char* cptr, str
+ 	}
+ 	*eptr = 0;
+ 	if (ptr->isNum) {
+-		*(int**)ptr->value_ptr=strtoul (sptr,&errPtr,0);
++		*(int*)ptr->value_ptr=strtoul (sptr,&errPtr,0);
+ 		ptr->found= ((*sptr) && !(*errPtr)); //not empty and no error
+ 	} else {
+ 		if (eptr>sptr) { // do not take an empty string value
+ 			char *v=strdup(sptr);
+ 			if (v) {
+-				*(char**)ptr->value_ptr=v;
++				*ptr->value_ptr=v;
+ 				ptr->found= TRUE;
+ 			}else
+ 				return 1;
+@@ -201,11 +202,11 @@ static int fix_conf (struct check *resul
+ 				return 1;
+ 			}
+ 			if (ptr->isNum) {
+-				*(int**)ptr->value_ptr=strtoul (ptr->defValue,NULL,0);
++				*(int*)ptr->value_ptr=strtoul (ptr->defValue,NULL,0);
+ 			}else {
+ 				char * v=strdup(ptr->defValue);
+ 				if (v)
+-					*(char**)ptr->value_ptr=v;
++					*ptr->value_ptr=v;
+ 				else
+ 					return 1;
+ 			}
+@@ -223,22 +224,21 @@ static struct nss_ncp_conf *read_conf_fi
+ 	if (!conf)
+ 		return NULL;
+ 	{
+-		struct nss_ncp_conf * pconf=conf;
+ 		struct check check_confs[] = {
+ 		/*option	mandat	found	value_ptr		isNum	defValue */
+-                {"debug",	FALSE,FALSE,(void**)&conf->debug,	TRUE,	"0"},
+-                {"useTree",	FALSE,FALSE,(void**)&conf->useTree,	TRUE,	"0"},
+-                {"server",	TRUE,FALSE, (void**)&conf->server,	FALSE,	""},
+-                {"startCtx",	FALSE,FALSE,(void**)&conf->startCtx,	FALSE,	""},
+-                {"ctrlGroup",	FALSE,FALSE,(void**)&conf->ctrlGroup,	FALSE,	""},
+-                {"defGid",	FALSE,FALSE,(void**)&conf->defGid,	TRUE,	"100"},
+-		{"defShell",	FALSE,FALSE,(void**)&conf->defShell,	FALSE,	"/bin/bash"},
+-                {"fallbackUid",	FALSE,FALSE,(void**)&conf->fallbackUid,	TRUE,	"-1"},
+-		{"fallbackGid",	FALSE,FALSE,(void**)&conf->fallbackGid,	TRUE,	"-1"},
+-                {"doPasswd",	FALSE,FALSE,(void**)&conf->doPassword,	TRUE,	"0"},
+-                {"doGroup",	FALSE,FALSE,(void**)&conf->doGroup,	TRUE,	"0"},
+-                {"doShadow",	FALSE,FALSE,(void**)&conf->doShadow,	TRUE,	"0"},
+-		{NULL	,	FALSE,FALSE,NULL,			FALSE,	NULL}
++                {"debug",	FALSE,FALSE,(char**)&conf->debug,	TRUE,	"0"},
++                {"useTree",	FALSE,FALSE,(char**)&conf->useTree,	TRUE,	"0"},
++                {"server",	TRUE, FALSE,        &conf->server,	FALSE,	""},
++                {"startCtx",	FALSE,FALSE,        &conf->startCtx,	FALSE,	""},
++                {"ctrlGroup",	FALSE,FALSE,        &conf->ctrlGroup,	FALSE,	""},
++                {"defGid",	FALSE,FALSE,(char**)&conf->defGid,	TRUE,	"100"},
++		{"defShell",	FALSE,FALSE,        &conf->defShell,	FALSE,	"/bin/bash"},
++                {"fallbackUid",	FALSE,FALSE,(char**)&conf->fallbackUid,	TRUE,	"-1"},
++		{"fallbackGid",	FALSE,FALSE,(char**)&conf->fallbackGid,	TRUE,	"-1"},
++                {"doPasswd",	FALSE,FALSE,(char**)&conf->doPassword,	TRUE,	"0"},
++                {"doGroup",	FALSE,FALSE,(char**)&conf->doGroup,	TRUE,	"0"},
++                {"doShadow",	FALSE,FALSE,(char**)&conf->doShadow,	TRUE,	"0"},
++		{NULL	,	FALSE,FALSE,        NULL,		FALSE,	NULL}
+ 		};
+ 
+ 		char cfgline[16384];
+@@ -259,7 +259,6 @@ static struct nss_ncp_conf *read_conf_fi
+ 			cptr++;
+ 			if (*cptr != '[')
+ 				continue;
+-sstart:;
+ 			if (strncasecmp(++cptr, mySection, seclen))
+ 				continue;
+ 			if (cptr[seclen] != ']')
+@@ -299,7 +298,6 @@ ssend:
+ 			return conf;
+ 		}
+ 
+-error:
+ #ifdef DEBUG
+ 		printResults("after reading CFG error",check_confs);
+ #endif
+@@ -310,14 +308,12 @@ error:
+ 
+ }
+ 
+-struct nss_ncp_conf * parse_conf (char * confFile) {
+-
++struct nss_ncp_conf* parse_conf(void) {
+ 	struct cfgFile *cfg;
+ 	struct nss_ncp_conf *conf;
+ #ifdef DEBUG
+ 	printf("entering parse_conf\n");
+ #endif
+-	//return &defConf;
+ 	cfg = cfgOpenFile(GLOBALCFGFILE, FALSE);
+ 	if (!cfg)
+ 		return NULL;
+diff -r f18f9f05b9b8 -r 4d7bb63d7050 contrib/ncp_nss_lib/nss_cfgfile.h
+--- a/contrib/ncp_nss_lib/nss_cfgfile.h	Sun Oct 16 02:52:35 2005 +0200
++++ b/contrib/ncp_nss_lib/nss_cfgfile.h	Sun Oct 16 04:07:06 2005 +0200
+@@ -20,11 +20,7 @@ struct nss_ncp_conf {
+         int     doShadow;       // if  0, will return immediarly NSS_STATUS_UNAVAILABLE even if ncp is listed in /etc/nsswitch.conf
+ };
+ 
+-
+-
+-static struct nss_ncp_conf defConf ={0,TRUE,"INSA_ROOT","[Root]",NULL,100,"/bin/bash",-1,-1,TRUE,TRUE,TRUE};
+-
+-struct nss_ncp_conf * parse_conf (char * confFile);
+-void free_nss_ncp_conf (struct nss_ncp_conf *conf);
++struct nss_ncp_conf* parse_conf(void);
++void free_nss_ncp_conf(struct nss_ncp_conf *conf);
+ 
+ #endif
+diff -r f18f9f05b9b8 -r 4d7bb63d7050 contrib/ncp_nss_lib/nss_ncp.c
+--- a/contrib/ncp_nss_lib/nss_ncp.c	Sun Oct 16 02:52:35 2005 +0200
++++ b/contrib/ncp_nss_lib/nss_ncp.c	Sun Oct 16 04:07:06 2005 +0200
+@@ -77,7 +77,7 @@
+ #include "nss_cfgfile.h"
+ 
+ // only if logfile has been opened by nss API functions (debug mode)
+-void trace (int debugMode,int err,const char * format,... ) {
++static void trace (int debugMode,int err,const char * format,... ) {
+ 	va_list args;
+ 	if (debugMode)  {
+ 		va_start(args,format);
+@@ -219,7 +219,7 @@ static int fix_nw_user_info (struct nw_u
+ 		return 1;
+ 	}
+ 	}else {
+-		ui->uid== (uid_t)-1; // unable to read CN (NDS browse rights not set) , skip it !
++		ui->uid = (uid_t)-1; // unable to read CN (NDS browse rights not set) , skip it !
+ 	}
+ 	return 0;
+ }
+@@ -343,7 +343,7 @@ static int fix_nw_group_info (struct nw_
+ 			}
+ 		}
+ 	}else {
+-		gi->gid== (gid_t)-1; // unable to read CN (NDS browse rights not set) , skip it !
++		gi->gid = (gid_t)-1; // unable to read CN (NDS browse rights not set) , skip it !
+ 	}
+ 	return 0;
+ }
+@@ -514,7 +514,7 @@ static int fix_nw_shadow_info (struct nw
+ 
+ 		}
+ 	}else {
+-		si->uid== (uid_t)-1; // unable to read CN (NDS browse rights not set) , skip it !
++		si->uid = (uid_t)-1; // unable to read CN (NDS browse rights not set) , skip it !
+ 	}
+ 	return 0;
+ }
+@@ -564,7 +564,7 @@ outnomem:
+ 
+ static void print_nw_shadow_info (struct nw_shadow_info si){
+ 
+-	printf("%s[%d]:%s:%d:%d:%d:%d:%d:%d:%d\n",si.cn,si.uid,si.passwd,si.lstchg,si.sp_min,si.sp_max,si.sp_warn,si.sp_inact,si.sp_expire,si.sp_flag);
++	printf("%s[%d]:%s:%ld:%ld:%ld:%ld:%ld:%ld:%ld\n",si.cn,si.uid,si.passwd,si.lstchg,si.sp_min,si.sp_max,si.sp_warn,si.sp_inact,si.sp_expire,si.sp_flag);
+ }
+ 
+ static void print_shadow (struct spwd spw){
+@@ -579,8 +579,8 @@ struct nw_user_group_info {
+ 		uid_t	uid;
+ 		gid_t*	groups;
+ 		size_t	used;
+-		size_t alloc;
+-		int qflag;
++		size_t  alloc;
++		int     qflag;
+ 	};
+ 
+ 
+@@ -614,7 +614,7 @@ static int fix_nw_user_group_info (struc
+   		if (ui->uid== (uid_t)-1)
+ 			ui->uid=conf->fallbackUid;
+ 	}else {
+-		ui->uid== (uid_t)-1; // unable to read CN (NDS browse rights not set) , skip it !
++		ui->uid = (uid_t)-1; // unable to read CN (NDS browse rights not set) , skip it !
+ 	}
+ 	return 0;
+ }
+@@ -628,11 +628,11 @@ static enum nss_status nw_user_group_inf
+ 		 long int *size, gid_t * groups,long int limit,int *errnop,struct nss_ncp_conf * conf) {
+ 
+ 	if (ui.uid != (uid_t)-1) {
+-		int i;
+-		for (i=0; i<ui.used; i++) {
++		size_t i;
++		for (i=0; i < ui.used; i++) {
+ 			gid_t gid=ui.groups[i];
+ 			if (gid != group) {  // group number to skip
+-				if (*start == *size)
++				if (*start == *size) {
+ 					if  (limit <=0) {  // no more space, realloc if permitted (limit <=0)
+ 						gid_t* ngroups=realloc(groups, 2* *size * sizeof(*groups));
+ 						if (!ngroups) {
+@@ -642,6 +642,7 @@ static enum nss_status nw_user_group_inf
+ 						*size *=2;
+ 					}else  // no reallocation permitted, leave returning found groups so far
+ 						break;
++				}
+ 				groups[*start]=gid;
+ 				*start +=1;
+ 				if (*start ==limit) {
+@@ -663,7 +664,7 @@ outnomem:
+ }
+ 
+ static void print_nw_user_group_info (struct nw_user_group_info ui){
+-	int i;
++	size_t i;
+ 
+ 	printf("%s:%d:%d:%d:",ui.cn,ui.uid,ui.used,ui.alloc);
+ 	for (i=0;i <ui.used;i++)
+@@ -672,8 +673,8 @@ static void print_nw_user_group_info (st
+ }
+ 
+ static void print_user_groups(gid_t * groups, long int start, long int size){
+-	int i;
+-	printf("start=%d size=%d\n",start,size);
++	long int i;
++	printf("start=%ld size=%ld\n",start,size);
+ 	for (i=0; i<start; i++)
+ 		printf("%d ",groups[i]);
+ 	printf("\n");
+@@ -1018,9 +1019,7 @@ static NWDSCCODE nds_user_location2(NWDS
+ static NWDSCCODE nds_user_location2(NWDSContextHandle ctx, const void *val, void *arg){
+ 	struct nw_user_info *ui = (struct nw_user_info *) arg;
+ 	const char *pt = (const char *) val;
+-	char *v;
+ 	int n;
+-	int err;
+ 
+ 	trace(ui->qflag,LOG_NOTICE, "start of NW location got %s\n ", pt);
+ 
+@@ -1318,9 +1317,7 @@ static NWDSCCODE nds_shadow_location(NWD
+ 
+ 	struct nw_shadow_info *si = (struct nw_shadow_info *) arg;
+ 	const char *pt = (const char *) val;
+-	char *v;
+ 	int n;
+-	int err;
+ 
+ 	trace(si->qflag & QF_DEBUG,LOG_NOTICE, "shadow: start of NW location got %s\n ", pt);
+ 
+@@ -1434,10 +1431,7 @@ static NWDSCCODE nds_user_location3(NWDS
+ static NWDSCCODE nds_user_location3(NWDSContextHandle ctx, const void *val, void *arg){
+ 	struct nw_user_group_info *ui = (struct nw_user_group_info *) arg;
+ 	const char *pt = (const char *) val;
+-	char *v;
+ 	int n;
+-	int err;
+-
+ 
+ 	trace(ui->qflag & QF_DEBUG,LOG_NOTICE, "start of NW location got %s\n ", pt);
+ 
+@@ -1814,7 +1808,6 @@ getgroupmembers(NWDSContextHandle *conte
+ 		{ ATTR_MEMBERS,		nds_get_group_members,	SYN_MEMBERS},
+ 		{ NULL,			NULL,			SYN_UNKNOWN }};
+ 
+-	NWDSCCODE err;
+ 	trace(conf->debug, LOG_NOTICE,"entering getgroupmembers for group %s",groupName);
+ 	ccode=CreateContextAndConn ( context,conn,conf);
+ 	if (ccode)
+@@ -1834,12 +1827,12 @@ static struct ObjectList* ndsShadows=NUL
+ 
+ // description of a NDS class to be searched by getentbyxx
+ struct class_info {
+-	char * className;
+-	char *  nds8Attribute; //name of ID attribute in NDS8
+-	char *  LID1;  	// markers in L attribute for ID (U: or G:)
+-	char *  LID2;	// markers in L attribute for ID (u: or g:), may be in lower case
+-	char *  LAlias1;// markers in L attribute for alias (N:)
+-	char *  LAlias2; // markers in L attribute for alias (n:)  may be in lower case
++	const char * className;
++	const char * nds8Attribute; // name of ID attribute in NDS8
++	const char * LID1;          // markers in L attribute for ID (U: or G:)
++	const char * LID2;          // markers in L attribute for ID (u: or g:), may be in lower case
++	const char * LAlias1;       // markers in L attribute for alias (N:)
++	const char * LAlias2;       // markers in L attribute for alias (n:)  may be in lower case
+ 
+ };
+ 
+@@ -1879,17 +1872,12 @@ static NWDSCCODE getentbyxx(
+ 	NWDSContextHandle context;
+ 	NWCONN_HANDLE conn;
+ 	NWDSCCODE ccode;
+-	nint32	iterationHandle= NO_MORE_ITERATIONS; // to be set as such at Exit4
+-	nint32	countObjectsSearched;
+-	nuint32	objCntr,attrCntr,valCntr;
++	nuint32	iterationHandle = NO_MORE_ITERATIONS; // to be set as such at Exit4
++	nuint32	countObjectsSearched;
++	nuint32	objCntr;
+ 	nuint32	objCount;
+ 	nuint32	attrCount;
+ 	char	objectName[MAX_DN_CHARS+1];
+-	char	attrName[MAX_SCHEMA_NAME_CHARS+1];
+-	nuint32	attrValCount;
+-	nuint32	syntaxID;
+-	nuint32	attrValSize;
+-	char*	attrVal;
+ 
+ 	// buffers
+ 	pBuf_T	searchFilter=NULL;	// search filter
+@@ -2259,14 +2247,14 @@ static NWDSCCODE getentbyxx(
+ 			}
+ 		}
+ 		trace(conf->debug, LOG_NOTICE,"callback return OK");
+-	} while ((nuint32)iterationHandle != NO_MORE_ITERATIONS);
++	} while (iterationHandle != NO_MORE_ITERATIONS);
+ 
+ 	trace(conf->debug, LOG_NOTICE,"End of iteration  attrNamesOK");
+ 
+ Exit4:
+-	if ((nuint32)iterationHandle != NO_MORE_ITERATIONS){
++	if (iterationHandle != NO_MORE_ITERATIONS){
+ 		NWDSCCODE ccode2;
+-		if (ccode2=NWDSCloseIteration(context,iterationHandle,DSV_SEARCH)) {
++		if ((ccode2=NWDSCloseIteration(context,iterationHandle,DSV_SEARCH)) != 0) {
+ 				traceForce(conf->debug,LOG_WARNING,"NWDSCloseIteration  returned: %d\n", ccode2);
+ 		}
+ 	}
+@@ -2291,7 +2279,6 @@ Exit3:
+ 	}else
+ 		if (retConn)
+ 			*retConn=conn;
+-Exit2:
+ 	if (ccode || !retContext) {
+ 	 	NWDSCCODE ccode2=NWDSFreeContext(context);
+ 		trace(conf->debug, LOG_NOTICE,"Freeing context");
+@@ -2300,7 +2287,6 @@ Exit2:
+ 	}else
+ 		if (retContext)
+ 			*retContext=context;
+-Exit1:
+ 	trace(conf->debug, LOG_NOTICE,"Leaving ...");
+ 	return ccode;
+ }
+@@ -2417,7 +2403,7 @@ enum nss_status _nss_ncp_initgroups (con
+ 
+ 	struct nw_user_group_info inf;
+ 	NWDSCCODE err;
+-	struct nss_ncp_conf *conf= parse_conf(CNF_FILE);
++	struct nss_ncp_conf* conf = parse_conf();
+ 
+ 	if (!conf || !conf->doGroup)
+ 		return NSS_STATUS_UNAVAIL;
+@@ -2460,7 +2446,7 @@ enum nss_status _nss_ncp_getpwnam_r (con
+ 
+ 	struct nw_user_info inf;
+ 	NWDSCCODE err;
+-	struct nss_ncp_conf *conf= parse_conf(CNF_FILE);
++	struct nss_ncp_conf* conf = parse_conf();
+ 
+ 	if (!conf || !conf->doPassword)
+ 		return NSS_STATUS_UNAVAIL;
+@@ -2503,7 +2489,7 @@ enum nss_status _nss_ncp_getpwuid_r (uid
+ 
+ 	struct nw_user_info inf;
+ 	NWDSCCODE err;
+-	struct nss_ncp_conf *conf= parse_conf(CNF_FILE);
++	struct nss_ncp_conf* conf = parse_conf();
+ 
+ 	if (!conf || !conf->doPassword)
+ 		return NSS_STATUS_UNAVAIL;
+@@ -2546,7 +2532,7 @@ enum nss_status _nss_ncp_getgrnam_r (con
+ 
+ 	struct nw_group_info inf;
+ 	NWDSCCODE err;
+-	struct nss_ncp_conf *conf= parse_conf(CNF_FILE);
++	struct nss_ncp_conf* conf = parse_conf();
+ 
+ 	if (!conf || !conf->doGroup)
+ 		return NSS_STATUS_UNAVAIL;
+@@ -2588,7 +2574,7 @@ enum nss_status _nss_ncp_getspnam_r (con
+                 char *buffer, size_t buflen,int * errnop) {
+ 	struct nw_shadow_info inf;
+ 	NWDSCCODE err;
+-	struct nss_ncp_conf *conf= parse_conf(CNF_FILE);
++	struct nss_ncp_conf* conf = parse_conf();
+ 
+ 	if (!conf || !conf->doShadow)
+ 		return NSS_STATUS_UNAVAIL;
+@@ -2631,7 +2617,7 @@ enum nss_status _nss_ncp_getgrgid_r (gid
+ 				char * buffer, size_t buflen, int * errnop) {
+ 	struct nw_group_info inf;
+ 	NWDSCCODE err;
+-	struct nss_ncp_conf *conf= parse_conf(CNF_FILE);
++	struct nss_ncp_conf* conf = parse_conf();
+ 
+ 	if (!conf || !conf->doGroup)
+ 		return NSS_STATUS_UNAVAIL;
+@@ -2673,7 +2659,7 @@ enum nss_status _nss_ncp_setpwent(void) 
+ 	NWDSContextHandle context;
+ 	NWCONN_HANDLE conn;
+ 	NWDSCCODE ccode;
+-	struct nss_ncp_conf *conf= parse_conf(CNF_FILE);
++	struct nss_ncp_conf* conf = parse_conf();
+ 
+ 	if (!conf || !conf->doPassword)
+ 		return NSS_STATUS_UNAVAIL;
+@@ -2715,7 +2701,7 @@ enum nss_status _nss_ncp_setgrent(void) 
+ 	NWDSContextHandle context;
+ 	NWCONN_HANDLE conn;
+ 	enum nss_status ccode;
+-	struct nss_ncp_conf *conf= parse_conf(CNF_FILE);
++	struct nss_ncp_conf* conf = parse_conf();
+ 
+ 	if (!conf || !conf->doGroup)
+ 		return NSS_STATUS_UNAVAIL;
+@@ -2753,7 +2739,7 @@ enum nss_status _nss_ncp_setspent (void)
+ 	NWDSContextHandle context;
+ 	NWCONN_HANDLE conn;
+ 	NWDSCCODE ccode;
+-	struct nss_ncp_conf *conf= parse_conf(CNF_FILE);
++	struct nss_ncp_conf* conf = parse_conf();
+ 
+ 	if (!conf || !conf->doShadow)
+ 		return NSS_STATUS_UNAVAIL;
+diff -r f18f9f05b9b8 -r 4d7bb63d7050 contrib/ncp_nss_lib/nss_ncp.h
+--- a/contrib/ncp_nss_lib/nss_ncp.h	Sun Oct 16 02:52:35 2005 +0200
++++ b/contrib/ncp_nss_lib/nss_ncp.h	Sun Oct 16 04:07:06 2005 +0200
+@@ -121,6 +121,7 @@
+ 
+ 
+ 
++void traceForce(int debugMode, int err, const char* format, ...);
+ 
+ /******************************* NSS API ***************************************/
+ 
+diff -r f18f9f05b9b8 -r 4d7bb63d7050 contrib/ncp_nss_lib/test_ncp_nss.c
+--- a/contrib/ncp_nss_lib/test_ncp_nss.c	Sun Oct 16 02:52:35 2005 +0200
++++ b/contrib/ncp_nss_lib/test_ncp_nss.c	Sun Oct 16 04:07:06 2005 +0200
+@@ -67,6 +67,7 @@
+ #include "nss_cfgfile.h"
+ 
+ 
++static struct nss_ncp_conf defConf ={0, TRUE, NULL, NULL, NULL, 100, NULL, -1, -1, TRUE, TRUE, TRUE};
+ 
+ /**************** TESTING ******************/
+ 
+@@ -94,13 +95,13 @@ static void print_shadow (struct spwd sp
+ 
+ static void print_user_groups(gid_t * groups, long int start, long int size){
+ 	int i;
+-	printf("start=%d size=%d\n",start,size);
++	printf("start=%ld size=%ld\n",start,size);
+ 	for (i=0; i<start; i++)
+ 		printf("%d ",groups[i]);
+ 	printf("\n");
+ }
+ 
+-void give_details_on_user_groups(gid_t *groups, long int start){
++static void give_details_on_user_groups(gid_t *groups, long int start){
+ 	struct group grp;
+ 	char buffer[65000];
+ 	long int i;
+@@ -148,11 +149,6 @@ static void help(void)
+ 	exit (1);
+ }
+ 
+-static void error ( char * s) {
+-	printf (_("\n%s\n"),s);
+-	exit (1);
+-}
+-
+ /*************************************************************************
+ ** main
+ */
+@@ -174,7 +170,6 @@ int main (int argc, char** argv) {
+ 	struct passwd pwd;
+ 	struct group grp;
+ 	struct spwd spw;
+-	enum nss_status err;
+ 
+ 	progname = argv[0];
+ 	while ((opt = getopt(argc, argv, "h?u:n:g:i:s:m:T:B:C:O:f:UGSD2")) != EOF)
+@@ -263,7 +258,7 @@ int main (int argc, char** argv) {
+ 		}
+ 
+ 	}
+-	if (userId != -1) {
++	if (userId != (uid_t)-1) {
+ 		printf ("searching in passwd for uid %d\n",userId);
+ 		if ( _nss_ncp_getpwuid_r (userId, &pwd,buffer,sizeof(buffer),&errno)==NSS_STATUS_SUCCESS)
+ 			print_passwd(pwd);
+@@ -284,7 +279,7 @@ int main (int argc, char** argv) {
+ 		}
+ 	}
+ 
+-	if (groupId != -1) {
++	if (groupId != (gid_t)-1) {
+ 		printf ("searching in group for gid %d\n",groupId);
+ 		if ( _nss_ncp_getgrgid_r (groupId, &grp,buffer,sizeof(buffer),&errno)==NSS_STATUS_SUCCESS)
+ 			print_group(grp);
+

@@ -1,0 +1,4136 @@
+changeset:   448:1a8455ed3290
+user:        Patrick Pollet <patrick.pollet@cipcinsa.insa-lyon.fr>
+date:        Sun Oct 16 02:40:25 2005 +0200
+files:       .hgignore contrib/ncp_nss_lib/Makefile contrib/ncp_nss_lib/ncpfs.conf contrib/ncp_nss_lib/nss_cfgfile.c contrib/ncp_nss_lib/nss_cfgfile.h contrib/ncp_nss_lib/nss_ncp.c contrib/ncp_nss_lib/nss_ncp.h contrib/ncp_nss_lib/test_ncp_nss.c
+description:
+Add ncp_nss_lib to the ncpfs.  Originally written in 2003.
+
+
+diff -r 3143e61fb504 -r 1a8455ed3290 .hgignore
+--- a/.hgignore	Thu Sep 29 23:06:24 2005 +0200
++++ b/.hgignore	Sun Oct 16 02:40:25 2005 +0200
+@@ -10,6 +10,8 @@
+ ^autom4te.cache/
+ ^config\.log$
+ ^config\.status$
++^contrib/ncp_nss_lib/libnss_ncp\.so\.2$
++^contrib/ncp_nss_lib/test_ncp_nss$
+ ^contrib/pam/Makefile$
+ ^contrib/php/Makefile$
+ ^contrib/php/Makefile\.in$
+diff -r 3143e61fb504 -r 1a8455ed3290 contrib/ncp_nss_lib/Makefile
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/contrib/ncp_nss_lib/Makefile	Sun Oct 16 02:40:25 2005 +0200
+@@ -0,0 +1,111 @@
++#
++#
++#
++
++top_srcdir = ../..
++top_builddir = ../..
++this_srcdir = ${top_srcdir}/lib
++
++include ${top_builddir}/Make.rules
++
++VERSION_SOLIB := 2
++VERSION_SONAME := 2.3
++
++vpath %.c ${this_srcdir}
++
++LIBS :=
++REENTRANT_CFLAGS := -D_REENTRANT
++VERSIONED_LINK := yes
++
++SHARED_NSSLIB := libnss_ncp.so
++SHARED_NSSLIB_BIN := $(SHARED_NSSLIB).$(VERSION_SOLIB)
++SHARED_NSSLIB_SONAME := $(SHARED_NSSLIB).$(VERSION_SONAME)
++
++O_UTILS1 = test_ncp_nss.o\
++           #
++O_TMP1 =
++UTILS1 = $(O_UTILS1:%.o=%)
++
++CCFLAGS += -I.
++PIC_FLAGS := -fPIC
++NWCOMPAT := 1
++
++SHARED_VLINK :=
++SHARED_VLINK_CFLAGS :=
++ifeq ($(VERSIONED_LINK),yes)
++SHARED_VLINK := -Wl,-version-script=${this_srcdir}/libncp.vers
++SHARED_VLINK_CFLAGS := -DMULTIVERSION
++endif
++
++ifeq ($(HAVE_ELF),yes)
++NCP_LIB = libncp.so
++NCPLIB_DIR = ../../lib
++LIBDEP = $(NCPLIB_DIR)/$(NCP_LIB)
++else
++NCP_LIB = libncp.a
++NCPLIB_DIR = ../../lib
++LIBDEP = $(NCPLIB_DIR)/$(NCP_LIB)
++endif
++
++STATIC_BASE_OBJ := nss_ncp.o  nss_cfgfile.o
++SHARED_BASE_OBJ := $(STATIC_BASE_OBJ:.o=.do)
++
++SHARED_O_OBJ := $(SHARED_BASE_OBJ)
++
++BASE_CFLAGS := -DHAVE_CONFIG_H -DMAKE_NCPLIB -D_GNU_SOURCE
++
++SHARED_CFLAGS    := $(CFLAGS) $(CCFLAGS) $(REENTRANT_CFLAGS) $(PIC_FLAGS) $(SHARED_VLINK_CFLAGS)
++
++
++.PHONY : all dep install install-dev clean mrproper distclean
++.PHONY : install_shared install_static install_static_su
++
++all:  $(SHARED_NSSLIB)  $(UTILS1)
++
++install: install_shared
++
++%.d: %.c  %h
++	set -e; $(CC) -M $(STATIC_CFLAGS) $(CFLAGS_$(@:.d=.o)) $(BASE_CFLAGS) $< \
++		| sed 's,\($*\)\.o[ :]*,\1.o \1.do \1.to $@ : ,g' > $@; \
++		[ -s $@ ] || rm -f $@
++
++$(STATIC_BASE_OBJ): %.o: %.c %.h
++	$(CC) $(STATIC_CFLAGS) $(CFLAGS_$@) $(BASE_CFLAGS) -o $@ -c $<
++
++
++$(SHARED_BASE_OBJ): %.do: %.c  %.h
++	$(CC) $(SHARED_CFLAGS) $(CFLAGS_$(@:.do=.o)) $(BASE_CFLAGS) -o $@ -c $<
++
++
++$(O_UTILS1) $(O_TMP1): %.o: %.c 
++	$(CC) $(CCFLAGS) $(CFLAGS) $(CFLAGS_$@) -o $@ -c $<
++
++$(UTILS1):: %: %.o $(O_TMP1)
++	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(addsuffix .o,$@) $(OBJS_$@) -L$(top_builddir)/lib -lnss_ncp -lncp $(LDFLAGS_$@)
++
++
++dep:
++
++clean:
++	rm -f *.o *.do *.to *~
++
++mrproper: clean
++	rm -f $(UTILS) $(DISTFILE)
++
++distclean: mrproper
++
++install_shared: $(SHARED_NCPLIB_BIN)
++	$(INSTALL) -d $(DESTDIR)$(libsodir)
++	$(INSTALL) $(SHARED_NCPLIB_BIN) $(DESTDIR)$(libsodir)
++	-ldconfig
++
++
++$(SHARED_NSSLIB): $(SHARED_NSSLIB_BIN)
++	rm -f $@
++	ln -sf $< $@
++
++$(SHARED_NSSLIB_BIN): $(SHARED_O_OBJ) ${this_srcdir}/libncp.vers
++	$(CC) -shared -o $@ -Wl,-soname=$(SHARED_NSSLIB_SONAME) $(SHARED_VLINK) $(SHARED_O_OBJ)  -L$(NCPLIB_DIR) -lncp ${LIBS}
++
++
++
+diff -r 3143e61fb504 -r 1a8455ed3290 contrib/ncp_nss_lib/ncpfs.conf
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/contrib/ncp_nss_lib/ncpfs.conf	Sun Oct 16 02:40:25 2005 +0200
+@@ -0,0 +1,29 @@
++[Requester]
++
++
++[ncp_nss]
++useTree=1
++server=INSA_ROOT
++startCtx=
++ctrlGroup=
++doPasswd=1
++doShadow=1
++doGroup=1
++
++defGid=100
++defShell=/bin/bash
++debug=1
++
++fallbackUid=-1
++fallbackGid=-1
++
++[pam]
++useTree=1
++server=INSA_ROOT
++searchCtx=PC,S.PC,GCP.PC
++debug=1
++mountLocally=1
++createLocalHome=0
++
++zenOn=
++zenOff=
+diff -r 3143e61fb504 -r 1a8455ed3290 contrib/ncp_nss_lib/nss_cfgfile.c
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/contrib/ncp_nss_lib/nss_cfgfile.c	Sun Oct 16 02:40:25 2005 +0200
+@@ -0,0 +1,333 @@
++/*
++    nss_cfgfile.c - Configuration file handling
++    Copyright (C) 2000  Petr Vandrovec
++    Copyright (C) 2003  Patrick Pollet
++
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++
++    Revision history:
++
++	1.00  2003, Jan 16		Patrick Pollet  <patrick.pollet@insa-lyon.fr>
++		Initial revision, stronly inspired by ncpfs/lib/cfgfile.c
++
++
++ */
++
++#include "config.h"
++
++
++#include "private/libncp-lock.h"
++
++
++#include <ctype.h>
++#include <stdio.h>
++#include <string.h>
++#include <strings.h>
++#include <unistd.h>
++#include <stdlib.h>
++#include <sys/syslog.h>
++
++#include "nss_cfgfile.h"
++// temporary define (waiting for a better Makefile)
++#define GLOBALCFGFILE "/etc/ncpfs.conf"
++#ifndef GLOBALCFGFILE
++#error "GLOBALCFGFILE must be defined"
++#endif
++
++
++// #define DEBUG 1
++
++static struct nss_ncp_conf* alloc_nss_ncp_conf (){
++	struct nss_ncp_conf * conf;
++
++	conf= (struct nss_ncp_conf *)malloc(sizeof(*conf));
++	if (!conf)
++		return NULL;
++	return conf;
++}
++
++
++void free_nss_ncp_conf (struct nss_ncp_conf *conf){
++#define FREEFIELD(x) do if (conf->x) {free(conf->x) ; conf->x=NULL;} while (0);
++	if (conf && conf !=&defConf) {
++		FREEFIELD(server);
++		FREEFIELD(startCtx);
++		FREEFIELD(ctrlGroup);
++		FREEFIELD(defShell);
++	}
++#undef FREEFIELD
++}
++
++
++struct cfgFile {
++		ncpt_mutex_t	mutex;
++		FILE*		file;
++};
++
++static struct cfgFile* cfgOpenFile(
++		const char* path,
++		int writeRequired) {
++	struct cfgFile* cfg;
++
++	cfg = (struct cfgFile*)malloc(sizeof(*cfg));
++	if (cfg) {
++		cfg->file = fopen(path, writeRequired ? "r+" : "r");
++		if (cfg->file) {
++			ncpt_mutex_init(&cfg->mutex);
++		} else {
++			free(cfg);
++			cfg = NULL;
++		}
++	}
++	return cfg;
++}
++
++static void cfgClose(
++		struct cfgFile* cfg) {
++	ncpt_mutex_lock(&cfg->mutex);
++	fclose(cfg->file);
++	ncpt_mutex_destroy(&cfg->mutex);
++	free(cfg);
++}
++
++
++struct check {
++        const char *option; 	/* configuration option */
++        int mandatory; 		/* can be empty or null */
++	int found;		/*set to TRUE if found in cfg file */
++        void ** value_ptr; 	/* temporary storage place */
++	int isNum;		/* 1 is numeric, 0 is string*/
++	const char* defValue;
++};
++
++
++#ifdef DEBUG
++void printResults (const char * infos,struct check * results) {
++	struct check* ptr;
++	printf ("%s\n",infos);
++	for  (ptr=results; ptr->option; ptr++) {
++		if (ptr->isNum)
++			printf ("option=%s mandatory=%d found=%d value=%d isNum=%d defvalue=%s\n",
++				ptr->option,ptr->mandatory,ptr->found,(int*)*ptr->value_ptr,ptr->isNum,ptr->defValue);
++		else
++			printf ("option=%s mandatory=%d found=%d value=%s isNum=%d defvalue=%s\n",
++				ptr->option,ptr->mandatory,ptr->found,(char*)*ptr->value_ptr,ptr->isNum,ptr->defValue);
++	}
++
++}
++
++void printConf (const char* infos,struct nss_ncp_conf * conf) {
++	printf ("%s\n",infos);
++	printf ("debug=%d useTree=%d server=%s startCtx=%s ctrlGroup=%s defGid=%d defShell=%s fallbackUid=%d fallbackGid=%d "
++		"doPassword=%d doGroup=%d doShadow=%d\n",
++		conf->debug,conf->useTree,conf->server,conf->startCtx,
++        	conf->ctrlGroup,conf->defGid,conf->defShell,conf->fallbackUid,conf->fallbackGid,
++		conf->doPassword,conf->doGroup,conf->doShadow);
++}
++#endif
++
++
++static int process_line (char* cptr, struct check *ptr) {
++
++	char* sptr; // start of real value
++	char* eptr; // end of real value
++	char* errPtr; // err
++
++	char ec;
++	char cc;
++
++	while (*cptr && isspace(*cptr))
++		cptr++;
++	if (*cptr != '=' && *cptr != ':')
++		return 1;		//no equal sign found
++	cptr++;
++
++	while (*cptr && isspace(*cptr))
++		cptr++;
++
++	// space are allowed in value only if surrounded by " or ' (eg a NDS control group)
++	if (*cptr == '"' || *cptr == '\'')
++		ec = *cptr++;
++	else
++		ec = 0;
++	sptr=cptr;
++	eptr=cptr;
++	while ((cc = *cptr++) != 0) {
++		if (cc == '\n')
++			break;
++		if (!ec && isspace(cc))
++			break;
++		if (cc == ec)
++			break;
++		eptr++;
++	}
++	*eptr = 0;
++	if (ptr->isNum) {
++		(int *)*ptr->value_ptr=strtoul (sptr,&errPtr,0);
++		ptr->found= ((*sptr) && !(*errPtr)); //not empty and no error
++	} else {
++		if (eptr>sptr) { // do not take an empty string value
++			char *v=strdup(sptr);
++			if (v) {
++				(char*) *ptr->value_ptr=v;
++				ptr->found= TRUE;
++			}else
++				return 1;
++		}
++	}
++
++	return 0;
++}
++
++static int fix_conf (struct check *results) {
++	struct check* ptr;
++
++	for  (ptr=results; ptr->option; ptr++) {
++		if (! ptr->found) {
++		 	if (ptr->mandatory) {
++				traceForce(0,LOG_ERR, "ncp_nss aborting :missing mandatory information '%s=' in config file %s  ",ptr->option,GLOBALCFGFILE);
++				return 1;
++			}
++			if (ptr->isNum) {
++				(int *)*ptr->value_ptr=strtoul (ptr->defValue,NULL,0);
++			}else {
++				char * v=strdup(ptr->defValue);
++				if (v)
++					(char*) *ptr->value_ptr=v;
++				else
++					return 1;
++			}
++		}
++	}
++	return 0;
++}
++
++
++static struct nss_ncp_conf *read_conf_file( const char * mySection, struct cfgFile *cfg) {
++
++	struct nss_ncp_conf *conf;
++
++	conf=alloc_nss_ncp_conf ();
++	if (!conf)
++		return NULL;
++	{
++		struct nss_ncp_conf * pconf=conf;
++		struct check check_confs[] = {
++		/*option	mandat	found	value_ptr		isNum	defValue */
++                {"debug",	FALSE,FALSE,(void**)&conf->debug,	TRUE,	"0"},
++                {"useTree",	FALSE,FALSE,(void**)&conf->useTree,	TRUE,	"0"},
++                {"server",	TRUE,FALSE, (void**)&conf->server,	FALSE,	""},
++                {"startCtx",	FALSE,FALSE,(void**)&conf->startCtx,	FALSE,	""},
++                {"ctrlGroup",	FALSE,FALSE,(void**)&conf->ctrlGroup,	FALSE,	""},
++                {"defGid",	FALSE,FALSE,(void**)&conf->defGid,	TRUE,	"100"},
++		{"defShell",	FALSE,FALSE,(void**)&conf->defShell,	FALSE,	"/bin/bash"},
++                {"fallbackUid",	FALSE,FALSE,(void**)&conf->fallbackUid,	TRUE,	"-1"},
++		{"fallbackGid",	FALSE,FALSE,(void**)&conf->fallbackGid,	TRUE,	"-1"},
++                {"doPasswd",	FALSE,FALSE,(void**)&conf->doPassword,	TRUE,	"0"},
++                {"doGroup",	FALSE,FALSE,(void**)&conf->doGroup,	TRUE,	"0"},
++                {"doShadow",	FALSE,FALSE,(void**)&conf->doShadow,	TRUE,	"0"},
++		{NULL	,	FALSE,FALSE,NULL,			FALSE,	NULL}
++		};
++
++		char cfgline[16384];
++		size_t seclen = strlen(mySection);
++
++
++#ifdef DEBUG
++// DO NOT DO IT A a second call (using test_ncp_nss -2) coredump !!!
++//		printResults("before reading CFG",check_confs);
++#endif
++		ncpt_mutex_lock(&cfg->mutex);
++		//rewind(cfg->file);
++		while (fgets(cfgline, sizeof(cfgline)-1, cfg->file)) {
++		char* cptr = cfgline;
++		struct check* ptr;
++
++		while (*cptr && isspace(*cptr))
++			cptr++;
++			if (*cptr != '[')
++				continue;
++sstart:;
++			if (strncasecmp(++cptr, mySection, seclen))
++				continue;
++			if (cptr[seclen] != ']')
++				continue;
++			while (fgets(cfgline, sizeof(cfgline) - 1, cfg->file)) {
++				cptr = cfgline;
++
++				while (*cptr && isspace(*cptr))
++					cptr++;
++				if (!*cptr)
++					continue;	//empty line
++				if (*cptr == '[') 	// start of another section
++					goto ssend;
++				for  (ptr=check_confs; ptr->option; ptr++) {
++					size_t keylen=strlen(ptr->option);
++					if (!strncasecmp(cptr, ptr->option,keylen)) {
++						cptr += keylen;
++						process_line (cptr,ptr);
++					}
++				}
++			}
++		}
++
++ssend:
++#ifdef DEBUG
++		printResults("after reading CFG no error",check_confs);
++#endif
++#ifdef DEBUG
++		printConf("before fixing ",conf);
++#endif
++
++		if (!fix_conf (check_confs)) {   // fill in missing values with default,
++#ifdef DEBUG
++			printConf("after fixing ",conf);
++#endif
++			ncpt_mutex_unlock(&cfg->mutex);
++			return conf;
++		}
++
++error:
++#ifdef DEBUG
++		printResults("after reading CFG error",check_confs);
++#endif
++		ncpt_mutex_unlock(&cfg->mutex);
++		free_nss_ncp_conf(conf);
++		return NULL;
++	}
++
++}
++
++struct nss_ncp_conf * parse_conf (char * confFile) {
++
++	struct cfgFile *cfg;
++	struct nss_ncp_conf *conf;
++#ifdef DEBUG
++	printf("entering parse_conf\n");
++#endif
++	//return &defConf;
++	cfg = cfgOpenFile(GLOBALCFGFILE, FALSE);
++	if (!cfg)
++		return NULL;
++	conf=read_conf_file(NSS_SECTION,cfg);
++	cfgClose(cfg);
++#ifdef DEBUG
++	if (conf)
++		printConf("final value ",conf);
++#endif
++
++	return conf;
++}
++
+diff -r 3143e61fb504 -r 1a8455ed3290 contrib/ncp_nss_lib/nss_cfgfile.h
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/contrib/ncp_nss_lib/nss_cfgfile.h	Sun Oct 16 02:40:25 2005 +0200
+@@ -0,0 +1,30 @@
++#ifndef HAVE_NSS_CFGFILE
++#define HAVE_NSS_CFGFILE
++
++#define  TRUE		1
++#define  FALSE		0
++
++#define NSS_SECTION "ncp_nss"
++struct nss_ncp_conf {
++        int     debug;
++        int     useTree;        // use Tree connection or server connection
++        char *  server;         // name of server or tree
++        char *  startCtx;       // start searching is this context (and below)
++        char *  ctrlGroup;      // limit search to members of this NDS group for passwd and shadow
++        gid_t   defGid;         // if no primary group found in NDS use this value
++        char *  defShell;       // if no shell found in NDS use this value
++        uid_t   fallbackUid;    //  if no UID found in NDS use this one (-1= skip user, NFS_NOBODY= use this UID)
++        gid_t   fallbackGid;    //  if no GID found in NDS use this one (-1= skip group, NFS_NOBODY= use this GID)
++        int     doPassword;     // if  0, will return immediarly NSS_STATUS_UNAVAILABLE even if ncp is listed in /etc/nsswitch.conf
++        int     doGroup;        // if  0, will return immediarly NSS_STATUS_UNAVAILABLE even if ncp is listed in /etc/nsswitch.conf
++        int     doShadow;       // if  0, will return immediarly NSS_STATUS_UNAVAILABLE even if ncp is listed in /etc/nsswitch.conf
++};
++
++
++
++static struct nss_ncp_conf defConf ={0,TRUE,"INSA_ROOT","[Root]",NULL,100,"/bin/bash",-1,-1,TRUE,TRUE,TRUE};
++
++struct nss_ncp_conf * parse_conf (char * confFile);
++void free_nss_ncp_conf (struct nss_ncp_conf *conf);
++
++#endif
+diff -r 3143e61fb504 -r 1a8455ed3290 contrib/ncp_nss_lib/nss_ncp.c
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/contrib/ncp_nss_lib/nss_ncp.c	Sun Oct 16 02:40:25 2005 +0200
+@@ -0,0 +1,3091 @@
++/**************************************************************************
++    nss_ncp.c  NSS module for NDS
++
++    Copyright (C) 2002  Patrick Pollet
++
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++
++
++    Revision history:
++
++	1.00  	2003, January 06	Patrick Pollet <patrick.pollet@insa-lyon.fr>
++		initial release
++	1.01	2003, January 08	Patrick Pollet <patrick.pollet@insa-lyon.fr>
++		added conf structure and control group
++		added optional fallback UID and GID if none found in NDS (default is to skip user,group)
++	1.02	2003, January 09	Patrick Pollet <patrick.pollet@insa-lyon.fr>
++		added initgroups
++	1.03	2003, January 10	Patrick Pollet <patrick.pollet@insa-lyon.fr>
++		fixed bug in nds_user_info2 (bad structure received by nds_user_location2)
++	1.04	2003, January 11	Patrick Pollet <patrick.pollet@insa-lyon.fr>
++		fixed setting ndsXXX=NULL trees in case of errors in _nss_ncp_setxxent()
++		made always NAME_CONTEXT=[Root] in CreateContextAndConn
++		calling NWCCloseIteration only it some errors has occured in the search
++	1.05	2003, January 15	Patrick Pollet <patrick.pollet@insa-lyon.fr>
++		-Avoid multiple reading of conf file by removing recursive calls
++		in nss_ncp_getxxent_r in case a entry has no Unix infos in NDS
++		(replaced by a goto nextuser)
++		-Added missing free_nw_xxx_info when leaving nss_ncp_getxxent_r (fixed memory leaks)
++		-Added testing for failure in allocating tree structure in nss_ncp_setxxent_r
++		-if (id !=(uid_t)-1)  and not if (id) in getentxx if we search by UID !!!!
++		-getentbyxx give a warning in syslog if more that one entry match the name or id search criteria
++	1.06	2003, January 16	Patrick Pollet <patrick.pollet@insa-lyon.fr>
++		-implemented reading of configuration file in /etc/nss_ncp.conf
++		-in case of fatal errors, force log in syslog by using calls to traceForce ( previously fatal
++		errors were only reported in debug mode, since the syslog file is not opened in normal mode)
++	1.07	2003, January 16	Patrick Pollet <patrick.pollet@insa-lyon.fr>
++		Speed up the search:
++			1)config informations are stored in the internal trees structures
++			when calling nss_ncp_setxxent_r and freed by nss_ncp_endxxent_r
++			so we don't read again config file at every call to nss_ncp_getxxent_r
++			2) group infos are really slow with big groups,so we added a flag doGroup in conf file
++			to skip the search (easier that to edit /etc/nsswitch.conf AND restarting nscd daemon).
++************************************************************************/
++
++
++#include <stdlib.h>
++#include <stdarg.h>
++#include <stdio.h>
++#include <errno.h>
++#include <ncp/nwnet.h>
++
++
++#include <unistd.h>
++#include <ctype.h>
++#include <wchar.h>
++#include <string.h>
++#include <pwd.h>
++#include <grp.h>
++#include <shadow.h>
++#include <sys/syslog.h>
++
++#include <nss.h>
++
++#include "nss_ncp.h"
++#include "nss_cfgfile.h"
++
++// only if logfile has been opened by nss API functions (debug mode)
++void trace (int debugMode,int err,const char * format,... ) {
++	va_list args;
++	if (debugMode)  {
++		va_start(args,format);
++		vsyslog (err,format,args);
++		va_end(args);
++	}
++}
++
++// send a message to syslog even if log file not opened (debugMode is false)
++// needed for critical errors such a bad config file or ambiguous NDS search
++void traceForce (int debugMode,int err, const char * format,... ) {
++	va_list args;
++
++	if (!debugMode)
++		openlog("ncp_nss", LOG_PID, LOG_AUTHPRIV);
++	va_start(args,format);
++	vsyslog (err,format,args);
++	va_end(args);
++	if (!debugMode)
++		closelog();
++
++}
++
++
++static int
++getnumber(int *val, const char **str)
++{
++	const char *p = *str;
++	char *z;
++
++	if (!*p)
++		return 1;
++	if (*p == ',') {
++		*str = p + 1;
++		return 1;
++	}
++	*val = strtoul(p, &z, 0);
++	if (p == z)
++		return -1;
++	if (*z == ',')
++		z++;
++	*str = z;
++	return 0;
++}
++
++static char* copy_to_buffer (char ** buffer, size_t *buflen, char * value) {
++// copy the value to buffer , decrease buflen and return start of the value in buffer
++	size_t len=strlen(value)+1;
++	char * ptr=*buffer;
++
++	if (len > *buflen) {
++		return NULL;
++	}
++	memcpy(*buffer, value, len);
++	*buflen -=len;
++	(*buffer) +=len;
++	return ptr;
++}
++
++/**********
++struct nss_ncp_conf {
++	int 	debug;
++	int 	useTree;	// use Tree connection or server connection
++	char * 	server;		// name of server or tree
++	char * 	startCtx;  	// start searching is this context (and below)
++	char * 	ctrlGroup; 	// limit search to members of this NDS group for passwd and shadow
++	gid_t	defGid;		// if no primary group found in NDS use this value
++	char *	defShell;	// if no shell found in NDS use this value
++	uid_t	fallbackUid;	//  if no UID found in NDS use this one (-1= skip user, NFS_NOBODY= use this UID)
++	gid_t	fallbackGid;	//  if no GID found in NDS use this one (-1= skip group, NFS_NOBODY= use this GID)
++	int	doPassword;	// if  0, will return immediarly NSS_STATUS_UNAVAILABLE even if ncp is listed in /etc/nsswitch.conf
++	int	doGroup;	// if  0, will return immediarly NSS_STATUS_UNAVAILABLE even if ncp is listed in /etc/nsswitch.conf
++	int 	doShadow;	// if  0, will return immediarly NSS_STATUS_UNAVAILABLE even if ncp is listed in /etc/nsswitch.conf
++};
++**************/
++
++//one day we will read it from /etc/ncp_nss.conf
++
++
++/****************************************** internal structure for storing NDS user's password infos ***/
++struct nw_user_info {
++		char * 	cn;
++		char * 	gecos;
++		char *	shell;
++		char *	dir;
++		char *	fullName;
++		char * passwd;
++		uid_t	uid;
++		gid_t	gid;
++		int qflag;
++
++	};
++
++static void init_nw_user_info (struct nw_user_info *ui,int qflag){
++	ui->cn=NULL;
++	ui->gecos=NULL;
++	ui->shell=NULL;
++	ui->dir=NULL;
++	ui->fullName=NULL;
++	ui->passwd=NULL;
++	ui->uid=(uid_t)-1;
++	ui->gid=(gid_t)-1;
++	ui->qflag= qflag;
++}
++
++static void free_nw_user_info (struct nw_user_info *ui){
++#define FREEFIELD(x) do if (ui->x) {free(ui->x) ; ui->x=NULL;} while (0);
++	FREEFIELD(cn);
++	FREEFIELD(gecos);
++	FREEFIELD(shell);
++	FREEFIELD(dir);
++	FREEFIELD(fullName);
++	FREEFIELD(passwd);
++	ui->uid=(uid_t)-1;
++	ui->gid=(gid_t)-1;
++	ui->qflag=0;
++#undef FREEFIELD
++}
++
++
++static int fix_nw_user_info (struct nw_user_info *ui, struct nss_ncp_conf* conf){
++/* fill NDS missing attributes (home, shell, gid, gecos) with default values
++ 	any user have a cn, and if uid was not found in NDS we consider
++	that the corresponding Unix account is not activated
++*/
++	if (ui->cn) {
++		if (ui->uid== (uid_t)-1)
++			ui->uid=conf->fallbackUid;
++		if (ui->gid== (gid_t)-1)
++			ui->gid=conf->defGid;
++		if (!ui->gecos) {
++			ui->gecos= ui->fullName ? strdup(ui->fullName):strdup("");
++		}
++		ui->shell= ui->shell ? ui->shell: strdup(conf->defShell);
++		ui->dir= ui->dir ? ui->dir: strdup("");
++		ui->passwd= ui->passwd ? ui->passwd: strdup("x"); // cannot read passwd from ND
++		if (!ui->shell || !ui->dir || !ui->gecos || !ui->passwd) {
++				traceForce(conf->debug,LOG_ERR, "not enough memory when fixing nw_user_info\n ",ui->cn);
++		return 1;
++	}
++	}else {
++		ui->uid== (uid_t)-1; // unable to read CN (NDS browse rights not set) , skip it !
++	}
++	return 0;
++}
++
++
++// return found info to caller in the format expected by NSS that is:
++// filling the passwd structure as pointers to the passed buffer
++
++
++static enum nss_status nw_user_info_to_passwd(struct nw_user_info ui,struct passwd *pwd,
++	char * buffer, size_t buflen, int * errnop, struct nss_ncp_conf *conf){
++
++	if (ui.uid != (uid_t)-1) {
++		pwd->pw_uid=ui.uid;
++		pwd->pw_gid=ui.gid;
++
++		pwd->pw_name=copy_to_buffer (&buffer,&buflen,ui.cn);
++		if (!pwd->pw_name) goto outnomem;
++		pwd->pw_passwd=copy_to_buffer (&buffer,&buflen,ui.passwd);
++		if (!pwd->pw_passwd) goto outnomem;
++		pwd->pw_gecos=copy_to_buffer (&buffer,&buflen,ui.gecos);
++		if (!pwd->pw_gecos) goto outnomem;
++		pwd->pw_dir=copy_to_buffer (&buffer,&buflen,ui.dir);
++		if (!pwd->pw_dir) goto outnomem;
++		pwd->pw_shell=copy_to_buffer (&buffer,&buflen,ui.shell);
++		if (!pwd->pw_shell) goto outnomem;
++
++		*errnop=0;
++		return NSS_STATUS_SUCCESS;
++outnomem:
++			traceForce(conf->debug,LOG_ERR, "not enough memory when copying nw_user_info to passwd for %s\n ",ui.cn);
++		*errnop=ERANGE;
++		return NSS_STATUS_TRYAGAIN;
++	} else {
++			trace(conf->debug,LOG_NOTICE, "user %s has no Unix UID in NDS\n ", ui.cn);
++		*errnop=ENOENT;
++		return NSS_STATUS_NOTFOUND;
++	}
++}
++
++static void print_nw_user_info (struct nw_user_info ui){
++	printf("%s:x:%d:%d:%s:%s:%s\n",ui.cn,ui.uid,ui.gid,ui.gecos,ui.dir,ui.shell);
++}
++
++static void print_passwd (struct passwd pwd){
++	printf("%s:%s:%d:%d:%s:%s:%s\n",pwd.pw_name,pwd.pw_passwd,pwd.pw_uid,pwd.pw_gid,pwd.pw_gecos,pwd.pw_dir,pwd.pw_shell);
++}
++
++
++/****************************************** internal structure for storing NDS group's infos ***/
++struct nw_group_member {
++	struct nw_group_member* next;
++	char * member;
++};
++
++struct nw_group_info {
++		char * 	cn;
++		char * alias;
++		char * passwd;
++		gid_t	gid;
++		struct nw_group_member * first;
++		struct nw_group_member * last;
++		int nbMembers;
++		int qflag;
++	};
++
++
++static void init_nw_group_info (struct nw_group_info *gi,int qflag){
++	gi->cn=NULL;
++	gi->alias=NULL;
++	gi->passwd=NULL;
++	gi->gid=(gid_t)-1;
++	gi->qflag= qflag;
++	gi->first=NULL;
++	gi->last=NULL;
++	gi->nbMembers=0;
++}
++
++static void free_nw_group_info (struct nw_group_info *gi){
++
++	struct nw_group_member* p;
++	struct nw_group_member* bkp;
++#define FREEFIELD(x) do if (gi->x) {free(gi->x) ; gi->x=NULL;} while (0);
++	FREEFIELD(cn);
++	FREEFIELD(alias);
++	FREEFIELD(passwd);
++	gi->gid=(gid_t)-1;
++	gi->qflag=0;
++#undef FREEFIELD
++	for (p=gi->first; p; p=bkp) {
++		bkp=p->next;
++		free (p->member);
++		free(p);
++	}
++	gi->first=gi->last=NULL;
++	gi->nbMembers=0;
++}
++
++
++
++static int fix_nw_group_info (struct nw_group_info *gi ,struct nss_ncp_conf* conf){
++/* fill NDS missing attributes  with default values
++	any group have a cn, and if gid was not found in NDS we will later consider
++	that the corresponding Unix group is not activated unless a fallback value is defined in conf
++*/
++	if (gi->cn) {
++		if (gi->gid== (gid_t)-1)
++			gi->gid=conf->fallbackGid;
++
++		gi->passwd= gi->passwd ? gi->passwd: strdup("x"); // cannot read passwd from NDS
++		if (!gi->passwd) {
++			traceForce(conf->debug,LOG_ERR, "not enough memory when allocating password for group %s\n ",gi->cn);
++			return 1;
++		}
++		if (gi->alias) {
++			if (gi->cn) free(gi->cn);
++			gi->cn=strdup(gi->alias);
++			if (!gi->cn) {
++				traceForce(conf->debug,LOG_ERR, "not enough memory when allocating alias for group %s\n ",gi->alias);
++				return 1;
++			}
++		}
++	}else {
++		gi->gid== (gid_t)-1; // unable to read CN (NDS browse rights not set) , skip it !
++	}
++	return 0;
++}
++
++
++
++/***********
++return found info to caller in the format expected by NSS that is:
++filling the group structure as pointers to the passed buffer
++
++struct group
++  {
++    char *gr_name;              // Group name.
++    char *gr_passwd;            // Password.
++    __gid_t gr_gid;             // Group ID.
++    char **gr_mem;              // Member list.
++  };
++******************/
++
++static enum nss_status nw_group_info_to_group(struct nw_group_info gi,struct group *grp,
++	char * buffer, size_t buflen, int * errnop, struct nss_ncp_conf *conf){
++
++	if (gi.gid != (gid_t)-1) {
++		grp->gr_gid=gi.gid;
++		grp->gr_name=copy_to_buffer (&buffer,&buflen,gi.cn);
++		if (!grp->gr_name) goto outnomem;
++		grp->gr_passwd=copy_to_buffer (&buffer,&buflen,gi.passwd);
++		if (!grp->gr_passwd) goto outnomem;
++
++		{// copy members to buffer
++		// names are stored backwards from end of buffer
++		// and adress pointers forward from start of buffer
++		// exit with NSS_STATUS_TRYAGAIN if buffer is too small
++		// code inspired from nss_mysql by Guillaume Morin
++
++			size_t required=0;
++			char ** addPtr;
++			char * end_of_buffer,*tmp,*nm;
++			struct nw_group_member *p;
++
++			for (p=gi.first;p;p=p->next) {
++				required += strlen(p->member)+1+sizeof(char**);
++			}
++			if (required + sizeof(char**) >=buflen) {
++				traceForce(conf->debug,LOG_ERR, "unable to copy members of group '%s' to buffer :need=%d have= %d\n",gi.cn,required,buflen);
++				goto outnomem;
++			}
++			addPtr= (char**)buffer;
++			grp->gr_mem=addPtr;
++			end_of_buffer= buffer+buflen-1;
++			p=gi.first;
++			while (p) {
++				end_of_buffer -=strlen(p->member)+1;
++				tmp=end_of_buffer; //do not change end_of_buffer when copying the new member !
++				nm=copy_to_buffer(&tmp,&buflen,p->member);
++				if (!nm) {
++					traceForce(conf->debug,LOG_ERR, "not enough memory when copying nw_group_info to group for %s\n ",gi.cn);
++					goto outnomem;
++				}
++				*addPtr=nm;
++				//printf("%s=%s\n",p->member,*addPtr);
++				addPtr++;
++				p=p->next;
++			}
++			*addPtr=NULL; // end of table of pointers
++		}
++		*errnop=0;
++		return NSS_STATUS_SUCCESS;
++outnomem:
++
++		*errnop=ERANGE;
++		return NSS_STATUS_TRYAGAIN;
++	} else {
++		trace(conf->debug,LOG_NOTICE, "group %s has no Unix GID in NDS\n ", gi.cn);
++		*errnop=ENOENT;
++		return NSS_STATUS_NOTFOUND;
++	}
++}
++
++
++static void print_nw_group_info (struct nw_group_info gi){
++	struct nw_group_member* p;
++
++	printf("%s:x:%d:%d members:",gi.cn,gi.gid,gi.nbMembers);
++	for (p=gi.first;p;p=p->next) {
++		printf("%s",p->member);
++		if (p->next) printf(",");
++	}
++	printf("\n");
++}
++
++static void print_group (struct group grp){
++	char ** mmb; int num;
++	printf("%s:%s:%d:",grp.gr_name,grp.gr_passwd,grp.gr_gid);
++	for (mmb=grp.gr_mem,num=0;*mmb; mmb++,num++) {
++		if (num)
++			printf(",");
++		printf ("%s",*mmb);
++
++	}
++	printf("\n");
++
++}
++
++
++/****************************************** internal structure for storing NDS user's shadow infos ***/
++struct nw_shadow_info {
++		char * 	cn;
++		char * 	passwd;
++		long int lstchg;
++		long int sp_min;
++		long int sp_max;
++		long int sp_warn;
++		long int sp_inact;
++		long int sp_expire;
++		unsigned long sp_flag;
++		uid_t	uid;
++		int qflag;
++	};
++
++static void init_nw_shadow_info (struct nw_shadow_info *si,int qflag){
++	si->cn=NULL;
++	si->passwd=NULL;
++	si->lstchg=0;
++	si->sp_min=0;
++	si->sp_max=0;
++	si->sp_warn=0;
++	si->sp_inact=0;
++	si->sp_expire=0;
++	si->sp_flag=-1;
++	si->uid=(uid_t)-1;
++	si->qflag= qflag;
++}
++
++static void free_nw_shadow_info (struct nw_shadow_info *si){
++#define FREEFIELD(x) do if (si->x) {free(si->x) ; si->x=NULL;} while (0);
++	FREEFIELD(cn);
++	FREEFIELD(passwd);
++	si->lstchg=0;
++	si->sp_min=0;
++	si->sp_max=0;
++	si->sp_warn=0;
++	si->sp_inact=0;
++	si->sp_expire=0;
++	si->sp_flag=-1;
++	si->uid=(uid_t)-1;
++	si->qflag=0;
++#undef FREEFIELD
++}
++
++
++static int fix_nw_shadow_info (struct nw_shadow_info *si ,struct nss_ncp_conf *conf){
++/* fill NDS missing attributes with default values
++ 	any user have a cn, and if uid was not found in NDS we will later consider
++	that the corresponding Unix account is not activated unless a fallback value is defined in conf
++*/
++	if (si->cn) {
++		if (si->uid== (uid_t)-1)
++			si->uid=conf->fallbackUid;
++		si->lstchg= si->lstchg ? si->lstchg : time(NULL)/24/3600;
++		si->sp_min= si->sp_min ? si->sp_min: 0;
++		si->sp_max= si->sp_max ? si->sp_max: 99999;
++		si->sp_warn=si->sp_warn ? si->sp_warn: 7;
++		si->passwd= si->passwd ? si->passwd: strdup("!!"); // cannot read passwd from NDS
++		if (!si->passwd) {
++			traceForce(conf->debug,LOG_ERR, "not enough memory when allocating password for shadow user %s\n ",si->cn);
++			return 1;
++
++		}
++	}else {
++		si->uid== (uid_t)-1; // unable to read CN (NDS browse rights not set) , skip it !
++	}
++	return 0;
++}
++
++/***
++ return found info to caller in the format expected by NSS that is:
++ filling the shadow structure as pointers to the passed buffer
++    char *sp_namp;              // Login nae.
++    char *sp_pwdp;              // Encrypted password.
++    long int sp_lstchg;         // Date of last change.
++    long int sp_min;            // Minimum number of days between changes.
++    long int sp_max;            // Maximum number of days between changes.
++    long int sp_warn;           // Number of days to warn user to change the password.
++    long int sp_inact;          // Number of days the account may be inactive.
++    long int sp_expire;         // Number of days since 1970-01-01 until account expires.
++    unsigned long int sp_flag;  // Reserved.
++*****/
++
++static enum nss_status nw_shadow_info_to_shadow(struct nw_shadow_info si,struct spwd *spw,
++	char * buffer, size_t buflen, int * errnop, struct nss_ncp_conf *conf){
++
++	if (si.uid != (uid_t)-1) {
++		spw->sp_namp=copy_to_buffer (&buffer,&buflen,si.cn);
++		if (!spw->sp_namp) goto outnomem;
++		spw->sp_pwdp=copy_to_buffer (&buffer,&buflen,si.passwd);
++		if (!spw->sp_pwdp) goto outnomem;
++
++		spw->sp_lstchg=si.lstchg;
++		spw->sp_min=si.sp_min;
++		spw->sp_max=si.sp_max;
++		spw->sp_warn=si.sp_warn;
++		spw->sp_inact=si.sp_inact;
++		spw->sp_expire=si.sp_expire;
++		spw->sp_flag=si.sp_flag;
++		*errnop=0;
++		return NSS_STATUS_SUCCESS;
++outnomem:
++		traceForce(conf->debug,LOG_ERR, "not enough memory when copying nw_shadow_info to shadow for %s\n ",si.cn);
++		*errnop=ERANGE;
++		return NSS_STATUS_TRYAGAIN;
++	} else {
++		trace(conf->debug,LOG_NOTICE, "user %s has no Unix UID in NDS\n ", si.cn);
++		*errnop=ENOENT;
++		return NSS_STATUS_NOTFOUND;
++	}
++}
++
++static void print_nw_shadow_info (struct nw_shadow_info si){
++
++	printf("%s[%d]:%s:%d:%d:%d:%d:%d:%d:%d\n",si.cn,si.uid,si.passwd,si.lstchg,si.sp_min,si.sp_max,si.sp_warn,si.sp_inact,si.sp_expire,si.sp_flag);
++}
++
++static void print_shadow (struct spwd spw){
++	printf("%s:%s:%ld:%ld:%ld:%ld:%ld:%ld:%ld\n",spw.sp_namp,spw.sp_pwdp,spw.sp_lstchg,spw.sp_min,spw.sp_max,spw.sp_warn,spw.sp_inact,spw.sp_expire,spw.sp_flag);
++}
++
++
++
++/****************************************** internal structure for storing NDS user's groups infos ***/
++struct nw_user_group_info {
++		char * 	cn;
++		uid_t	uid;
++		gid_t*	groups;
++		size_t	used;
++		size_t alloc;
++		int qflag;
++	};
++
++
++static void init_nw_user_group_info (struct nw_user_group_info *ui,int qflag){
++	ui->cn=NULL;
++	ui->uid=(uid_t)-1;
++	ui->groups=NULL;
++	ui->used=0;
++	ui->alloc=0;
++	ui->qflag= qflag;
++}
++
++static void free_nw_user_group_info (struct nw_user_group_info *ui){
++#define FREEFIELD(x) do if (ui->x) {free(ui->x) ; ui->x=NULL;} while (0);
++	FREEFIELD(cn);
++	FREEFIELD(groups);
++	ui->used=0;
++	ui->alloc=0;
++	ui->uid=(uid_t)-1;
++	ui->qflag=0;
++#undef FREEFIELD
++}
++
++
++static int fix_nw_user_group_info (struct nw_user_group_info *ui ,struct nss_ncp_conf * conf){
++/* fill NDS missing attributes with default values
++ 	any user have a cn, and if uid was not found in NDS we consider
++	that the corresponding Unix account is not activated unless a fallback value is defined in conf
++*/
++	if (ui->cn) {
++  		if (ui->uid== (uid_t)-1)
++			ui->uid=conf->fallbackUid;
++	}else {
++		ui->uid== (uid_t)-1; // unable to read CN (NDS browse rights not set) , skip it !
++	}
++	return 0;
++}
++
++
++// return found info to caller in the format expected by NSS that is:
++// filling up groups array
++// code similar to nss_ldap
++
++static enum nss_status nw_user_group_info_to_groups (struct nw_user_group_info ui,gid_t group, long int *start,
++		 long int *size, gid_t * groups,long int limit,int *errnop,struct nss_ncp_conf * conf) {
++
++	if (ui.uid != (uid_t)-1) {
++		int i;
++		for (i=0; i<ui.used; i++) {
++			gid_t gid=ui.groups[i];
++			if (gid != group) {  // group number to skip
++				if (*start == *size)
++					if  (limit <=0) {  // no more space, realloc if permitted (limit <=0)
++						gid_t* ngroups=realloc(groups, 2* *size * sizeof(*groups));
++						if (!ngroups) {
++							goto outnomem;
++						}
++						groups=ngroups;
++						*size *=2;
++					}else  // no reallocation permitted, leave returning found groups so far
++						break;
++				groups[*start]=gid;
++				*start +=1;
++				if (*start ==limit) {
++					break;  // stop storing gids and return found groups so far
++				}
++			}
++		}
++		*errnop=0;
++		return NSS_STATUS_SUCCESS;
++outnomem:
++		traceForce(conf->debug,LOG_ERR, "initgroups: not enough memory when reallocating group array for %s \n ",ui.cn);
++		*errnop=ERANGE;
++		return NSS_STATUS_TRYAGAIN;
++	} else {
++		trace(conf->debug,LOG_NOTICE, "user %s has no Unix UID in NDS\n ", ui.cn);
++		*errnop=ENOENT;
++		return NSS_STATUS_NOTFOUND;
++	}
++}
++
++static void print_nw_user_group_info (struct nw_user_group_info ui){
++	int i;
++
++	printf("%s:%d:%d:%d:",ui.cn,ui.uid,ui.used,ui.alloc);
++	for (i=0;i <ui.used;i++)
++		printf("%d ",ui.groups[i]);
++	printf("\n");
++}
++
++static void print_user_groups(gid_t * groups, long int start, long int size){
++	int i;
++	printf("start=%d size=%d\n",start,size);
++	for (i=0; i<start; i++)
++		printf("%d ",groups[i]);
++	printf("\n");
++}
++
++
++/******************************************** generic NDS_Reading function ********************/
++// calllback function prototypes
++struct attrop {
++	const NWDSChar *attrname;
++	NWDSCCODE (*getval)(NWDSContextHandle, const void *val, void *arg);
++	enum SYNTAX synt;
++};
++
++
++static NWDSCCODE
++nds_read_attrs(NWDSContextHandle ctx, const NWDSChar * objname, void *arg, const struct attrop *atlist,int debugMode)
++{
++	Buf_T *attrlist;
++	Buf_T *info;
++	NWDSCCODE dserr;
++	const struct attrop *ptr;
++	nuint32 iterHandle;
++
++	dserr = NWDSAllocBuf(DEFAULT_MESSAGE_LEN, &attrlist);
++	if (dserr) {
++		traceForce(debugMode,LOG_WARNING, "NWDSAllocBuf() failed with %s\n", strnwerror(dserr));
++		goto bailout;
++	}
++	dserr = NWDSInitBuf(ctx, DSV_READ, attrlist);
++	if (dserr) {
++		traceForce(debugMode,LOG_WARNING, "NWDSInitBuf() failed with %s\n", strnwerror(dserr));
++		goto bailoutbuf1;
++	}
++	for (ptr = atlist; ptr->attrname; ptr++) {
++		dserr = NWDSPutAttrName(ctx, attrlist, ptr->attrname);
++		if (dserr) {
++			traceForce(debugMode,LOG_WARNING, "NWDSPutAttrName(%s) failed with %s\n", ptr->attrname, strnwerror(dserr));
++			goto bailoutbuf1;
++		}
++	}
++	dserr = NWDSAllocBuf(DEFAULT_MESSAGE_LEN, &info);
++	if (dserr) {
++		traceForce(debugMode,LOG_WARNING, "NWDSAllocBuf() failed with %s\n", strnwerror(dserr));
++		goto bailoutbuf1;
++	}
++	iterHandle = NO_MORE_ITERATIONS;
++	do {
++		NWObjectCount attrs;
++
++		dserr = NWDSRead(ctx, objname, DS_ATTRIBUTE_VALUES, 0, attrlist, &iterHandle, info);
++		if (dserr) {
++			if (dserr == ERR_NO_SUCH_ATTRIBUTE)
++				dserr = 0;// attribute is missing . OK
++			else
++				traceForce(debugMode,LOG_WARNING, "NWDSRead() failed for %s with %s\n", objname,strnwerror(dserr));
++			goto bailoutbuf2;
++		}
++		dserr = NWDSGetAttrCount(ctx, info, &attrs);
++		if (dserr) {
++			traceForce(debugMode,LOG_WARNING, "NWDSGetAttrCount() failed with %s\n", strnwerror(dserr));
++			goto bailoutcloit;
++		}
++		while (attrs--) {
++			NWDSChar attrname[MAX_SCHEMA_NAME_BYTES];
++			enum SYNTAX synt;
++			NWObjectCount vals;
++
++			dserr = NWDSGetAttrName(ctx, info, attrname, &vals, &synt);
++			if (dserr) {
++				traceForce(debugMode,LOG_WARNING, "NWDSGetAttrName() failed with %s\n", strnwerror(dserr));
++				goto bailoutcloit;
++			}
++			while (vals--) {
++				size_t sz;
++				void *val;
++
++				dserr = NWDSComputeAttrValSize(ctx, info, synt, &sz);
++				if (dserr) {
++					traceForce(debugMode,LOG_WARNING, "NWDSComputeAttrValSize() failed with %s\n", strnwerror(dserr));
++					goto bailoutcloit;
++				}
++				val = malloc(sz);
++				if (!val) {
++					traceForce(debugMode,LOG_WARNING, "malloc() failed with %s\n", strnwerror(ENOMEM));
++					goto bailoutcloit;
++				}
++				dserr = NWDSGetAttrVal(ctx, info, synt, val);
++				if (dserr) {
++					free(val);
++					traceForce(debugMode,LOG_WARNING, "NWDSGetAttrVal() failed with %s\n", strnwerror(dserr));
++					goto bailoutcloit;
++				}
++				for (ptr = atlist; ptr->attrname; ptr++) {
++					if (!strcasecmp(ptr->attrname, attrname))
++						break;
++				}
++				if (ptr->getval) {
++					if (ptr->synt != synt) {
++						traceForce(debugMode,LOG_WARNING, "Incompatible tree schema, %s has syntax %d instead of %d\n", attrname, synt, ptr->synt);
++					} else {
++						// ajout PP  dserr= !!! en cas de pb mémoire
++						dserr = ptr->getval(ctx, val, arg);
++					}
++				}
++				free(val);
++				if (dserr) {
++					goto bailoutcloit;
++				}
++			}
++		}
++	} while (iterHandle != NO_MORE_ITERATIONS);
++bailoutcloit:;
++	if (iterHandle != NO_MORE_ITERATIONS) {
++		NWDSCCODE dserr2 = NWDSCloseIteration(ctx, DSV_READ, iterHandle);
++		if (dserr2) {
++			traceForce(debugMode,LOG_WARNING, "NWDSCloseIteration() failed with %s\n", strnwerror(dserr2));
++		}
++	}
++bailoutbuf2:;
++	NWDSFreeBuf(info);
++bailoutbuf1:;
++	NWDSFreeBuf(attrlist);
++bailout:;
++	return dserr;
++}
++
++
++/*****************************************************GET USER INFO FROM NDS *************/
++/************************************ helper functions to extract NDS  properties ********/
++// called as callbacks by nds_read_attrs
++
++static NWDSCCODE nds_user_cn(NWDSContextHandle ctx, const void *val, void *arg){
++	struct nw_user_info *ui = (struct nw_user_info *) arg;
++
++	if (!ui->cn) {
++		char *v = strdup((const char *) val);
++		if (!v) {
++			traceForce(ui->qflag,LOG_WARNING, "Not enough memory for strdup()\n");
++			return ENOMEM;
++		}
++		ui->cn = v;
++		trace(ui->qflag,LOG_NOTICE, "got a Unix cn %s from %s\n ", ui->cn, ATTR_CN);
++	}
++	return 0;
++}
++
++static NWDSCCODE nds_user_unixuid(NWDSContextHandle ctx, const void *val, void *arg){
++	struct nw_user_info *ui = (struct nw_user_info *) arg;
++	if (ui->uid == (uid_t) -1) {
++		ui->uid = *(const Integer_T *) val;
++		// talk a bit (real NDS8 attribute or dummy ?)
++		trace(ui->qflag,LOG_NOTICE, "got a Unix ID %d from %s\n ", ui->uid, ATTR_UID);
++	}
++	return 0;
++}
++
++static NWDSCCODE nds_user_unixpgid(NWDSContextHandle ctx, const void *val, void *arg){
++	struct nw_user_info *ui = (struct nw_user_info *) arg;
++
++	if (ui->gid == (gid_t) -1) {
++		ui->gid = *(const Integer_T *) val;
++		// talk a bit (real NDS8 attribute or dummy ?)
++			trace(ui->qflag,LOG_NOTICE, "got a Unix PGID %d from %s\n ", ui->gid, ATTR_PGID);
++	}
++	return 0;
++}
++
++// this is the same founction as above ???
++// does Netware has two synonyms for the same property (UNIX:GID"
++// and UNIX:Primary GroupID???
++static NWDSCCODE nds_user_unixgid(NWDSContextHandle ctx, const void *val, void *arg){
++	struct nw_user_info *ui = (struct nw_user_info *) arg;
++
++	if (ui->gid == (gid_t) -1) {
++		ui->gid = *(const Integer_T *) val;
++		// talk a bit (real NDS8 attribute or dummy ?)
++		trace(ui->qflag,LOG_NOTICE, "got a Unix GID %d from %s\n ", ui->gid, ATTR_GID);
++	}
++	return 0;
++}
++
++static NWDSCCODE nds_user_unixhome(NWDSContextHandle ctx, const void *val, void *arg){
++	struct nw_user_info *ui = (struct nw_user_info *) arg;
++
++	if (!ui->dir) {
++		char *v = strdup((const char *) val);
++		if (!v) {
++			traceForce(ui->qflag,LOG_WARNING, "Not enough memory for strdup()\n");
++			return ENOMEM;
++		}
++		ui->dir = v;
++		// talk a bit (real NDS8 attribute or dummy ?)
++		trace(ui->qflag,LOG_NOTICE, "got a Unix Home %s from %s\n ", ui->dir, ATTR_HOME);
++	}
++	return 0;
++}
++
++static NWDSCCODE nds_user_unixshell(NWDSContextHandle ctx, const void *val, void *arg){
++	struct nw_user_info *ui = (struct nw_user_info *) arg;
++
++	if (!ui->shell) {
++		char *v = strdup((const char *) val);
++		if (!v) {
++			traceForce(ui->qflag,LOG_WARNING, "Not enough memory for strdup()\n");
++			return ENOMEM;
++		}
++		ui->shell = v;
++		// talk a bit (real NDS8 attribute or dummy ?)
++		trace(ui->qflag,LOG_NOTICE, "got a Unix shell %s from %s\n ", ui->shell, ATTR_SHELL);
++	}
++	return 0;
++}
++
++static NWDSCCODE nds_update_gecos(struct nw_user_info *ui, const char *str) {
++	char *v;
++	size_t sadd = strlen(str) + 1;
++
++	if (ui->gecos) {	// already got the name
++		size_t sold = strlen(ui->gecos);
++		trace(ui->qflag,LOG_NOTICE, "extending gecos %d %d\n",sadd,sold);
++
++		v = realloc(ui->gecos, sold + 1 + sadd);
++		if (!v) {
++			traceForce(ui->qflag,LOG_WARNING, "Not enough memory for strdup()\n");
++			return ENOMEM;
++		}
++		v[sold] = ',';
++		memcpy(v + sold+1, str, sadd); // bizarre sold a disparu dans pam_ncp ????
++	} else {
++		trace(ui->qflag,LOG_NOTICE, "creating gecos %d \n",sadd);
++		v = malloc(sadd);
++		if (!v) {
++			traceForce(ui->qflag,LOG_WARNING, "Not enough memory for strdup()\n");
++			return ENOMEM;
++		}
++		memcpy(v, str, sadd);
++	}
++	ui->gecos = v;
++	return 0;
++}
++
++// PP we append the Comment after the full name, separated by a comma
++static NWDSCCODE nds_user_unixcomment(NWDSContextHandle ctx, const void *val, void *arg){
++	struct nw_user_info *ui = (struct nw_user_info *) arg;
++
++	// talk a bit (real NDS8 attribute or dummy ?)
++	trace(ui->qflag,LOG_NOTICE, "got a Unix Comment %s from %s\n ", (const char *) val, ATTR_COM);
++	return nds_update_gecos(ui, (const char *) val);
++}
++
++// PP can be any naming attribute returning a SYN_CI_STRING see define before nds_user_info()
++// PP we add the name before any comment that can be there
++static NWDSCCODE nds_user_gecos(NWDSContextHandle ctx, const void *val, void *arg) {
++	struct nw_user_info *ui = (struct nw_user_info *) arg;
++	NWDSCCODE err;
++
++	trace(ui->qflag,LOG_NOTICE, "before full name gecos is %s\n ", ui->gecos ? : "(null)");
++	err = nds_update_gecos(ui, (const char *) val);
++	if (err)
++		return err;
++	trace(ui->qflag,LOG_NOTICE, "after full name gecos is %s\n ", ui->gecos);
++	return 0;
++}
++
++// PP: id no NDS8 is present, collect the user's basic  Unix informations from  the location
++// strings with the format X:nnnnnnnn  , X = [U,G,H,S,P,O,C,Z] upper of lower case
++// Of course, even if NDS8 IS present, we still look at these, just in case the migration
++// is not complete and to look for the user's ZENFLAG
++
++static NWDSCCODE nds_user_location(NWDSContextHandle ctx, const void *val, void *arg){
++	struct nw_user_info *ui = (struct nw_user_info *) arg;
++	const char *pt = (const char *) val;
++	char *v;
++	int n;
++	int err;
++
++	trace(ui->qflag,LOG_NOTICE, "start of NW location got %s\n ", pt);
++	if (strlen(pt) > 2 && pt[1] == ':') {
++		const char *cur_pt = pt + 2;
++		switch (*pt) {
++		case 'u':	//user ID leading spaces not significant
++		case 'U':
++			if (ui->uid == (uid_t) -1) {	// do not overwrite a DS 8 answer
++				switch (getnumber(&n, &cur_pt)) {
++					case 0:
++						ui->uid = n;
++						break;
++					default:
++						traceForce(ui->qflag,LOG_ERR, "Invalid user ID %s\n", pt);
++				}
++			}
++			break;
++		case 'g':	// primary group number GID leading spaces not significant
++		case 'G':
++			if (ui->gid == (gid_t) -1) {	// do not overwrite a DS 8 answer
++				switch (getnumber(&n, &cur_pt)) {
++					case 0:
++						ui->gid = n;
++						break;
++					default:
++					traceForce(ui->qflag,LOG_ERR, "Invalid primary user GID %s\n", pt);
++				}
++			}
++			break;
++		case 'h':	// home Unix all spaces significant (must have none ?)
++		case 'H':
++			if (!ui->dir) {	// do not overwrite a DS 8 answer
++				v = strdup(cur_pt);
++				if (!v) {
++					traceForce(ui->qflag,LOG_WARNING, "Not enough memory for strdup()\n");
++					return ENOMEM;
++				}
++				ui->dir = v;
++			}
++			break;
++		case 's':	//shell Unix all spaces significant (must have none ?)
++		case 'S':
++			if (!ui->shell) {	// do not overwrite a DS 8 answer
++				v = strdup(cur_pt);
++				if (!v) {
++					traceForce(ui->qflag,LOG_WARNING, "Not enough memory for strdup()\n");
++					return ENOMEM;
++				}
++				ui->shell = v;
++			}
++			break;
++		case 'c':	// comment all spaces significant. Will be appended to the gecos naming
++		case 'C':	// attribute with a comma and set by calling chfn -f xxxx -o xxxx
++			// if comma are present in the string chfn will fails
++			trace(ui->qflag,LOG_NOTICE, "before comment gecos is %s\n ", ui->gecos);
++			err = nds_update_gecos(ui, cur_pt);
++			if (err)
++				return err;
++			trace(ui->qflag,LOG_NOTICE, "gecos %s\n ", ui->gecos);
++			break;
++		}
++	}
++	return 0;
++}
++
++static NWDSCCODE nds_user_location2(NWDSContextHandle ctx, const void *val, void *arg){
++	struct nw_user_info *ui = (struct nw_user_info *) arg;
++	const char *pt = (const char *) val;
++	char *v;
++	int n;
++	int err;
++
++	trace(ui->qflag,LOG_NOTICE, "start of NW location got %s\n ", pt);
++
++	if (strlen(pt) > 2 && pt[1] == ':') {
++		const char *cur_pt = pt + 2;
++		switch (*pt) {
++		case 'u':	//user ID leading spaces not significant
++		case 'U':
++			if (ui->uid == (uid_t) -1) {	// do not overwrite a DS 8 answer
++				switch (getnumber(&n, &cur_pt)) {
++					case 0:
++						ui->uid = n;
++						break;
++					default:
++						traceForce(ui->qflag,LOG_ERR, "Invalid user ID %s\n", pt);
++				}
++			}
++		}
++
++	}
++	return 0;
++}
++
++
++static NWDSCCODE nds_user_info(NWDSContextHandle ctx, const NWDSChar * objname, void *ui, int modeDebug){
++	static const struct attrop atlist[] = {
++		{ATTR_CN, nds_user_cn, SYN_CN},
++		{ATTR_UID, nds_user_unixuid, SYN_UID},
++		{ATTR_PGID, nds_user_unixpgid, SYN_PGID},
++		{ATTR_GID, nds_user_unixgid, SYN_GID},
++		{ATTR_HOME, nds_user_unixhome, SYN_HOME},
++		{ATTR_SHELL, nds_user_unixshell, SYN_SHELL},
++		{ATTR_COM, nds_user_unixcomment, SYN_COM},
++		{ATTR_GECOS, nds_user_gecos, SYN_CI_STRING},
++		{NULL, NULL, SYN_UNKNOWN}
++	};
++
++	static const struct attrop atlist2[] = {
++		{ATTR_LOCATION, nds_user_location, SYN_LOCATION},
++		{NULL, NULL, SYN_UNKNOWN}
++	};
++
++	NWDSCCODE err;
++
++// we must do TWO NDS queries since NDS does not return attributes in this order
++// studies of /var/log/secure showed that L attribute usually come out before the NDS8 ones !
++	err = nds_read_attrs(ctx, objname, ui, atlist,modeDebug);
++	if (err)
++		return err;
++	return nds_read_attrs(ctx, objname, ui, atlist2,modeDebug);
++}
++
++
++/*****************   GET limited user's information (used when searching for group members) */
++/* we search only UID either stored in NDS8 attributes ( Real or Dummy) or in Location */
++static NWDSCCODE nds_user_info2(NWDSContextHandle ctx, const NWDSChar * objname, void *ui,int modeDebug){
++	static const struct attrop atlist[] = {
++		{ATTR_CN, nds_user_cn, SYN_CN},
++		{ATTR_UID, nds_user_unixuid, SYN_UID},
++		{NULL, NULL, SYN_UNKNOWN}
++	};
++
++	static const struct attrop atlist2[] = {
++		{ATTR_LOCATION, nds_user_location2, SYN_LOCATION},
++		{NULL, NULL, SYN_UNKNOWN}
++	};
++
++	NWDSCCODE err;
++
++// we must do TWO NDS queries since NDS does not return attributes in this order
++// studies of /var/log/secure showed that L attribute usually come out before the NDS8 ones !
++	err = nds_read_attrs(ctx, objname, ui, atlist,modeDebug);
++	if (err)
++		return err;
++	return nds_read_attrs(ctx, objname, ui, atlist2,modeDebug);
++}
++
++
++/*****************************************************GET GROUP INFO FROM NDS *************/
++
++
++/** gather Unix groups informations */
++
++static NWDSCCODE nds_group_cn(NWDSContextHandle ctx, const void *val, void *arg)
++{
++	struct nw_group_info *gi = (struct nw_group_info *) arg;
++
++	if (!gi->cn) {
++		char *v = strdup((const char *) val);
++		if (!v) {
++			traceForce(gi->qflag,LOG_WARNING, "Not enough memory for strdup()\n");
++			return ENOMEM;
++		}
++		gi->cn = v;
++		trace(gi->qflag,LOG_NOTICE, "got a Unix cn %s from %s\n ", gi->cn, ATTR_CN);
++	}
++	return 0;
++}
++
++
++static NWDSCCODE nds_group_members(NWDSContextHandle ctx, const void *val, void *arg){
++
++	struct nw_group_info *gi = (struct nw_group_info *) arg;
++	NWDSCCODE err=0;
++	struct nw_user_info ui;
++	struct nw_group_member* newMember;
++
++
++	init_nw_user_info(&ui,gi->qflag);
++	//check whether member has some Unix properties
++	err=nds_user_info2(ctx, (const char *)val, &ui,gi->qflag);
++	if (!err && ui.uid !=(uid_t)-1 && ui.cn)  {
++		char *v = strdup(ui.cn);
++		if (!v ) {
++			traceForce(gi->qflag,LOG_WARNING, "Not enough memory for adding member %s tp group %s\n",ui.cn,gi->cn);
++			err=ENOMEM;
++		} else {
++			newMember=malloc(sizeof(*newMember));
++			if (newMember) {
++				newMember->member=v;
++				newMember->next=NULL;
++				if (!gi->first) gi->first=newMember;
++				else gi->last->next=newMember;
++				gi->last=newMember;
++				gi->nbMembers++;
++				trace(gi->qflag,LOG_NOTICE, "got a Unix members %s from %s\n ", ui.cn,gi->cn);
++			} else {
++				free(v);
++				traceForce(gi->qflag,LOG_WARNING, "Not enough memory for adding member %s tp group %s\n",ui.cn,gi->cn);
++				err=ENOMEM;
++			}
++		}
++	}
++	free_nw_user_info(&ui);
++	return err;
++}
++
++
++static NWDSCCODE nds_group_unixgid(NWDSContextHandle ctx, const void* val, void* arg) {
++	struct nw_group_info* gi = (struct nw_group_info*)arg;
++
++	if (gi->gid == (gid_t)-1) {
++		gi->gid = *(const Integer_T*)val;
++		// talk a bit (real NDS8 attribute or dummy ?)
++		trace(gi->qflag,LOG_NOTICE, "got a Unix GID %d from %s\n ", gi->gid, ATTR_GID);
++	}
++	return 0;
++}
++
++// PP: id no NDS8 is present, collect the group Unix ID from one of the location
++// string with the format G:nnn
++// can also used to specify a name of unix group different of the NDS'one
++// eg. everyone --> users or staff --> root
++static NWDSCCODE nds_group_location(NWDSContextHandle ctx, const void* val, void* arg) {
++
++	struct nw_group_info* gi = (struct nw_group_info*)arg;
++	const char *pt= (const char*) val;
++	int n;
++
++	if (strlen(pt)>2 && pt[1]==':') {
++ 		const char* cur_pt=pt+2;
++          	switch (*pt) {
++          	case 'g':
++          	case 'G':if (gi->gid == (gid_t)-1) {
++				switch (getnumber(&n,&cur_pt)) {
++                        		case 0: gi->gid=n; break;
++                        		default:traceForce(gi->qflag,LOG_ERR, "Invalid group GID %s for %s\n",pt,gi->cn);
++				}
++			}
++			break;
++		case 'n':
++		case 'N':  // unix equivalent name
++			if (!gi->alias) {
++				char* v = strdup(cur_pt);
++				if (!v) {
++					traceForce(gi->qflag,LOG_WARNING, "Not enough memory for strdup()\n");
++					return ENOMEM;
++				}
++				gi->alias = v;
++				trace(gi->qflag,LOG_NOTICE, "group:got a Unix alias %s from %s\n ", gi->alias, gi->cn);
++			}
++        		break;
++		}
++       	}
++       return 0;
++}
++
++
++static NWDSCCODE nds_group_info(NWDSContextHandle ctx, const NWDSChar* objname, void * gi, int modeDebug) {
++	static const struct attrop atlist[] = {
++		{ ATTR_CN, 	        nds_group_cn,	SYN_CN },
++		{ ATTR_GID, 	        nds_group_unixgid,	SYN_GID },
++		{ ATTR_MEMBERS,		nds_group_members,	SYN_MEMBERS},
++		{ NULL,			NULL,			SYN_UNKNOWN }};
++
++	static const struct attrop atlist2[] = {
++		{ATTR_LOCATION, nds_group_location, SYN_LOCATION},
++		{NULL, NULL, SYN_UNKNOWN}};
++
++
++	NWDSCCODE err;
++
++// we must do TWO NDS queries since NDS does not return attributes in this order
++// studies of /var/log/secure showed that L attribute usually come out before the NDS8 ones !
++	err = nds_read_attrs(ctx, objname, gi, atlist,modeDebug);
++	if (err)
++		return err;
++	return nds_read_attrs(ctx, objname, gi, atlist2,modeDebug);
++}
++
++
++/*****************   GET limited group's information (used when searching for groups  to which a user belongs) */
++static NWDSCCODE nds_group_location2(NWDSContextHandle ctx, const void* val, void* arg) {
++
++	struct nw_group_info* gi = (struct nw_group_info*)arg;
++	const char *pt= (const char*) val;
++	int n;
++
++	if (strlen(pt)>2 && pt[1]==':') {
++		const char* cur_pt=pt+2;
++		switch (*pt) {
++			case 'g':
++			case 'G':if (gi->gid == (gid_t)-1) {
++					switch (getnumber(&n,&cur_pt)) {
++						case 0: gi->gid=n; break;
++						default:traceForce(gi->qflag,LOG_ERR, "Invalid group GID %s for %s\n",pt,gi->cn);
++					}
++				}
++			break;
++		}
++	}
++	return 0;
++}
++
++/* we search only GID either stored in NDS8 attributes ( Real or Dummy) or in Location */
++static NWDSCCODE nds_group_info2(NWDSContextHandle ctx, const NWDSChar* objname, void * gi, int modeDebug) {
++
++	static const struct attrop atlist[] = {
++		{ ATTR_GID, 	        nds_group_unixgid,	SYN_GID },
++		{ NULL,			NULL,			SYN_UNKNOWN }};
++
++	static const struct attrop atlist2[] = {
++		{ATTR_LOCATION, nds_group_location2, SYN_LOCATION},
++		{NULL, NULL, SYN_UNKNOWN}};
++
++
++	NWDSCCODE err;
++
++// we must do TWO NDS queries since NDS does not return attributes in this order
++// studies of /var/log/secure showed that L attribute usually come out before the NDS8 ones !
++	err = nds_read_attrs(ctx, objname, gi, atlist,modeDebug);
++	if (err)
++		return err;
++	return nds_read_attrs(ctx, objname, gi, atlist2,modeDebug);
++}
++
++
++/*****************************************************GET SHADOW INFO FROM NDS *************/
++
++static NWDSCCODE nds_shadow_cn(NWDSContextHandle ctx, const void *val, void *arg){
++
++	struct nw_shadow_info *si = (struct nw_shadow_info *) arg;
++
++	if (!si->cn) {
++		char *v = strdup((const char *) val);
++		if (!v) {
++			traceForce(si->qflag & QF_DEBUG,LOG_WARNING, "Not enough memory for strdup()\n");
++			return ENOMEM;
++		}
++		si->cn = v;
++		trace(si->qflag & QF_DEBUG,LOG_NOTICE, "shadow:got a Unix cn %s from %s\n ", si->cn, ATTR_CN);
++	}
++	return 0;
++}
++
++
++static NWDSCCODE nds_shadow_unixuid(NWDSContextHandle ctx, const void *val, void *arg){
++
++	struct nw_shadow_info *si = (struct nw_shadow_info *) arg;
++	if (si->uid == (uid_t) -1) {
++		si->uid = *(const Integer_T *) val;
++		// talk a bit (real NDS8 attribute or dummy ?)
++		trace(si->qflag & QF_DEBUG,LOG_NOTICE, "shadow: got a Unix ID %d from %s\n ", si->uid, ATTR_UID);
++	}
++	return 0;
++}
++
++
++// PP: id no NDS8 is present, collect the user's basic  Unix informations from  the location
++// strings with the format X:nnnnnnnn  , X = [U,G,H,S,P,O,C,Z] upper of lower case
++// Of course, even if NDS8 IS present, we still look at these, just in case the migration
++// is not complete and to look for the user's ZENFLAG
++
++static NWDSCCODE nds_shadow_location(NWDSContextHandle ctx, const void *val, void *arg){
++
++	struct nw_shadow_info *si = (struct nw_shadow_info *) arg;
++	const char *pt = (const char *) val;
++	char *v;
++	int n;
++	int err;
++
++	trace(si->qflag & QF_DEBUG,LOG_NOTICE, "shadow: start of NW location got %s\n ", pt);
++
++	if (strlen(pt) > 2 && pt[1] == ':') {
++		const char *cur_pt = pt + 2;
++		switch (*pt) {
++		case 'u':	//user ID leading spaces not significant
++		case 'U':
++			if (si->uid == (uid_t) -1) {	// do not overwrite a DS 8 answer
++				switch (getnumber(&n, &cur_pt)) {
++				case 0:
++					si->uid = n;
++					break;
++				default:
++					traceForce(si->qflag & QF_DEBUG,LOG_ERR, "shadow:Invalid user ID %s\n", pt);
++				}
++			}
++			break;
++		}
++
++	}
++	return 0;
++}
++
++static NWDSCCODE nds_shadow_pwd_expire(NWDSContextHandle ctx, const void *val, void *arg){
++	struct nw_shadow_info *si = (struct nw_shadow_info *) arg;
++	si->sp_expire = *(const Time_T *) val/3600/24;
++	return 0;
++}
++
++static NWDSCCODE nds_shadow_int_pwd_expire(NWDSContextHandle ctx, const void *val, void *arg){
++	struct nw_shadow_info *si = (struct nw_shadow_info *) arg;
++	si->sp_min = *(const Integer_T *) val/3600/24;
++	si->sp_max = *(const Integer_T *) val/3600/24;
++	return 0;
++}
++
++static NWDSCCODE nds_shadow_acct_expire(NWDSContextHandle ctx, const void *val, void *arg){
++	struct nw_shadow_info *si = (struct nw_shadow_info *) arg;
++	si->sp_inact = *(const Time_T *) val/3600/24;
++	return 0;
++}
++
++static NWDSCCODE nds_shadow_grace_pwd_expire (NWDSContextHandle ctx, const void *val, void *arg) {
++// in NDS it is the number of grace login, in Unix the number of DAYS
++	struct nw_shadow_info *si = (struct nw_shadow_info *) arg;
++	si->sp_warn = *(const Integer_T *) val;
++	return 0;
++}
++
++
++/*****************************************************GET USER SHADOW INFOS FROM NDS *************/
++
++static NWDSCCODE nds_shadow_info(NWDSContextHandle ctx, const NWDSChar * objname, void *si,int modeDebug){
++	static const struct attrop atlist[] = {
++		{ATTR_CN, nds_shadow_cn, SYN_CN},
++		{ATTR_UID, nds_shadow_unixuid, SYN_UID},
++		{ATTR_DATE_PWD_EXPIRE,nds_shadow_pwd_expire,SYN_TIME},
++		{ATTR_DATE_ACCT_EXPIRE,nds_shadow_acct_expire,SYN_TIME},
++		{ATTR_INT_PWD_EXPIRE,nds_shadow_int_pwd_expire,SYN_INTERVAL},
++		{ATTR_GRACE_LIMIT,nds_shadow_grace_pwd_expire,SYN_INTEGER},
++		{NULL, NULL, SYN_UNKNOWN}
++	};
++
++	static const struct attrop atlist2[] = {
++		{ATTR_LOCATION, nds_shadow_location, SYN_LOCATION},
++		{NULL, NULL, SYN_UNKNOWN}
++	};
++
++	NWDSCCODE err;
++
++// we must do TWO NDS queries since NDS does not return attributes in this order
++// studies of /var/log/secure showed that L attribute usually come out before the NDS8 ones !
++	err = nds_read_attrs(ctx, objname, si, atlist,modeDebug);
++	if (err)
++		return err;
++	return nds_read_attrs(ctx, objname, si, atlist2,modeDebug);
++}
++
++
++/***************get all group id of groups  userName belongs to *********************/
++
++static NWDSCCODE nds_user_cn2(NWDSContextHandle ctx, const void *val, void *arg){
++
++	struct nw_user_group_info *ui = (struct nw_user_group_info *) arg;
++	if (!ui->cn) {
++		char *v = strdup((const char *) val);
++		if (!v) {
++			traceForce(ui->qflag,LOG_WARNING, "Not enough memory for strdup()\n");
++			return ENOMEM;
++		}
++		ui->cn = v;
++		trace(ui->qflag & QF_DEBUG,LOG_NOTICE, "got a Unix cn %s from %s\n ", ui->cn, ATTR_CN);
++	}
++	return 0;
++}
++
++
++
++static NWDSCCODE nds_user_unixuid2(NWDSContextHandle ctx, const void *val, void *arg){
++	struct nw_user_group_info *ui = (struct nw_user_group_info *) arg;
++	if (ui->uid == (uid_t) -1) {
++		ui->uid = *(const Integer_T *) val;
++		// talk a bit (real NDS8 attribute or dummy ?)
++		trace(ui->qflag & QF_DEBUG,LOG_NOTICE, "got a Unix ID %d from %s\n ", ui->uid, ATTR_UID);
++	}
++	return 0;
++}
++
++
++static NWDSCCODE nds_user_location3(NWDSContextHandle ctx, const void *val, void *arg){
++	struct nw_user_group_info *ui = (struct nw_user_group_info *) arg;
++	const char *pt = (const char *) val;
++	char *v;
++	int n;
++	int err;
++
++
++	trace(ui->qflag & QF_DEBUG,LOG_NOTICE, "start of NW location got %s\n ", pt);
++
++	if (strlen(pt) > 2 && pt[1] == ':') {
++		const char *cur_pt = pt + 2;
++		switch (*pt) {
++		case 'u':	//user ID leading spaces not significant
++		case 'U':
++			if (ui->uid == (uid_t) -1) {	// do not overwrite a DS 8 answer
++				switch (getnumber(&n, &cur_pt)) {
++				case 0:
++					ui->uid = n;
++					break;
++				default:
++					traceForce(ui->qflag & QF_DEBUG,LOG_ERR, "Invalid user ID %s\n", pt);
++				}
++			}
++			break;
++		}
++
++	}
++	return 0;
++}
++
++static NWDSCCODE nds_get_one_user_group(NWDSContextHandle ctx, const void *val, void *arg){
++	struct nw_user_group_info *ui = (struct nw_user_group_info *) arg;
++	struct nw_group_info gi;
++	NWDSCCODE ccode;
++
++	init_nw_group_info(&gi,ui->qflag);
++	//check whether group has some Unix properties
++	trace(ui->qflag & QF_DEBUG,LOG_NOTICE, "found group  %s for user %s\n ", (const char*)val, ui->cn);
++	ccode=nds_group_info2(ctx,(const char *)val,&gi,ui->qflag);
++	// found a real GID , no fallback here else all groups would have the same number !!!!
++	if (!ccode && gi.gid != (gid_t) -1) {
++			trace(ui->qflag & QF_DEBUG,LOG_NOTICE, "found group GID %d for user %s\n ", gi.gid, ui->cn);
++		if (ui->used >=ui->alloc) {
++			gid_t* np;
++			size_t ns;
++			if (ui->groups) {
++				ns=ui->alloc +8;
++				np=(gid_t*)realloc (ui->groups,ns*sizeof(gid_t));
++			}else {
++				ns=8;
++				np=(gid_t*)malloc (ns*sizeof(gid_t));
++			}
++			if (!np) {
++				traceForce(ui->qflag & QF_DEBUG,LOG_WARNING, "Not enough memory for allocating GID table\n");
++				return ENOMEM;
++			}
++			ui->groups=np;
++			ui->alloc=ns;
++		}
++		ui->groups[ui->used++]=gi.gid;
++	}
++	free_nw_group_info(&gi);
++	return ccode;
++}
++
++
++static NWDSCCODE nds_get_user_groups(NWDSContextHandle ctx, const NWDSChar * objname, void *ui, int modeDebug){
++// get all groups of userName
++static const struct attrop atlist[] = {
++		{ATTR_CN, nds_user_cn2, SYN_CN},
++		{ATTR_UID, nds_user_unixuid2, SYN_UID},
++		{ATTR_GRP_MBS,	nds_get_one_user_group,	SYN_GRP_MBS},
++		{NULL, NULL, SYN_UNKNOWN}
++	};
++
++	static const struct attrop atlist2[] = {
++		{ATTR_LOCATION, nds_user_location3, SYN_LOCATION},
++		{NULL, NULL, SYN_UNKNOWN}
++	};
++
++	NWDSCCODE err;
++
++// we must do TWO NDS queries since NDS does not return attributes in this order
++// studies of /var/log/secure showed that L attribute usually come out before the NDS8 ones !
++	err = nds_read_attrs(ctx, objname, ui, atlist,modeDebug);
++	if (err)
++		return err;
++	return nds_read_attrs(ctx, objname, ui, atlist2,modeDebug);
++
++}
++
++/*******************************************************************************************************************/
++static NWDSCCODE CreateContextAndConn ( NWDSContextHandle *context,NWCONN_HANDLE *conn, struct nss_ncp_conf* conf) {
++	NWDSCCODE ccode;
++	nuint32 contextFlags;
++
++	trace(conf->debug, LOG_NOTICE,"Entering create context and conn");
++
++	ccode = NWDSCreateContextHandle(context);
++	if(ccode) {
++		traceForce(conf->debug,LOG_WARNING,"Error creating context.\n");
++		 goto Exit1;
++	}
++
++	trace(conf->debug, LOG_NOTICE,"CreateContextHandle OK");
++
++	//ccode=NWDSSetContext(*context, DCK_NAME_CONTEXT, conf->startCtx);
++
++	ccode=NWDSSetContext(*context, DCK_NAME_CONTEXT, "[Root]");
++	if(ccode){
++		traceForce(conf->debug,LOG_WARNING,"Error NWDSSetContext(): %d\n",ccode);
++		 goto Exit2;
++	}
++
++	trace(conf->debug, LOG_NOTICE,"SetContext OK");
++
++	ccode= NWDSGetContext(*context, DCK_FLAGS, &contextFlags);
++	if( ccode){
++		traceForce(conf->debug,LOG_WARNING,"NWDSGetContext (DCK_FLAGS) failed, returns %d\n", ccode);
++		goto Exit2;
++	}
++
++	trace(conf->debug, LOG_NOTICE,"GetContext OK");
++
++	contextFlags|= DCV_TYPELESS_NAMES;
++	ccode= NWDSSetContext( *context, DCK_FLAGS, &contextFlags);
++	if( ccode)	{
++		traceForce(conf->debug,LOG_WARNING,"NWDSSetContext (DCK_FLAGS DCV_TYPELESS_NAMES) failed, returns %d\n", ccode);
++		goto Exit2;
++	}
++
++	trace(conf->debug, LOG_NOTICE,"SetContext OK");
++	trace(conf->debug, LOG_NOTICE,"calling NWCCOpenConnByName ...");
++
++	if (conf->server[0] == '/')   //using a permanent connection
++		ccode = ncp_open_mount(conf->server, conn);
++	else {
++
++		if (!conf->useTree)
++			ccode = NWCCOpenConnByName(NULL, conf->server, NWCC_NAME_FORMAT_BIND, 0, 0, conn);
++		else
++			 //ccode=NWCXAttachToTreeByName( conn, conf->server);
++			ccode = NWCCOpenConnByName(NULL, conf->server, NWCC_NAME_FORMAT_NDS_TREE, 0, 0, conn);
++		if (ccode) {
++				traceForce(conf->debug,LOG_WARNING,"Error: NWCCOpenConnByName failed %s\n",strnwerror(ccode));
++				goto Exit2;
++		}
++	}
++
++	trace(conf->debug, LOG_NOTICE,"NWCCOpenConnByName OK");
++
++	ccode= NWDSAddConnection(*context, *conn);
++	if (ccode) {
++		traceForce(conf->debug,LOG_WARNING,"Error: NWCCOpenConnByName failed %s\n",strnwerror(ccode));
++		goto Exit2;
++	}
++
++	trace(conf->debug, LOG_NOTICE,"AddConnection OK");
++
++	if (conf->debug & QF_DEBUG) {
++		char aux[512];
++		aux[0] = 0;
++		if (!conf->useTree) {
++			NWCCGetConnInfo(*conn, NWCC_INFO_TREE_NAME, sizeof (aux), aux);
++			trace(conf->debug, LOG_DEBUG, "sucessful connection to tree %s by server %s \n",aux,conf->server);
++		}else {
++			NWCCGetConnInfo(*conn, NWCC_INFO_SERVER_NAME, sizeof (aux), aux);
++			trace(conf->debug,LOG_DEBUG, "successful connection  by NDS server %s on tree %s\n", aux,conf->server);
++		}
++	}
++
++Exit2:
++	if (ccode) {
++		trace(conf->debug, LOG_NOTICE,"Closing context and conn due to errors");
++		if(conn) NWCCCloseConn (*conn);
++	        if (context) NWDSFreeContext(*context);
++		*context=NULL;
++		*conn=NULL;
++	}
++Exit1:
++	trace(conf->debug, LOG_NOTICE,"leaving CreateContextAndConn");
++	return ccode;
++}
++
++
++/****  PP TreeScaning routines ***********************/
++
++struct TreeNode {
++	struct TreeNode* left;
++	struct TreeNode* right;
++	struct TreeNode* next;
++	struct TreeNode** pprev;
++	size_t cnt;
++	char name [MAX_DN_CHARS+1];
++};
++
++struct ObjectList {
++	struct TreeNode* first;
++	struct TreeNode* lin;
++	struct TreeNode* curr;
++	int dups;
++	size_t uniqueObjects;
++ 	size_t remainObjects;
++	size_t totalObjects;
++	NWDSContextHandle context;
++	NWCONN_HANDLE conn;
++	struct nss_ncp_conf * conf;
++};
++
++static struct ObjectList* __allocTree(int dups,struct nss_ncp_conf * conf) {
++	struct ObjectList* t;
++
++	t = (struct ObjectList*)malloc(sizeof(*t));
++	if (t) {
++		t->first = NULL;
++		t->lin = NULL;
++		t->curr = NULL;
++		t->dups = dups;
++		t->uniqueObjects = 0;
++		t->conf=conf;
++	}
++	return t;
++}
++
++static void __freeNode(struct TreeNode* n) {
++	while (n) {
++		struct TreeNode* tmp;
++
++		__freeNode(n->left);
++		tmp = n;
++		n = n->right;
++		free(tmp);
++	}
++}
++
++static void __freeTree(struct ObjectList* t) {
++	if (t) {
++		struct TreeNode* n = t->first;
++		if (t->conf)
++			free_nss_ncp_conf(t->conf);
++		free(t);
++		__freeNode(n);
++	}
++}
++
++static NWDSCCODE __allocNode(struct TreeNode** pn, const char* objectName) {
++	struct TreeNode* n;
++	size_t len=strlen(objectName);
++
++	if (len > MAX_DN_CHARS)
++		return NWE_BUFFER_OVERFLOW;
++	n = (struct TreeNode*)malloc(sizeof(*n));
++	if (!n)
++		return ERR_NOT_ENOUGH_MEMORY;
++	n->left = n->right = NULL;
++	n->cnt = 1;
++	memcpy(n->name, objectName, len + 1);
++	*pn = n;
++	return 0;
++}
++
++static NWDSCCODE __insertNode(struct ObjectList* t, const char* objectName) {
++	struct TreeNode** p;
++	struct TreeNode* n;
++	NWDSCCODE err;
++
++	p = &t->first;
++	while ((n = *p) != NULL) {
++		int cmp = strcasecmp(objectName, n->name);
++		if (cmp < 0) {
++			p = &n->left;
++			if (!*p) {
++				err = __allocNode(p, objectName);
++				if (!err) {
++					struct TreeNode* q = *p;
++
++					q->next = n;
++					q->pprev = n->pprev;
++					n->pprev = &q->next;
++					*(q->pprev) = q;
++					t->uniqueObjects++;
++					t->totalObjects++;
++				}
++				return err;
++			}
++		} else if (cmp > 0) {
++			p = &n->right;
++			if (!*p) {
++				err = __allocNode(p, objectName);
++				if (!err) {
++					struct TreeNode* q = *p;
++
++					q->next = n->next;
++					if (q->next)
++						q->next->pprev = &q->next;
++					n->next = q;
++					q->pprev = &n->next;
++					t->uniqueObjects++;
++					t->totalObjects++;
++				}
++				return err;
++			}
++		} else {
++			if (t->dups) {
++				n->cnt++;
++				t->totalObjects++;
++				return 0;
++			} else {
++				return EINVAL; // no dups allowed and one found
++			}
++		}
++	}
++	err = __allocNode(p, objectName);
++	if (!err) {
++		struct TreeNode* q = *p;
++		t->lin = q;
++		q->next = NULL;
++		q->pprev = &t->lin;
++		t->uniqueObjects++;
++		t->totalObjects++;
++	}
++	return err;
++}
++
++static void print_nodes(struct TreeNode* n, int crlf) {
++	if (n) {
++		print_nodes(n->left,crlf);
++		if (crlf)
++			printf ("%s [%d]\n",n->name,n->cnt);
++		else
++			printf ("%s [%d]",n->name,n->cnt);
++		print_nodes(n->right,crlf);
++	}
++}
++
++static void print_tree(struct ObjectList* t, int crlf) {
++  printf("total:%d unique:%d\n",t->totalObjects,t->uniqueObjects);
++  print_nodes (t->first,crlf);
++}
++
++
++// callback for getallentxx()
++static NWDSCCODE
++nds_insert_info(NWDSContextHandle ctx, const NWDSChar * objectName, void *tree, int modeDebug){
++	return __insertNode((struct ObjectList*)tree, objectName);
++}
++
++/* eot*/
++
++
++/*** collecting in a tree every member of a group, if his UID defined in NDS */
++
++static NWDSCCODE
++nds_get_group_members(NWDSContextHandle ctx, const void *val, void *arg){
++
++	struct ObjectList *tree = (struct ObjectList *) arg;
++	NWDSCCODE ccode=0;
++	struct nw_user_info ui;
++
++	init_nw_user_info(&ui,0);
++	//check whether member has some Unix properties
++	ccode=nds_user_info2(ctx, (const char *)val, &ui,tree->conf->debug);
++	// found a UID real (no fallback otherwise all users would have the same UID)
++	if (!ccode && ui.uid !=(uid_t)-1)  {
++		ccode=__insertNode(tree,(const char *)val);
++	}
++	free_nw_user_info(&ui);
++	return ccode;
++}
++
++
++static NWDSCCODE
++getgroupmembers(NWDSContextHandle *context,NWCONN_HANDLE *conn,
++	const char* groupName,struct ObjectList * tree,	struct nss_ncp_conf* conf){
++// get all members of a group
++
++	NWDSCCODE ccode;
++
++	static const struct attrop atlist[] = {
++		{ ATTR_MEMBERS,		nds_get_group_members,	SYN_MEMBERS},
++		{ NULL,			NULL,			SYN_UNKNOWN }};
++
++	NWDSCCODE err;
++	trace(conf->debug, LOG_NOTICE,"entering getgroupmembers for group %s",groupName);
++	ccode=CreateContextAndConn ( context,conn,conf);
++	if (ccode)
++		return ccode;
++	ccode=nds_read_attrs(*context, groupName, tree, atlist,conf->debug);
++	trace(conf->debug, LOG_NOTICE,"leaving getgroupmembers for group %s err=%s",groupName,strnwerror(ccode));
++	return ccode;
++}
++
++
++// static lists. Allocated by nss_ncp_setxxent_r, used buy nss_ncp_getxxent_r and released by nss_ncp_endxxent_r
++// TODO :mutex and threads needed  as in nss_ldap or nss_mysql ???
++
++static struct ObjectList* ndsUsers=NULL;
++static struct ObjectList* ndsGroups=NULL;
++static struct ObjectList* ndsShadows=NULL;
++
++// description of a NDS class to be searched by getentbyxx
++struct class_info {
++	char * className;
++	char *  nds8Attribute; //name of ID attribute in NDS8
++	char *  LID1;  	// markers in L attribute for ID (U: or G:)
++	char *  LID2;	// markers in L attribute for ID (u: or g:), may be in lower case
++	char *  LAlias1;// markers in L attribute for alias (N:)
++	char *  LAlias2; // markers in L attribute for alias (n:)  may be in lower case
++
++};
++
++// we care only about user's and group classes
++static struct class_info  USER_CLASS =  {"User", ATTR_UID,"U:","u:","N:","n:"};
++static struct class_info  GROUP_CLASS=  {"Group",ATTR_GID,"G:","g:","N:","n:"};
++
++
++/*protoptype of callback functions used in getentbyxx*/
++
++struct infoop {
++	NWDSCCODE (*getinfo) (NWDSContextHandle ctx , const NWDSChar * objectName, void * info, int debug);
++};
++/*
++  currently match
++  	nds_user_info(context,objectName,ui,modeDebug);
++	nds_user_info2(context,objectName,ui,modeDebug);
++	nds_group_info(context,objectName,gi,modeDebug);
++	nds_group_info2(context,objectName,gi,modeDebug);
++	nds_shadow_info(context,objectName,si,modeDebug);
++	nds_insert_info(context,objectName,tree,modeDebug):
++*/
++
++
++// generic NDS search routine
++static NWDSCCODE getentbyxx(
++	NWDSContextHandle 	*retContext,  	// context to return (NULL= close when leaving)
++	NWCONN_HANDLE 		*retConn,	// connexion to return (NULL= close when leaving)
++	struct class_info	classType,	// class to search (User of Group)
++	void			*info,		// structure to fill (can be nw_user_info,nw_shadow_info,nw_group_info or a ObjectList)
++	const struct infoop     callBack,	// routine to call for all found NDS objects
++	const char		*unixName,	// Unix objet name to find in NDS (if NULL search by ID)
++	uid_t			id,		// Unix ID to find in NDS , if -1 search by unixName)
++	int 			allEntries,	// Ignore unixName and id and return all entries belonging to classType.className
++	struct nss_ncp_conf 	*conf) 	{	// configuration record (debug...)
++
++	NWDSContextHandle context;
++	NWCONN_HANDLE conn;
++	NWDSCCODE ccode;
++	nint32	iterationHandle= NO_MORE_ITERATIONS; // to be set as such at Exit4
++	nint32	countObjectsSearched;
++	nuint32	objCntr,attrCntr,valCntr;
++	nuint32	objCount;
++	nuint32	attrCount;
++	char	objectName[MAX_DN_CHARS+1];
++	char	attrName[MAX_SCHEMA_NAME_CHARS+1];
++	nuint32	attrValCount;
++	nuint32	syntaxID;
++	nuint32	attrValSize;
++	char*	attrVal;
++
++	// buffers
++	pBuf_T	searchFilter=NULL;	// search filter
++	pBuf_T	retBuf=NULL;		// result buffer for NWDSSearch
++	pBuf_T	attrNames=NULL;		// specify which attribute values to return
++	Filter_Cursor_T* cur=NULL;	// search expression tree temporary buffer
++	Object_Info_T	objectInfo;
++
++
++	//few checks
++
++	if (!allEntries) {
++		if (unixName && id !=(uid_t)-1)
++			return EINVAL;
++		if (!unixName && id ==(uid_t)-1)
++			return EINVAL;
++	}
++
++	trace(conf->debug, LOG_NOTICE,"entering getentbyxx");
++
++	ccode=CreateContextAndConn ( &context,&conn,conf);
++	if (ccode)
++		return ccode;
++
++	trace(conf->debug, LOG_NOTICE,"context and conn OK");
++	/*
++	In order to search, we need:
++		A Filter Cursor (to build the search expression)
++		A Filter Buffer (to store the expression; used by NWDSSearch)
++		A Buffer to store which attributes we need information on
++		A Result Buffer (to store the search results)
++	*/
++	ccode = NWDSAllocBuf(DEFAULT_MESSAGE_LEN,&searchFilter);
++	if (ccode) {
++		traceForce(conf->debug,LOG_WARNING,"NWDSAllocBuf returned: %d\n", ccode);
++		goto Exit3;
++	}
++	trace(conf->debug, LOG_NOTICE,"NWDSAllocBuf searchFilter OK");
++	// Initialize the searchFilter buffer
++	ccode = NWDSInitBuf(context,DSV_SEARCH_FILTER,searchFilter);
++	if (ccode) {
++		traceForce(conf->debug,LOG_WARNING,"NWDSInitBuf returned: %d\n", ccode);
++		goto Exit4;
++	}
++
++	trace(conf->debug, LOG_NOTICE, "NWDSInitBuf searchFilter OK");
++
++	// Allocate a filter cursor to put the search expression
++	ccode = NWDSAllocFilter(&cur);
++	if (ccode) {
++		traceForce(conf->debug,LOG_WARNING,"NWDSAllocFilter returned: %d\n", ccode);
++		goto Exit4;
++	}
++	trace(conf->debug, LOG_NOTICE,"NWDSAllocFilter cur OK");
++	// Build the expression tree in cur, then place into searchFilter
++	// Object Class = User
++	ccode = NWDSAddFilterToken(cur,FTOK_ANAME,"Object Class",SYN_CLASS_NAME);
++	if (ccode) {
++		traceForce(conf->debug,LOG_WARNING,"NWDSAddFilterToken OBJECTCLASS returned: %d\n", ccode);
++		goto Exit4;
++	}
++	ccode = NWDSAddFilterToken(cur,FTOK_EQ,NULL,0);
++	if (ccode) {
++		traceForce(conf->debug,LOG_WARNING,"NWDSAddFilterToken FTOK_EQ returned: %d\n", ccode);
++		goto Exit4;
++	}
++
++	ccode = NWDSAddFilterToken(cur,FTOK_AVAL,classType.className,SYN_CLASS_NAME);
++	if (ccode) {
++		traceForce(conf->debug,LOG_WARNING,"NWDSAddFilterToken FTOK_AVAL User returned: %d\n", ccode);
++		goto Exit4;
++	}
++
++	trace(conf->debug, LOG_NOTICE,"AddFilter for classname OK");
++
++	if (!allEntries) {
++		ccode = NWDSAddFilterToken(cur,FTOK_AND,NULL,0);
++		if (ccode ) {
++			traceForce(conf->debug,LOG_WARNING,"NWDSAddFilterToken FTOK_AND returned: %d\n", ccode);
++			goto Exit4;
++		}
++
++		if (unixName) {
++			/* search for the CN or an alias in location strings */
++			/* CN=unixName or L=N:unixNname or l=n:unixName */
++			char buf1[255];
++			char buf2[255];
++
++			if (strlen(unixName)+3 >sizeof(buf1)) {
++				//buffer overflow !!!
++				ccode=EINVAL;
++		   		traceForce(conf->debug,LOG_WARNING,"unixName %s is too long !!!!\n", unixName);
++				goto Exit4;
++			}
++			sprintf (buf1,"%s%s",classType.LAlias1,unixName);
++			sprintf (buf2,"%s%s",classType.LAlias2,unixName);
++
++			ccode = NWDSAddFilterToken(cur,FTOK_LPAREN,NULL,0);
++			if (ccode ) {
++   				traceForce(conf->debug,LOG_WARNING,"NWDSAddFilterToken FTOK_RPAREN returned: %d\n", ccode);
++				goto Exit4;
++			}
++
++			ccode = NWDSAddFilterToken(cur,FTOK_ANAME,"CN",0);
++			if (ccode) {
++		 		traceForce(conf->debug,LOG_WARNING,"NWDSAddFilterToken FTOK_ANAME CN returned: %d\n", ccode);
++				goto Exit4;
++			}
++
++			ccode = NWDSAddFilterToken(cur,FTOK_EQ,NULL,0);
++			if (ccode ) {
++				traceForce(conf->debug,LOG_WARNING,"NWDSAddFilterToken FTOK_EQ returned: %d\n", ccode);
++				goto Exit4;
++			}
++
++			ccode = NWDSAddFilterToken(cur,FTOK_AVAL,unixName,SYN_CI_STRING);
++			if (ccode ) {
++				traceForce(conf->debug,LOG_WARNING,"NWDSAddFilterToken FTOK_AVAL %s returned: %d\n", unixName,ccode);
++				goto Exit4;
++			}
++			ccode = NWDSAddFilterToken(cur,FTOK_OR,NULL,0);
++			if (ccode ) {
++				traceForce(conf->debug,LOG_WARNING,"NWDSAddFilterToken FTOK_OR returned: %d\n", ccode);
++				goto Exit4;
++			}
++			ccode = NWDSAddFilterToken(cur,FTOK_ANAME,"L",0);
++			if (ccode) {
++				traceForce(conf->debug,LOG_WARNING,"NWDSAddFilterToken FTOK_ANAME L returned: %d\n", ccode);
++				goto Exit4;
++			}
++
++			ccode = NWDSAddFilterToken(cur,FTOK_EQ,NULL,0);
++			if (ccode) {
++				traceForce(conf->debug,LOG_WARNING,"NWDSAddFilterToken FTOK_EQ returned: %d\n", ccode);
++				goto Exit4;
++			}
++			ccode = NWDSAddFilterToken(cur,FTOK_AVAL,buf1,SYN_CI_STRING);
++			if (ccode) {
++				traceForce(conf->debug,LOG_WARNING,"NWDSAddFilterToken FTOK_VAL %s returned: %d\n", buf1,ccode);
++				goto Exit4;
++			}
++			ccode = NWDSAddFilterToken(cur,FTOK_OR,NULL,0);
++			if (ccode) {
++				traceForce(conf->debug,LOG_WARNING,"NWDSAddFilterToken FTOK_OR returned: %d\n", ccode);
++				goto Exit4;
++			}
++			ccode = NWDSAddFilterToken(cur,FTOK_ANAME,"L",0);
++			if (ccode) {
++				traceForce(conf->debug,LOG_WARNING,"NWDSAddFilterToken FTOK_ANAME returned: %d\n", ccode);
++				goto Exit4;
++			}
++			ccode = NWDSAddFilterToken(cur,FTOK_EQ,NULL,0);
++			if (ccode) {
++				traceForce(conf->debug,LOG_WARNING,"NWDSAddFilterToken FTOK_END returned: %d\n", ccode);
++				goto Exit4;
++			}
++			ccode = NWDSAddFilterToken(cur,FTOK_AVAL,buf2,SYN_CI_STRING);
++			if (ccode) {
++				traceForce(conf->debug,LOG_WARNING,"NWDSAddFilterToken FTOK_AVAL %s returned: %d\n", buf2,ccode);
++				goto Exit4;
++			}
++			ccode = NWDSAddFilterToken(cur,FTOK_RPAREN,NULL,0);
++			if (ccode) {
++				traceForce(conf->debug,LOG_WARNING,"NWDSAddFilterToken FTOK_RPAREN returned: %d\n", ccode);
++				goto Exit4;
++			}
++
++		} else {
++			if (id !=(uid_t)-1) {
++				/* search by UID.or GID
++				AND (L="U:xxxxx" OR L="u:xxxx" OR UNIX:UID = xxxx) for users
++				AND (L="G:xxxxx" OR L="g:xxxx" OR UNIX:GID = xxxx) for groups
++				*/
++				char buf1[80];
++				char buf2[80];
++
++				sprintf (buf1,"%s%d",classType.LID1,id);
++				sprintf (buf2,"%s%d",classType.LID2,id);
++
++				ccode = NWDSAddFilterToken(cur,FTOK_LPAREN,NULL,0);
++				if (ccode) {
++		  			traceForce(conf->debug,LOG_WARNING,"NWDSAddFilterToken FTOK_LPAREN returned: %d\n", ccode);
++					goto Exit4;
++				}
++				ccode = NWDSAddFilterToken(cur,FTOK_ANAME,"L",0);
++				if (ccode) {
++					traceForce(conf->debug,LOG_WARNING,"NWDSAddFilterToken FTOK_ANAME L returned: %d\n", ccode);
++					goto Exit4;
++				}
++
++				ccode = NWDSAddFilterToken(cur,FTOK_EQ,NULL,0);
++				if (ccode) {
++					traceForce(conf->debug,LOG_WARNING,"NWDSAddFilterToken FTOK_EQ returned: %d\n", ccode);
++					goto Exit4;
++				}
++
++				ccode = NWDSAddFilterToken(cur,FTOK_AVAL,buf1,SYN_CI_STRING);
++				if (ccode) {
++					traceForce(conf->debug,LOG_WARNING,"NWDSAddFilterToken FTOK_VAL %s returned: %d\n", buf1,ccode);
++					goto Exit4;
++				}
++				ccode = NWDSAddFilterToken(cur,FTOK_OR,NULL,0);
++				if (ccode) {
++					traceForce(conf->debug,LOG_WARNING,"NWDSAddFilterToken FTOK_OR returned: %d\n", ccode);
++					goto Exit4;
++				}
++				ccode = NWDSAddFilterToken(cur,FTOK_ANAME,"L",0);
++				if (ccode) {
++					traceForce(conf->debug,LOG_WARNING,"NWDSAddFilterToken FTOK_ANAME returned: %d\n", ccode);
++					goto Exit4;
++				}
++
++				ccode = NWDSAddFilterToken(cur,FTOK_EQ,NULL,0);
++				if (ccode) {
++					traceForce(conf->debug,LOG_WARNING,"NWDSAddFilterToken FTOK_END returned: %d\n", ccode);
++					goto Exit4;
++				}
++				ccode = NWDSAddFilterToken(cur,FTOK_AVAL,buf2,SYN_CI_STRING);
++				if (ccode) {
++					traceForce(conf->debug,LOG_WARNING,"NWDSAddFilterToken FTOK_AVAL %s returned: %d\n", buf2,ccode);
++					goto Exit4;
++				}
++				ccode = NWDSAddFilterToken(cur,FTOK_OR,NULL,0);
++				if (ccode) {
++					traceForce(conf->debug,LOG_WARNING,"NWDSAddFilterToken FTOK_OR returned: %d\n", ccode);
++					goto Exit4;
++				}
++				ccode = NWDSAddFilterToken(cur,FTOK_ANAME,classType.nds8Attribute,0);
++				if (ccode) {
++					traceForce(conf->debug,LOG_WARNING,"NWDSAddFilterToken FTOK_ANAME returned: %d\n", ccode);
++					goto Exit4;
++				}
++
++				ccode = NWDSAddFilterToken(cur,FTOK_EQ,NULL,0);
++				if (ccode) {
++					traceForce(conf->debug,LOG_WARNING,"NWDSAddFilterToken FTOK_END returned: %d\n", ccode);
++					goto Exit4;
++				}
++				ccode = NWDSAddFilterToken(cur,FTOK_AVAL,&buf1[2],SYN_INTEGER);
++				if (ccode) {
++					traceForce(conf->debug,LOG_WARNING,"NWDSAddFilterToken FTOK_AVAL %s returned: %d\n", buf2,ccode);
++					goto Exit4;
++				}
++				ccode = NWDSAddFilterToken(cur,FTOK_RPAREN,NULL,0);
++				if (ccode) {
++					traceForce(conf->debug,LOG_WARNING,"NWDSAddFilterToken FTOK_RPAREN returned: %d\n", ccode);
++					goto Exit4;
++				}
++
++			}
++		}
++	}
++	ccode = NWDSAddFilterToken(cur,FTOK_END,NULL,0);
++	if (ccode) {
++		traceForce(conf->debug,LOG_WARNING,"NWDSAddFilterToken FTOK_END returned: %d\n", ccode);
++		goto Exit4;
++	}
++
++	trace(conf->debug,  LOG_NOTICE,"AddFilterToken FTOK_END OK");
++
++	// now place the cursor into the searchFilter buffer
++	// NWDSPutFilter frees the expression tree filter (cur)
++	//	so if it succeeds, set cur to NULL so it won't be freed below
++	ccode = NWDSPutFilter(context,searchFilter,cur,NULL);
++	if (ccode) {
++		traceForce(conf->debug,LOG_WARNING,"NWDSPutFilter returned: %d\n", ccode);
++		goto Exit4;
++	}
++	else
++		cur=NULL;
++
++	trace(conf->debug, LOG_NOTICE,"PutFilter OK");
++
++	// allocate and initialize the attrNames buffer (not used , needed ???)
++	ccode = NWDSAllocBuf(DEFAULT_MESSAGE_LEN,&attrNames);
++	if (ccode) {
++		traceForce(conf->debug,LOG_WARNING,"NWDSAllocBuf returned: %d\n", ccode);
++		goto Exit4;
++	}
++
++	trace(conf->debug, LOG_NOTICE,"AllocBuf attrNamesOK");
++
++	ccode = NWDSInitBuf(context,DSV_SEARCH,attrNames);
++	if (ccode) {
++		traceForce(conf->debug,LOG_WARNING,"NWDSInitBuf returned: %d\n", ccode);
++		goto Exit4;
++	}
++
++	trace(conf->debug, LOG_NOTICE,"InitBuf attrNames OK");
++
++	// Allocate a result buffer
++		ccode = NWDSAllocBuf(65500,&retBuf);
++	if (ccode) {
++		traceForce(conf->debug,LOG_WARNING,"NWDSAllocBuf returned: %d\n", ccode);
++		goto Exit4;
++	}
++
++	trace(conf->debug, LOG_NOTICE,"AllocBuf retBuf OK, start searching...");
++
++	// PP 11-01-2003
++	// with NCP_DEBUG=cleanup, if we exit here, usecount of the connection is still 1 (OK)
++	// so usecount is augmented below
++	//ccode=-1;
++	//goto Exit4;
++
++	iterationHandle = NO_MORE_ITERATIONS;
++	// while NWDSSearch still can get some objects...( I expect 0 or 1)
++	do {
++		ccode = NWDSSearch(context,
++				//"[Root]",
++				conf->startCtx,
++				DS_SEARCH_SUBTREE,
++				FALSE,		// don't dereference aliases
++				searchFilter,
++				FALSE,		// we want ONLY attributes names
++				FALSE,		// only want information in attrNames
++				attrNames,
++				&iterationHandle,
++				0,		// reserved
++				&countObjectsSearched,
++				retBuf);
++		if (ccode) {
++			traceForce(conf->debug,LOG_WARNING,"NWDSSearch returned: %s\n", strnwerror(ccode));
++			goto Exit4;
++		}
++		// PP 11-01-2003
++		// with NCP_DEBUG=cleanup, if we exit here, usecount of the connection is now 2  (bad)
++		// so it is NWDSSearch that augmented usecount !!!!
++		//ccode=-1;
++		//goto Exit4;
++
++
++		trace(conf->debug, LOG_NOTICE,"NWDSearch OK");
++		// count the object returned in the buffer
++		ccode = NWDSGetObjectCount(context,retBuf,&objCount);
++		if (ccode) {
++			traceForce(conf->debug,LOG_WARNING,"NWDSGetObjectCount returned: %d\n", ccode);
++			goto Exit4;
++		}
++		if (objCount <= 0) {
++			ccode=-1;
++			goto Exit4;
++		}
++		if ( !allEntries && (objCount >1)) {
++			if (unixName)
++				traceForce(conf->debug,LOG_WARNING,"more than one NDS entry match the name=%s criteria. ",unixName);
++			else
++				traceForce(conf->debug,LOG_WARNING,"more than one NDS entry match the id=%d criteria. ",id);
++		}
++		trace(conf->debug, LOG_NOTICE,"GetObjectCount OK");
++		// for the number of objects returned...
++		// for  nss it should be only one !!!
++		for (objCntr=0;objCntr<objCount;objCntr++) {
++			// get an object name
++			ccode = NWDSGetObjectName(context,retBuf,objectName,&attrCount,&objectInfo);
++			if (ccode) {
++				traceForce(conf->debug,LOG_WARNING,"NWDSGetObjectName returned: %d\n", ccode);
++				goto Exit4;
++			}
++
++			trace(conf->debug, LOG_NOTICE,"GetObjectName OK");
++
++			if (callBack.getinfo) {
++				ccode= callBack.getinfo(context,objectName,info,conf->debug);
++				if (ccode)
++					goto Exit4;
++			}
++		}
++		trace(conf->debug, LOG_NOTICE,"callback return OK");
++	} while ((nuint32)iterationHandle != NO_MORE_ITERATIONS);
++
++	trace(conf->debug, LOG_NOTICE,"End of iteration  attrNamesOK");
++
++Exit4:
++	if ((nuint32)iterationHandle != NO_MORE_ITERATIONS){
++		NWDSCCODE ccode2;
++		if (ccode2=NWDSCloseIteration(context,iterationHandle,DSV_SEARCH)) {
++				traceForce(conf->debug,LOG_WARNING,"NWDSCloseIteration  returned: %d\n", ccode2);
++		}
++	}
++	if (retBuf)
++		NWDSFreeBuf(retBuf);
++	if (cur)
++		NWDSFreeFilter(cur, NULL);
++	if (searchFilter)
++		NWDSFreeBuf(searchFilter);
++	if (attrNames)
++		NWDSFreeBuf(attrNames);
++
++	trace(conf->debug, LOG_NOTICE,"All buffers cleaned OK");
++
++Exit3:
++	if (ccode || !retConn){
++		NWDSCCODE ccode2;
++		trace(conf->debug,LOG_NOTICE,"Closing connection %lx",conn);
++		ccode2=NWCCCloseConn (conn);
++		if (ccode2)
++	 		traceForce(conf->debug,LOG_WARNING,"NWCCloseConnection  returned: %d %s\n", ccode,strnwerror(ccode2));
++	}else
++		if (retConn)
++			*retConn=conn;
++Exit2:
++	if (ccode || !retContext) {
++	 	NWDSCCODE ccode2=NWDSFreeContext(context);
++		trace(conf->debug, LOG_NOTICE,"Freeing context");
++		if (ccode2)
++			traceForce(conf->debug,LOG_WARNING,"NWDSFreeContext  returned: %d %s\n", ccode,strnwerror(ccode2));
++	}else
++		if (retContext)
++			*retContext=context;
++Exit1:
++	trace(conf->debug, LOG_NOTICE,"Leaving ...");
++	return ccode;
++}
++
++
++
++
++static NWDSCCODE
++getpwdentbyxx(struct nw_user_info *ui, const char* userName, uid_t userId, struct nss_ncp_conf *conf){
++
++static const struct infoop getInfo={nds_user_info};
++
++return getentbyxx(
++	NULL,		// context to return (NULL= close when leaving)
++	NULL,		// connexion to return (NULL= close when leaving)
++	USER_CLASS,	// class to search (User of Group)
++	ui,		// structure to fill (can be nw_user_info,nw_shadow_info,nw_group_info)
++	getInfo,	 // routine to call for all found NDS objects
++	userName,	// Unix objet name to find in NDS (if NULL search by ID)
++	userId,		// Unix ID to find in NDS , if -1 search by unixName)
++	FALSE,		// Ignore objectName and id and return all entries belonging to className
++	conf);		// debug flag
++}
++
++
++static NWDSCCODE
++getgrpentbyxx(struct nw_group_info *gi, const char* groupName, gid_t groupId, struct nss_ncp_conf *conf){
++
++	static const struct infoop getInfo={nds_group_info};
++
++	return getentbyxx(
++	NULL,		// context to return (NULL= close when leaving)
++	NULL,		// connexion to return (NULL= close when leaving)
++	GROUP_CLASS,	// class to search (User of Group)
++	gi,		// structure to fill (can be nw_user_info,nw_shadow_info,nw_group_info)
++	getInfo,	// routine to call for all found NDS objects
++	groupName,	// Unix objet name to find in NDS (if NULL search by ID)
++	groupId,	// Unix ID to find in NDS , if -1 search by unixName)
++	FALSE,		// Ignore objectName and id and return all entries belonging to className
++	conf);		// debug flag
++}
++
++
++
++
++static NWDSCCODE
++getspentbyxx(struct nw_shadow_info *si, const char* userName, struct nss_ncp_conf *conf){
++// in shadow we  search only by userName
++	static const struct infoop getInfo={nds_shadow_info};
++
++	return getentbyxx(
++	NULL,		// context to return (NULL= close when leaving)
++	NULL,		// connexion to return (NULL= close when leaving)
++	USER_CLASS,	// class to search (User of Group)
++	si,		// structure to fill (can be nw_user_info,nw_shadow_info,nw_group_info)
++	getInfo,	// routine to call for all found NDS objects
++	userName,	// Unix objet name to find in NDS (if NULL search by ID)
++	(uid_t)-1,	// Unix ID to find in NDS , if -1 search by unixName)
++	FALSE,		// Ignore objectName and id and return all entries belonging to className
++	conf);		// debug flag
++}
++
++static NWDSCCODE
++getusergroupsbyxx(struct nw_user_group_info *ui, const char* userName, uid_t userId, struct nss_ncp_conf *conf){
++
++static const struct infoop getInfo={nds_get_user_groups};
++
++	return getentbyxx(
++	NULL,		// context to return (NULL= close when leaving)
++	NULL,		// connexion to return (NULL= close when leaving)
++	USER_CLASS,	// class to search (User of Group)
++	ui,		// structure to fill (can be nw_user_info,nw_shadow_info,nw_group_info)
++	getInfo,	 // routine to call for all found NDS objects
++	userName,	// Unix objet name to find in NDS (if NULL search by ID)
++	userId,		// Unix ID to find in NDS , if -1 search by unixName)
++	FALSE,		// Ignore objectName and id and return all entries belonging to className
++	conf);		// debug flag
++}
++
++
++
++static NWDSCCODE
++getallents(NWDSContextHandle *context,NWCONN_HANDLE *conn,
++	const struct class_info  classType, struct ObjectList * tree, struct nss_ncp_conf *conf){
++// called by all setxxent() if not control group is present in conf
++// get all entries by className
++// and add them to a sorted tree in memory
++// return context and conncetion for later use by
++
++static const struct infoop getInfo={nds_insert_info};
++
++	return getentbyxx(
++	context,	// context to return (NULL= close when leaving)
++	conn,		// connexion to return (NULL= close when leaving)
++	classType,	// class to search (User of Group)
++	tree,		// structure to fill (can be nw_user_info,nw_shadow_info,nw_group_info)
++	getInfo,	// routine to call for all found NDS objects
++	NULL,		// Unix objet name to find in NDS (if NULL search by ID)
++	(uid_t)-1,	// Unix ID to find in NDS , if -1 search by unixName)
++	TRUE,		// Ignore objectName and id and return all entries belonging to className
++	conf);		// debug flag
++}
++
++/*******************************************************************************/
++
++
++
++/******************************* NSS API ***************************************/
++
++
++enum nss_status _nss_ncp_initgroups (const char *userName, gid_t group,
++                long int *start, long int *size, gid_t * groups,
++                long int limit,int *errnop) {
++
++	struct nw_user_group_info inf;
++	NWDSCCODE err;
++	struct nss_ncp_conf *conf= parse_conf(CNF_FILE);
++
++	if (!conf || !conf->doGroup)
++		return NSS_STATUS_UNAVAIL;
++	 if (conf->debug) {
++                openlog("ncp_nss", LOG_PID, LOG_AUTHPRIV);
++		trace (conf->debug, LOG_NOTICE,"nss_ncp_initgroups entering");
++	}
++
++	init_nw_user_group_info(&inf,conf->debug);
++	err= getusergroupsbyxx(&inf, userName, (uid_t)-1,conf);
++	switch (err) {
++		case 0:
++			if (conf->debug &QF_VERBOSE)
++				print_nw_user_group_info(inf);
++			if (!fix_nw_user_group_info(&inf,conf))
++				err=nw_user_group_info_to_groups(inf,group,start,size,groups,limit,errnop,conf);
++			else err=NSS_STATUS_UNAVAIL;
++			break;
++		case -1: // NOT FOUND IN NDS
++			err=NSS_STATUS_NOTFOUND;
++			*errnop=ENOENT;
++			break;
++		default: // NDS error
++			err=NSS_STATUS_UNAVAIL;
++			*errnop=ENOENT;
++			break;
++
++	}
++	free_nw_user_group_info(&inf);
++	if (conf->debug) {
++		trace (conf->debug, LOG_NOTICE,"nss_ncp_initgroups leaving");
++                closelog();
++	}
++	return err;
++}
++
++
++enum nss_status _nss_ncp_getpwnam_r (const char* name, struct passwd *pwd,
++				char * buffer, size_t buflen, int * errnop) {
++
++	struct nw_user_info inf;
++	NWDSCCODE err;
++	struct nss_ncp_conf *conf= parse_conf(CNF_FILE);
++
++	if (!conf || !conf->doPassword)
++		return NSS_STATUS_UNAVAIL;
++
++	if (conf->debug) {
++                openlog("ncp_nss", LOG_PID, LOG_AUTHPRIV);
++		trace (conf->debug, LOG_NOTICE,"nss_ncp_getpwnam entering");
++	}
++	init_nw_user_info(&inf,conf->debug);
++	err= getpwdentbyxx(&inf, name, (uid_t)-1,conf);
++	switch (err) {
++		case 0:
++			if (conf->debug &QF_VERBOSE)
++				print_nw_user_info(inf);
++			if (!fix_nw_user_info(&inf,conf))
++				err=nw_user_info_to_passwd(inf,pwd,buffer,buflen,errnop,conf);
++			else err=NSS_STATUS_UNAVAIL;
++			break;
++		case -1: // NOT FOUND IN NDS
++			err=NSS_STATUS_NOTFOUND;
++			*errnop=ENOENT;
++			break;
++		default: // NDS error
++			err=NSS_STATUS_UNAVAIL;
++			*errnop=ENOENT;
++			break;
++
++	}
++	free_nw_user_info(&inf);
++	if (conf->debug) {
++		trace (conf->debug, LOG_NOTICE,"nss_ncp_getpwnam leaving");
++                closelog();
++	}
++	return err;
++}
++
++
++enum nss_status _nss_ncp_getpwuid_r (uid_t uid, struct passwd *pwd,
++				char * buffer, size_t buflen, int * errnop) {
++
++	struct nw_user_info inf;
++	NWDSCCODE err;
++	struct nss_ncp_conf *conf= parse_conf(CNF_FILE);
++
++	if (!conf || !conf->doPassword)
++		return NSS_STATUS_UNAVAIL;
++
++	if (conf->debug) {
++                openlog("ncp_nss", LOG_PID, LOG_AUTHPRIV);
++		trace (conf->debug, LOG_NOTICE,"nss_ncp_getpwuid entering");
++	}
++	init_nw_user_info(&inf,conf->debug);
++	err= getpwdentbyxx(&inf, NULL, uid,conf);
++	switch (err) {
++		case 0:
++			if (conf->debug &QF_VERBOSE)
++				print_nw_user_info(inf);
++			if (!fix_nw_user_info(&inf,conf))
++				err=nw_user_info_to_passwd(inf,pwd,buffer,buflen,errnop,conf);
++			else err=NSS_STATUS_UNAVAIL;
++			break;
++		case -1: // NOT FOUND IN NDS
++			err=NSS_STATUS_NOTFOUND;
++			*errnop=ENOENT;
++			break;
++		default: // NDS error
++			err=NSS_STATUS_UNAVAIL;
++			*errnop=ENOENT;
++			break;
++
++	}
++	free_nw_user_info(&inf);
++	if (conf->debug) {
++		trace (conf->debug, LOG_NOTICE,"nss_ncp_getpwuid leaving");
++                closelog();
++	}
++	return err;
++}
++
++
++enum nss_status _nss_ncp_getgrnam_r (const char* name, struct group *grp,
++				char * buffer, size_t buflen, int * errnop) {
++
++	struct nw_group_info inf;
++	NWDSCCODE err;
++	struct nss_ncp_conf *conf= parse_conf(CNF_FILE);
++
++	if (!conf || !conf->doGroup)
++		return NSS_STATUS_UNAVAIL;
++
++	if (conf->debug) {
++		openlog("ncp_nss", LOG_PID, LOG_AUTHPRIV);
++		trace (conf->debug, LOG_NOTICE,"nss_ncp_getgrnam entering");
++	}
++	init_nw_group_info(&inf,conf->debug);
++	err= getgrpentbyxx(&inf, name, (gid_t)-1,conf);
++	switch (err) {
++		case 0:
++			if (conf->debug &QF_VERBOSE)
++				print_nw_group_info(inf);
++			if (!fix_nw_group_info(&inf,conf))
++				err=nw_group_info_to_group(inf,grp,buffer,buflen,errnop,conf);
++			else err=NSS_STATUS_UNAVAIL;
++			break;
++		case -1: // NOT FOUND IN NDS
++			err=NSS_STATUS_NOTFOUND;
++			*errnop=ENOENT;
++			break;
++		default: // NDS error
++			err=NSS_STATUS_UNAVAIL;
++			*errnop=ENOENT;
++			break;
++
++	}
++	free_nw_group_info(&inf);
++	if (conf->debug) {
++		trace (conf->debug, LOG_NOTICE,"nss_ncp_getgrnam leaving");
++                closelog();
++	}
++	return err;
++}
++
++
++enum nss_status _nss_ncp_getspnam_r (const char * name, struct spwd *spw,
++                char *buffer, size_t buflen,int * errnop) {
++	struct nw_shadow_info inf;
++	NWDSCCODE err;
++	struct nss_ncp_conf *conf= parse_conf(CNF_FILE);
++
++	if (!conf || !conf->doShadow)
++		return NSS_STATUS_UNAVAIL;
++
++	if (conf->debug) {
++                openlog("ncp_nss", LOG_PID, LOG_AUTHPRIV);
++		trace (conf->debug, LOG_NOTICE,"nss_ncp_getspnam entering");
++	}
++	init_nw_shadow_info(&inf,conf->debug);
++	err= getspentbyxx(&inf, name,conf);
++	switch (err) {
++		case 0:
++			if (conf->debug &QF_VERBOSE)
++				print_nw_shadow_info(inf);
++			if (!fix_nw_shadow_info(&inf,conf))
++				err=nw_shadow_info_to_shadow(inf,spw,buffer,buflen,errnop,conf);
++			else err=NSS_STATUS_UNAVAIL;
++			break;
++		case -1: // NOT FOUND IN NDS
++			err=NSS_STATUS_NOTFOUND;
++			*errnop=ENOENT;
++			break;
++		default: // NDS error
++			err=NSS_STATUS_UNAVAIL;
++			*errnop=ENOENT;
++			break;
++
++	}
++	free_nw_shadow_info(&inf);
++	if (conf->debug) {
++		trace (conf->debug, LOG_NOTICE,"nss_ncp_getspnam leaving");
++                closelog();
++	}
++	return err;
++
++}
++
++
++enum nss_status _nss_ncp_getgrgid_r (gid_t gid, struct group *grp,
++				char * buffer, size_t buflen, int * errnop) {
++	struct nw_group_info inf;
++	NWDSCCODE err;
++	struct nss_ncp_conf *conf= parse_conf(CNF_FILE);
++
++	if (!conf || !conf->doGroup)
++		return NSS_STATUS_UNAVAIL;
++
++	if (conf->debug) {
++                openlog("ncp_nss", LOG_PID, LOG_AUTHPRIV);
++		trace (conf->debug, LOG_NOTICE,"nss_ncp_getgrgid entering");
++	}
++	init_nw_group_info(&inf,conf->debug);
++	err= getgrpentbyxx(&inf, NULL, gid,conf);
++	switch (err) {
++		case 0:
++			if (conf->debug &QF_VERBOSE)
++				print_nw_group_info(inf);
++			if (!fix_nw_group_info(&inf,conf))
++				err=nw_group_info_to_group(inf,grp,buffer,buflen,errnop,conf);
++			else err=NSS_STATUS_UNAVAIL;
++			break;
++		case -1: // NOT FOUND IN NDS
++			err=NSS_STATUS_NOTFOUND;
++			*errnop=ENOENT;
++			break;
++		default: // NDS error
++			err=NSS_STATUS_UNAVAIL;
++			*errnop=ENOENT;
++			break;
++
++	}
++	free_nw_group_info(&inf);
++	if (conf->debug) {
++		trace (conf->debug, LOG_NOTICE,"nss_ncp_getgrid leaving");
++                closelog();
++	}
++	return err;
++}
++
++
++enum nss_status _nss_ncp_setpwent(void) {
++	NWDSContextHandle context;
++	NWCONN_HANDLE conn;
++	NWDSCCODE ccode;
++	struct nss_ncp_conf *conf= parse_conf(CNF_FILE);
++
++	if (!conf || !conf->doPassword)
++		return NSS_STATUS_UNAVAIL;
++
++	if (conf->debug) {
++                openlog("ncp_nss", LOG_PID, LOG_AUTHPRIV);
++		trace (conf->debug, LOG_NOTICE,"nss_ncp_setpwent entering");
++	}
++	ndsUsers=  __allocTree(FALSE,conf);
++	if (ndsUsers) {
++		if (conf->ctrlGroup && conf->ctrlGroup[0]) // caution if empty string from conf or default
++			ccode=getgroupmembers(&context,&conn,conf->ctrlGroup,ndsUsers,conf);
++		else
++			ccode=getallents(&context,&conn,USER_CLASS,ndsUsers,conf);
++
++		if (!ccode) {
++			ndsUsers->context=context;
++			ndsUsers->conn=conn;
++			ndsUsers->curr = ndsUsers->lin;
++			ndsUsers->remainObjects = ndsUsers->uniqueObjects;
++			ccode= NSS_STATUS_SUCCESS;
++		} else {
++			__freeTree(ndsUsers);
++			ndsUsers=NULL;
++			ccode= NSS_STATUS_UNAVAIL;
++		}
++	}else
++		ccode= NSS_STATUS_UNAVAIL;
++
++	if (conf->debug) {
++		trace (conf->debug, LOG_NOTICE,"nss_ncp_setpwent leaving");
++  		closelog();
++	}
++	return ccode;
++
++}
++
++enum nss_status _nss_ncp_setgrent(void) {
++	NWDSContextHandle context;
++	NWCONN_HANDLE conn;
++	enum nss_status ccode;
++	struct nss_ncp_conf *conf= parse_conf(CNF_FILE);
++
++	if (!conf || !conf->doGroup)
++		return NSS_STATUS_UNAVAIL;
++
++	if (conf->debug) {
++		openlog("ncp_nss", LOG_PID, LOG_AUTHPRIV);
++		trace (conf->debug, LOG_NOTICE,"nss_ncp_setgrent entering");
++	}
++	ndsGroups=  __allocTree(FALSE,conf);
++	if (ndsGroups) {
++		if (! getallents(&context,&conn,GROUP_CLASS,ndsGroups,conf)) {
++			ndsGroups->context=context;
++			ndsGroups->conn=conn;
++			ndsGroups->curr = ndsGroups->lin;
++			ndsGroups->remainObjects = ndsGroups->uniqueObjects;
++			ccode=NSS_STATUS_SUCCESS;
++		} else {
++			__freeTree(ndsGroups);
++			ndsGroups=NULL;
++			ccode=NSS_STATUS_UNAVAIL;
++		}
++	}else
++		ccode= NSS_STATUS_UNAVAIL;
++
++	if (conf->debug) {
++		trace (conf->debug, LOG_NOTICE,"nss_ncp_setgrent leaving");
++                closelog();
++	}
++	return ccode;
++
++}
++
++
++enum nss_status _nss_ncp_setspent (void) {
++	NWDSContextHandle context;
++	NWCONN_HANDLE conn;
++	NWDSCCODE ccode;
++	struct nss_ncp_conf *conf= parse_conf(CNF_FILE);
++
++	if (!conf || !conf->doShadow)
++		return NSS_STATUS_UNAVAIL;
++
++	if (conf->debug) {
++                openlog("ncp_nss", LOG_PID, LOG_AUTHPRIV);
++		trace (conf->debug, LOG_NOTICE,"nss_ncp_setspent entering");
++	}
++	ndsShadows=  __allocTree(FALSE,conf);
++	if (ndsShadows) {
++		if (conf->ctrlGroup && conf->ctrlGroup[0]) // caution if empty string from conf or default
++			ccode=getgroupmembers(&context,&conn,conf->ctrlGroup,ndsShadows,conf);
++		else
++			ccode=getallents(&context,&conn,USER_CLASS,ndsShadows,conf);
++
++		if (!ccode) {
++			ndsShadows->context=context;
++			ndsShadows->conn=conn;
++			ndsShadows->curr = ndsShadows->lin;
++			ndsShadows->remainObjects = ndsShadows->uniqueObjects;
++			ccode=NSS_STATUS_SUCCESS;
++		} else {
++			__freeTree(ndsShadows);
++			ndsShadows=NULL;
++			ccode=NSS_STATUS_UNAVAIL;
++		}
++	}else
++		ccode= NSS_STATUS_UNAVAIL;
++
++	if (conf->debug) {
++		trace (conf->debug, LOG_NOTICE,"nss_ncp_setspent leaving");
++                closelog();
++	}
++	return ccode;
++
++}
++
++
++enum nss_status _nss_ncp_endpwent(void) {
++	enum nss_status ccode;
++
++
++	if (ndsUsers) {
++		struct nss_ncp_conf *conf=ndsUsers->conf;
++
++		if (conf->debug) {
++         	       openlog("ncp_nss", LOG_PID, LOG_AUTHPRIV);
++			trace (conf->debug, LOG_NOTICE,"nss_ncp_endpwent entering");
++		}
++		NWCCCloseConn (ndsUsers->conn);
++		NWDSFreeContext(ndsUsers->context);
++		__freeTree(ndsUsers);
++		ndsUsers=NULL;
++		trace (conf->debug, LOG_NOTICE,"nss_ncp_setpwent all cleaned up OK");
++		if (conf->debug) {
++			trace (conf->debug, LOG_NOTICE,"nss_ncp_setpwent leaving");
++                	closelog();
++		}
++		ccode=NSS_STATUS_SUCCESS;
++	}else {
++		trace (QF_DEBUG, LOG_ERR,"nss_ncp_endpwent called without a previous nss_ncp_setpwent: nothing to cleanup");
++		ccode=NSS_STATUS_UNAVAIL;
++	}
++	return ccode;
++}
++
++
++enum nss_status _nss_ncp_endgrent(void) {
++	enum nss_status ccode;
++
++
++	if (ndsGroups) {
++		struct nss_ncp_conf *conf=ndsGroups->conf;
++
++		if (conf->debug) {
++         	       openlog("ncp_nss", LOG_PID, LOG_AUTHPRIV);
++			trace (conf->debug, LOG_NOTICE,"nss_ncp_endgrent entering");
++		}
++		NWCCCloseConn (ndsGroups->conn);
++		NWDSFreeContext(ndsGroups->context);
++		__freeTree(ndsGroups);
++		ndsGroups=NULL;
++		trace (conf->debug, LOG_NOTICE,"nss_ncp_endgrent all cleaned up OK");
++		if (conf->debug) {
++			trace (conf->debug, LOG_NOTICE,"nss_ncp_endpwent leaving");
++                	closelog();
++		}
++		ccode=NSS_STATUS_SUCCESS;
++	}else {
++		trace (QF_DEBUG, LOG_ERR,"nss_ncp_endgrent called without a previous nss_ncp_setgrent : nothing to cleanup");
++		ccode=NSS_STATUS_UNAVAIL;
++	}
++	return ccode;
++}
++
++
++enum nss_status _nss_ncp_endspent (void) {
++	enum nss_status ccode;
++
++
++	if (ndsShadows) {
++		struct nss_ncp_conf *conf=ndsShadows->conf;
++		if (conf->debug) {
++	                openlog("ncp_nss", LOG_PID, LOG_AUTHPRIV);
++			trace (conf->debug, LOG_NOTICE,"nss_ncp_endspent entering");
++		}
++
++		NWCCCloseConn (ndsShadows->conn);
++		NWDSFreeContext(ndsShadows->context);
++		__freeTree(ndsShadows);
++		ndsShadows=NULL;
++		trace (conf->debug, LOG_NOTICE,"nss_ncp_endspent all cleaned up up OK");
++		if (conf->debug) {
++			trace (conf->debug, LOG_NOTICE,"nss_ncp_endspent leaving");
++                	closelog();
++		}
++		ccode=NSS_STATUS_SUCCESS;
++	}else {
++		trace (QF_DEBUG, LOG_ERR,"nss_ncp_endspent called without a previous nss_ncp_setspent : nothing to cleanup");
++		ccode=NSS_STATUS_UNAVAIL;
++	}
++	return ccode;
++}
++
++enum nss_status _nss_ncp_getpwent_r(struct passwd *pwd,
++				char * buffer, size_t buflen, int * errnop) {
++	enum nss_status err;
++
++	if (ndsUsers) {
++		struct TreeNode* n;
++		NWDSCCODE ccode;
++		struct nw_user_info ui;
++		struct nss_ncp_conf *conf=ndsUsers->conf;
++		const char* ndsName;
++		if (conf->debug) {
++         	       openlog("ncp_nss", LOG_PID, LOG_AUTHPRIV);
++			trace (conf->debug, LOG_NOTICE,"nss_ncp_getpwent entering");
++		}
++
++next_user:; // avoid a recursive call
++		n = ndsUsers->curr;
++		if (!n) {
++			//ready to scan again from the beginning (a good idea ??)
++			ndsUsers->curr = ndsUsers->lin;
++			ndsUsers->remainObjects = ndsUsers->uniqueObjects;
++			err= NSS_STATUS_NOTFOUND;
++		} else {
++				ndsName=n->name;
++				init_nw_user_info(&ui,conf->debug);
++				ccode=nds_user_info(ndsUsers->context,n->name,&ui,conf->debug);
++
++				if (ccode) {
++					free_nw_user_info(&ui);
++					err=NSS_STATUS_NOTFOUND;
++					goto exit;
++				}
++				if (conf->debug &QF_VERBOSE)
++					print_nw_user_info(ui);
++				if (!fix_nw_user_info(&ui,conf))
++					err=nw_user_info_to_passwd(ui,pwd,buffer,buflen,&errno,conf);
++				else err=NSS_STATUS_UNAVAIL;
++				free_nw_user_info(&ui);
++				switch (err) {
++					case NSS_STATUS_TRYAGAIN:
++				// buffer was too small
++				// do not advance to next user
++				// and let nss to try again with a bigger buffer;
++						break;
++					default:
++				// move to next user
++						if (!--n->cnt) {
++							ndsUsers->curr = n->next;
++							ndsUsers->remainObjects--;
++						}
++						if (err==NSS_STATUS_NOTFOUND) {// user has no unix property,  skip
++							trace (conf->debug, LOG_NOTICE,"user %s has not Unix properties in NDS,skipping",ndsName);
++							goto next_user;
++						}else
++							err=NSS_STATUS_SUCCESS;
++			}
++		}
++exit:
++		if (conf->debug) {
++			trace (conf->debug, LOG_NOTICE,"nss_ncp_getpwent leaving");
++                	closelog();
++		}
++
++	}else {
++		err=NSS_STATUS_UNAVAIL;
++	}
++	return err;
++
++}
++
++
++enum nss_status _nss_ncp_getgrent_r(struct group *grp,
++				char * buffer, size_t buflen, int * errnop) {
++	enum nss_status err;
++
++	if (ndsGroups) {
++		struct TreeNode* n;
++		NWDSCCODE ccode;
++		const char* ndsName;
++		struct nw_group_info gi;
++		struct nss_ncp_conf *conf=ndsGroups->conf;
++
++		if (conf->debug) {
++         	       openlog("ncp_nss", LOG_PID, LOG_AUTHPRIV);
++			trace (conf->debug, LOG_NOTICE,"nss_ncp_getgrent entering");
++		}
++next_group:; // avoid a recursive call
++		n = ndsGroups->curr;
++		if (!n) {
++			//ready to scan again from the beginning (a good idea ??)
++			ndsGroups->curr = ndsGroups->lin;
++			ndsGroups->remainObjects = ndsGroups->uniqueObjects;
++			err= NSS_STATUS_NOTFOUND;
++
++		}else {
++			ndsName=n->name;
++			init_nw_group_info(&gi,conf->debug);
++			ccode=nds_group_info(ndsGroups->context,n->name,&gi,conf->debug);
++			if (ccode) {
++				free_nw_group_info(&gi);
++				err= NSS_STATUS_NOTFOUND;
++				goto exit;
++			}
++			if (conf->debug &QF_VERBOSE)
++				print_nw_group_info(gi);
++			if (!fix_nw_group_info(&gi,conf))
++				err=nw_group_info_to_group(gi,grp,buffer,buflen,&errno,conf);
++			else err=NSS_STATUS_UNAVAIL;
++			free_nw_group_info(&gi);
++			switch (err) {
++				case NSS_STATUS_TRYAGAIN:
++				// buffer was too small
++				// do not advance to next group
++				// and let nss to try again with a bigger buffer
++					break;
++				default:
++				// move to next group
++					if (!--n->cnt) {
++						ndsGroups->curr = n->next;
++						ndsGroups->remainObjects--;
++					}
++					if (err==NSS_STATUS_NOTFOUND) {// group has no unix property,  skip
++						trace (conf->debug, LOG_NOTICE,"group %s has not Unix properties in NDS,skipping",ndsName);
++						goto next_group;
++					} else
++						err=NSS_STATUS_SUCCESS;
++			}
++		}
++exit:
++		if (conf->debug) {
++			trace (conf->debug, LOG_NOTICE,"nss_ncp_getgrent leaving");
++                	closelog();
++		}
++
++	}else {
++		err= NSS_STATUS_UNAVAIL;
++	}
++	return err;
++}
++
++
++enum nss_status _nss_ncp_getspent_r (struct spwd *spw,
++			char * buffer, size_t buflen,int * errnop) {
++	enum nss_status err;
++
++
++	if (ndsShadows) {
++		struct TreeNode* n;
++		NWDSCCODE ccode;
++		const char* ndsName;
++		struct nw_shadow_info si;
++		struct nss_ncp_conf *conf=ndsShadows->conf;
++
++		if (conf->debug) {
++                	openlog("ncp_nss", LOG_PID, LOG_AUTHPRIV);
++			trace (conf->debug, LOG_NOTICE,"nss_ncp_getgrent entering");
++		}
++next_user:; // avoid a recursive call
++		n = ndsShadows->curr;
++		if (!n) {
++			//ready to scan again from the beginning (a good idea ??)
++			ndsShadows->curr = ndsShadows->lin;
++			ndsShadows->remainObjects = ndsShadows->uniqueObjects;
++			err= NSS_STATUS_NOTFOUND;
++		}else {
++			ndsName=n->name;
++			init_nw_shadow_info(&si,conf->debug);
++			ccode=nds_shadow_info(ndsShadows->context,n->name,&si,conf->debug);
++			if (ccode) {
++				free_nw_shadow_info(&si);
++				err=NSS_STATUS_NOTFOUND;
++				goto exit;
++			}
++			if (conf->debug &QF_VERBOSE)
++				print_nw_shadow_info(si);
++			if (!fix_nw_shadow_info(&si,conf))
++				err=nw_shadow_info_to_shadow(si,spw,buffer,buflen,&errno,conf);
++			else err=NSS_STATUS_UNAVAIL;
++			free_nw_shadow_info(&si);
++			switch (err) {
++				case NSS_STATUS_TRYAGAIN:
++				// buffer was too small
++				// do not advance to next user
++				// and let nss to try again with a bigger buffer;
++					break;
++				default:
++				// move to next user
++					if (!--n->cnt) {
++						ndsShadows->curr = n->next;
++						ndsShadows->remainObjects--;
++					}
++					if (err==NSS_STATUS_NOTFOUND) {// user has no unix property,  skip
++						trace (conf->debug, LOG_NOTICE,"user %s has not Unix properties in NDS,skipping",ndsName);
++						goto next_user;
++					}
++					else
++						err=NSS_STATUS_SUCCESS;
++			}
++		}
++exit:
++		if (conf->debug) {
++			trace (conf->debug, LOG_NOTICE,"nss_ncp_getspent leaving");
++                	closelog();
++		}
++	}else {
++		return  NSS_STATUS_UNAVAIL;
++	}
++	return err;
++
++}
++
+diff -r 3143e61fb504 -r 1a8455ed3290 contrib/ncp_nss_lib/nss_ncp.h
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/contrib/ncp_nss_lib/nss_ncp.h	Sun Oct 16 02:40:25 2005 +0200
+@@ -0,0 +1,175 @@
++/**************************************************************************
++    nss_ncp.h  header for NSS  for NDS
++
++    Copyright (C) 2002  Patrick Pollet
++
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++
++
++    Revision history:
++
++	1.00  	2003, January 06	Patrick Pollet <patrick.pollet@insa-lyon.fr>
++		initial release
++
++************************************************************************/
++#ifndef HAVE_NSS_NCP_H
++#define  HAVE_NSS_NCP_H
++
++#define  TRUE		1
++#define  FALSE		0
++
++#include <stdlib.h>
++#include <stdio.h>
++#include <errno.h>
++#include <ncp/nwnet.h>
++
++#include <unistd.h>
++#include <ctype.h>
++#include <wchar.h>
++#include <string.h>
++
++#include <pwd.h>
++#include <grp.h>
++#include <shadow.h>
++#include <sys/syslog.h>
++
++#include <nss.h>
++
++
++
++// USE_DUMMY_ATTRibutes must be set in the Makefile
++//#define USING_DUMMY_ATTRIBUTES
++
++#ifndef USING_DUMMY_ATTRIBUTES
++// the real ones
++#define ATTR_UID        "UNIX:UID"
++#define ATTR_PGNAME     "UNIX:Primary GroupName"
++#define ATTR_PGID       "UNIX:Primary GroupID"
++#define ATTR_GID        "UNIX:GID"
++#define ATTR_SHELL      "UNIX:Login Shell"
++#define ATTR_COM        "UNIX:Comments"
++#define ATTR_HOME       "UNIX:Home Directory"
++#else
++// dummy attributes for testing
++// created with Schemax with the same syntax
++// and associated to user class and group class
++#define ATTR_UID        "LINUX:UID"
++#define ATTR_PGNAME     "LINUX:Primary GroupName"
++#define ATTR_PGID       "LINUX:Primary GroupID"
++#define ATTR_GID        "LINUX:GID"
++#define ATTR_SHELL      "LINUX:Login Shell"
++#define ATTR_COM        "LINUX:Comments"
++#define ATTR_HOME       "LINUX:Home Directory"
++#endif
++
++// the attribute used to test presence of NDS8
++// either real or dummy (not used yet)
++#define ATTR_NDS8       ATTR_UID
++
++// other attributes used
++// absent NDS8 attributes are searched in L attribute
++// also new properties ( Zenux Flags, Other group...)
++
++#define ATTR_CN		"CN"
++#define ATTR_LOCATION   "L"
++
++#define ATTR_GRP_MBS            "Group Membership"
++#define ATTR_MEMBERS            "Member"
++#define ATTR_FULL_NAME          "Full Name"
++
++#define ATTR_DATE_PWD_EXPIRE	"Password Expiration Time"
++#define ATTR_INT_PWD_EXPIRE	"Password Expiration Interval"
++#define ATTR_GRACE_LIMIT	"Login Grace Limit"
++#define ATTR_DATE_ACCT_EXPIRE	"Login Expiration Time"
++
++
++// the proper naming attribute may be customized here (must be a CI_STRING )
++#define ATTR_GECOS              ATTR_FULL_NAME
++
++// syntaxes of the used attributes
++#define SYN_CN		        SYN_CI_STRING
++#define SYN_LOCATION            SYN_CI_STRING
++#define SYN_UID                 SYN_INTEGER
++#define SYN_PGNAME              SYN_DIST_NAME
++#define SYN_PGID                SYN_INTEGER
++#define SYN_GID                 SYN_INTEGER
++#define SYN_SHELL               SYN_CE_STRING
++#define SYN_COM                 SYN_CI_STRING
++#define SYN_HOME                SYN_CE_STRING
++#define SYN_GRP_MBS             SYN_DIST_NAME
++#define SYN_MEMBERS             SYN_DIST_NAME
++
++
++
++#define QF_DEBUG	0x0001
++#define QF_VERBOSE	0x0002
++
++#define  NFS_NOBODY = 65534
++#define CNF_FILE "/etc/nss_ncp.conf"
++
++
++
++
++/******************************* NSS API ***************************************/
++
++
++enum nss_status _nss_ncp_initgroups (const char *userName, gid_t group,
++                long int *start, long int *size, gid_t * groups,
++                long int limit,int *errnop);
++
++
++enum nss_status _nss_ncp_getpwnam_r (const char* name, struct passwd *pwd,
++				char * buffer, size_t buflen, int * errnop);
++
++
++
++enum nss_status _nss_ncp_getpwuid_r (uid_t uid, struct passwd *pwd,
++				char * buffer, size_t buflen, int * errnop);
++
++
++enum nss_status _nss_ncp_getgrnam_r (const char* name, struct group *grp,
++				char * buffer, size_t buflen, int * errnop);
++
++
++
++enum nss_status _nss_ncp_getspnam_r (const char * name, struct spwd *spw,
++                char *buffer, size_t buflen,int * errnop);
++
++
++enum nss_status _nss_ncp_getgrgid_r (gid_t gid, struct group *grp,
++				char * buffer, size_t buflen, int * errnop);
++
++
++
++enum nss_status _nss_ncp_setpwent(void);
++
++enum nss_status _nss_ncp_setgrent(void);
++
++enum nss_status _nss_ncp_setspent (void);
++
++enum nss_status _nss_ncp_endpwent(void);
++
++enum nss_status _nss_ncp_endgrent(void);
++
++enum nss_status _nss_ncp_endspent (void);
++
++enum nss_status _nss_ncp_getpwent_r(struct passwd *pwd,	char * buffer, size_t buflen, int * errnop);
++
++enum nss_status _nss_ncp_getgrent_r(struct group *grp,char * buffer, size_t buflen, int * errnop);
++
++
++enum nss_status _nss_ncp_getspent_r (struct spwd *spw,char * buffer, size_t buflen,int * errnop);
++
++#endif
+diff -r 3143e61fb504 -r 1a8455ed3290 contrib/ncp_nss_lib/test_ncp_nss.c
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/contrib/ncp_nss_lib/test_ncp_nss.c	Sun Oct 16 02:40:25 2005 +0200
+@@ -0,0 +1,318 @@
++/**************************************************************************
++    getpwduid.c:test program for NSS for NDS
++
++    Copyright (C) 2002  Patrick Pollet
++
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++
++
++    Revision history:
++
++	1.00  	2003, January 06	Patrick Pollet <patrick.pollet@insa-lyon.fr>
++		initial release
++	1.01	2003, January 08	Patrick Pollet <patrick.pollet@insa-lyon.fr>
++		added conf structure and control group
++		added optional fallback UID and GID if none found in NDS (default is to skip user,group)
++	1.02	2003, January 09	Patrick Pollet <patrick.pollet@insa-lyon.fr>
++		added initgroups
++	1.03	2003, January 10	Patrick Pollet <patrick.pollet@insa-lyon.fr>
++		fixed bug in nds_user_info2 (bad structure received by nds_user_location2)
++	1.04	2003, January 11	Patrick Pollet <patrick.pollet@insa-lyon.fr>
++		fixed setting ndsXXX=NULL trees in case of errors in _nss_ncp_setxxent()
++		made always NAME_CONTEXT=[Root] in CreateContextAndConn
++		calling NWCCloseIteration only it some errors has occured in the search
++	1.05
++		modified to use nss_ncp.so
++************************************************************************/
++
++
++#define  TRUE		1
++#define  FALSE		0
++
++#include <stdlib.h>
++#include <stdio.h>
++#include <errno.h>
++#include <ncp/nwnet.h>
++
++#ifdef VERBOSE
++#include <ncp/ncplib.h>
++#endif
++#include <unistd.h>
++#include <ctype.h>
++#include <wchar.h>
++#include <string.h>
++
++#include "private/libintl.h"
++
++#include <pwd.h>
++#include <grp.h>
++#include <shadow.h>
++#include <sys/syslog.h>
++
++#include <nss.h>
++
++#include "nss_ncp.h"
++#include "nss_cfgfile.h"
++
++
++
++/**************** TESTING ******************/
++
++static void print_passwd (struct passwd pwd){
++	printf("%s:%s:%d:%d:%s:%s:%s\n",pwd.pw_name,pwd.pw_passwd,pwd.pw_uid,pwd.pw_gid,pwd.pw_gecos,pwd.pw_dir,pwd.pw_shell);
++}
++
++static void print_group (struct group grp){
++	char ** mmb; int num;
++	printf("%s:%s:%d:",grp.gr_name,grp.gr_passwd,grp.gr_gid);
++	for (mmb=grp.gr_mem,num=0;*mmb; mmb++,num++) {
++		if (num)
++			printf(",");
++		printf ("%s",*mmb);
++
++	}
++	printf("\n");
++
++}
++
++static void print_shadow (struct spwd spw){
++	printf("%s:%s:%ld:%ld:%ld:%ld:%ld:%ld:%ld\n",spw.sp_namp,spw.sp_pwdp,spw.sp_lstchg,spw.sp_min,spw.sp_max,spw.sp_warn,spw.sp_inact,spw.sp_expire,spw.sp_flag);
++}
++
++
++static void print_user_groups(gid_t * groups, long int start, long int size){
++	int i;
++	printf("start=%d size=%d\n",start,size);
++	for (i=0; i<start; i++)
++		printf("%d ",groups[i]);
++	printf("\n");
++}
++
++void give_details_on_user_groups(gid_t *groups, long int start){
++	struct group grp;
++	char buffer[65000];
++	long int i;
++	for (i=0; i<start;i++) {
++		enum nss_status err=_nss_ncp_getgrgid_r (groups[i],&grp,buffer,sizeof(buffer),&errno);
++		if (err==NSS_STATUS_SUCCESS)
++			print_group(grp);
++		else printf("nss result is %d for group %d\n",err,groups[i]);
++	}
++}
++
++#define _(X) gettext(X)
++
++static char *progname;
++
++static void usage(void)
++{
++	fprintf(stderr, _("usage: %s [options]\n"), progname);
++	exit (1);
++}
++
++static void help(void)
++{
++	printf(_("\n"
++	         "usage: %s [options]\n"), progname);
++	printf(_("\n"
++	       	"-h             Print this help text\n"
++	       	"-u id          Unix User passwd info to search by uid in NDS\n"
++		"-n login	Unix User passwd infos to search by name in NDS\n"
++		"-s login	Unix User shadow infos to search by name in NDS\n"
++		"-i grpid       Unix  group to search by gid in NDS\n"
++		"-g grpname	Unix group to search by name in NDS\n"
++		"-m login       Get Unix groups of user login\n"
++		"-U 		all Unix users to search in NDS\n"
++		"-G 		all Unix groups to search in NDS\n"
++		"-S 		all Unix shadows to search in NDS\n"
++		"-D		verbose mode (fill /var/log/secure && screen)\n"
++		"-T treeName	use this Tree  \n"
++		"-B serverName	use this server\n"
++		"-C NDS ctx	start in this context (default=[Root])\n"
++		"-O NDS group	restrict user's search to this group\n"
++		"-f fallbackID if no UID,GID found in NDS use this one (default=-1 skip user & group)\n"
++		"-2		show the BUG (two calls )\n"
++	       "\n"));
++	exit (1);
++}
++
++static void error ( char * s) {
++	printf (_("\n%s\n"),s);
++	exit (1);
++}
++
++/*************************************************************************
++** main
++*/
++int main (int argc, char** argv) {
++
++	const char* userName=NULL;
++	uid_t userId=-1;
++	const char* groupName=NULL;
++	gid_t groupId=-1;
++	const char* shadowName=NULL;
++	const char* memberName=NULL;
++	int opt;
++	int allUsers=0;
++	int allGroups=0;
++	int allShadows=0;
++	char buffer[65000];
++	int nbCalls=1;
++
++	struct passwd pwd;
++	struct group grp;
++	struct spwd spw;
++	enum nss_status err;
++
++	progname = argv[0];
++	while ((opt = getopt(argc, argv, "h?u:n:g:i:s:m:T:B:C:O:f:UGSD2")) != EOF)
++	{
++		switch (opt)
++		{
++		case 'n':
++			userName = optarg;
++			break;
++		case 'm':
++			memberName = optarg;
++			break;
++		case 's':
++			shadowName = optarg;
++			break;
++		case 'g':
++			groupName = optarg;
++			break;
++		case 'i':
++			groupId = strtoul(optarg, NULL, 0);
++			break;
++		case 'u':
++			userId = strtoul(optarg, NULL, 0);
++			break;
++		case 'U':
++			allUsers=1;
++			break;
++		case 'G':
++			allGroups=1;
++			break;
++		case 'S':
++			allShadows=1;
++			break;
++		case 'D':
++			defConf.debug=QF_DEBUG;
++			break;
++		case 'T':
++			defConf.server=optarg;
++			defConf.useTree=1;
++			break;
++		case 'B':
++			defConf.server=optarg;
++			defConf.useTree=0;
++			break;
++		case 'C':
++			defConf.startCtx=optarg;
++			break;
++		case 'O':
++			defConf.ctrlGroup=optarg;
++			break;
++		case 'f':
++			defConf.fallbackUid=strtoul(optarg, NULL, 0);
++			defConf.fallbackGid=strtoul(optarg, NULL, 0);
++			break;
++		case '2':
++			nbCalls=2;
++			break;
++		case 'h':
++		case '?':
++			help();
++
++		default:
++			usage();
++		}
++	}
++	if (defConf.debug)
++		openlog("ncp_nss", LOG_PID, LOG_AUTHPRIV);
++
++	while(nbCalls--) {  // do it once or twice (freeze at the second !!!!)
++
++	if (userName) {
++		printf ("searching in passwd for login %s\n",userName);
++		if (_nss_ncp_getpwnam_r (userName,&pwd,buffer,sizeof(buffer),&errno)==NSS_STATUS_SUCCESS)
++			print_passwd(pwd);
++	}
++	if (memberName) {
++		#define MAX_GRP 30
++		gid_t groups[MAX_GRP];
++		long int start=0;
++		long int size=MAX_GRP;
++		printf ("searching groups of %s\n",memberName);
++		if ( _nss_ncp_initgroups (memberName, /*999 */ defConf.defGid,&start,&size,groups,0,&errno)==NSS_STATUS_SUCCESS) {
++                //long int *start, long int *size, gid_t * groups,long int limit,int *errnop) {
++			print_user_groups(groups,start,size);
++			give_details_on_user_groups(groups,start);// FREEZE AT THIS SECOND CALL to NWCCOpenConnByNAME !!!!
++		}
++
++	}
++	if (userId != -1) {
++		printf ("searching in passwd for uid %d\n",userId);
++		if ( _nss_ncp_getpwuid_r (userId, &pwd,buffer,sizeof(buffer),&errno)==NSS_STATUS_SUCCESS)
++			print_passwd(pwd);
++	}
++
++	if (allUsers) {
++		_nss_ncp_setpwent();
++
++		while ( _nss_ncp_getpwent_r(&pwd,buffer,sizeof(buffer),&errno)==NSS_STATUS_SUCCESS)
++			print_passwd(pwd);
++		_nss_ncp_endpwent();
++	}
++
++	if (groupName) {
++		printf ("searching in group for %s\n",groupName);
++		if (_nss_ncp_getgrnam_r (groupName,&grp,buffer,sizeof(buffer),&errno)==NSS_STATUS_SUCCESS) {
++			print_group(grp);
++		}
++	}
++
++	if (groupId != -1) {
++		printf ("searching in group for gid %d\n",groupId);
++		if ( _nss_ncp_getgrgid_r (groupId, &grp,buffer,sizeof(buffer),&errno)==NSS_STATUS_SUCCESS)
++			print_group(grp);
++	}
++
++	if (allGroups) {
++		_nss_ncp_setgrent();
++
++		while ( _nss_ncp_getgrent_r(&grp,buffer,sizeof(buffer),&errno)==NSS_STATUS_SUCCESS)
++			print_group(grp);
++		_nss_ncp_endgrent();
++	}
++
++	if (shadowName) {
++		printf ("searching in shadow for login %s\n",shadowName);
++		if (_nss_ncp_getspnam_r (shadowName,&spw,buffer,sizeof(buffer),&errno)==NSS_STATUS_SUCCESS)
++			print_shadow(spw);
++	}
++
++	if (allShadows) {
++		_nss_ncp_setspent();
++		while ( _nss_ncp_getspent_r(&spw,buffer,sizeof(buffer),&errno)==NSS_STATUS_SUCCESS)
++			print_shadow(spw);
++		_nss_ncp_endspent();
++	}
++	}
++
++	if (defConf.debug)
++		closelog();
++	exit(0);
++}
+

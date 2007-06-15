@@ -1,0 +1,11 @@
+--- ncpfs-2.2.6/lib/Makefile.in.ld	2005-11-14 12:25:57.000000000 +0100
++++ ncpfs-2.2.6/lib/Makefile.in	2005-11-14 12:25:57.000000000 +0100
+@@ -98,7 +98,7 @@
+ install_shared: $(SHARED_NCPLIB_BIN)
+ 	$(INSTALL) -d $(DESTDIR)$(libsodir)
+ 	$(INSTALL) $(SHARED_NCPLIB_BIN) $(DESTDIR)$(libsodir)
+-	-ldconfig
++	/sbin/ldconfig -n $(DESTDIR)$(libsodir)
+ 
+ install-dev: install_shared install_static
+ 	ln -sf $(SHARED_NCPLIB_SONAME) $(DESTDIR)$(libsodir)/$(SHARED_NCPLIB)

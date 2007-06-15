@@ -1,0 +1,691 @@
+changeset:   404:fc77f4249198
+user:        Scott Bentley <bentleys@hhangus.com>
+date:        Wed May 11 20:46:55 2005 +0000
+files:       BitKeeper/etc/ignore include/ncp/ncplib.h lib/filemgmt.c lib/libncp.vers lib/ltrace/ncplib.conf util/Makefile.in util/nwlistsalvage.c util/nwsalvage.c
+description:
+Add ncp_ns_scan_salvageable_file2 and ncp_ns_salvage_file to libncp.
+Add nwlistsalvage and nwsalvage utilities.  By Scott Bentley.
+
+
+diff -r 08f41478a208 -r fc77f4249198 include/ncp/ncplib.h
+--- a/include/ncp/ncplib.h	Sun Apr 10 10:36:35 2005 +0000
++++ b/include/ncp/ncplib.h	Wed May 11 20:46:55 2005 +0000
+@@ -2,6 +2,7 @@
+     ncplib.h
+     Copyright (C) 1995, 1996 by Volker Lendecke
+     Copyright (C) 1997-2001  Petr Vandrovec
++    Copyright (C) 2005  Scott Bentley
+ 
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+@@ -51,6 +52,10 @@
+ 	1.05  2001, December 12		Hans Grobler <grobh@sun.ac.za>
+ 		Added NCP_PERM_ALL, ncp_ns_delete_entry and full NET_ADDRESS_TYPE
+ 		definition.
++	
++	1.06  2005, May			Scott Bentley
++		Added ncp_ns_scan_salvageable_file2().
++		Added ncp_ns_salvage_file().
+ 
+  */
+ 
+@@ -1124,6 +1129,10 @@ ncp_ns_scan_salvageable_file(NWCONN_HAND
+ 			     const unsigned char* encpath, int pathlen,
+ 			     struct ncp_deleted_file* finfo,
+ 			     char* retname, int retname_maxlen);
++
++long
++ncp_ns_salvage_file(NWCONN_HANDLE conn, u_int8_t src_ns, const struct ncp_deleted_file* finfo,
++		const char* newfname);
+ 
+ long
+ ncp_ns_purge_file(NWCONN_HANDLE conn, const struct ncp_deleted_file* finfo);
+@@ -1341,6 +1350,17 @@ struct nw_info_struct3 {
+ 	size_t		len;
+ 	void*		data;
+ };
++
++long
++ncp_ns_scan_salvageable_file2(NWCONN_HANDLE conn, u_int8_t src_ns,
++			     int dirstyle, u_int8_t vol_num, 
++			     u_int32_t dir_base,
++			     const unsigned char* encpath, int pathlen,
++			     struct ncp_deleted_file* finfo,
++			     struct NSI_Change* dinfo,/* Defined above */
++			     u_int32_t rim,
++			     void* target, size_t sizeoftarget);
++
+ 
+ struct ncp_dos_info_rights {
+ 	u_int16_t	Grant;
+diff -r 08f41478a208 -r fc77f4249198 lib/filemgmt.c
+--- a/lib/filemgmt.c	Sun Apr 10 10:36:35 2005 +0000
++++ b/lib/filemgmt.c	Wed May 11 20:46:55 2005 +0000
+@@ -3,6 +3,7 @@
+     Copyright (C) 1995, 1996 by Volker Lendecke
+     Copyright (C) 1999-2001  Petr Vandrovec
+     Copyright (C) 1999       Roumen Petrov
++    Copyright (C) 2005       Scott Bentley
+ 
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+@@ -70,6 +71,9 @@
+ 		Added NULL parameter checks.
+ 		Added checks for legal reply sizes from server.
+ 
++	1.11  2005, May			Scott Bentley
++		Added ncp_ns_scan_salvageable_file2.
++		Added ncp_ns_salvage_file.
+  */
+ 
+ #include "config.h"
+@@ -1698,6 +1702,34 @@ quit:;
+ 		memcpy(name, ncp_reply_data(conn, 0x61), namelen);
+ 		name[namelen] = 0;
+ 	}
++	ncp_unlock_conn(conn);
++	return result;
++}
++
++long
++ncp_ns_salvage_file(struct ncp_conn* conn,
++	            u_int8_t src_ns,	
++		    const struct ncp_deleted_file* finfo, 
++		    const char* newfname)
++{
++	long result;
++
++	if (!finfo) {
++		return ERR_NULL_POINTER;
++	}
++
++	ncp_init_request(conn);
++	ncp_add_byte(conn, 17); //subfunction: Recover Salvageable File
++	ncp_add_byte(conn, src_ns); //Namespace to use
++	ncp_add_byte(conn, 0);  //Reserved
++	ncp_add_dword_lh(conn, finfo->seq);//File id
++	ncp_add_dword_lh(conn, finfo->vol);//Volume id
++	ncp_add_dword_lh(conn, finfo->base);//Directory id
++	ncp_add_pstring(conn, newfname);
++	
++	//ncp_add_pstring(conn, newfname);//Not used because it has 255 char limit
++	/* fn: 87 , subfn: 17 */
++	result = ncp_request(conn, 87);
+ 	ncp_unlock_conn(conn);
+ 	return result;
+ }
+@@ -2514,6 +2546,56 @@ static NWCCODE ncp_ns_extract_file_info(
+ 				dest);
+ 	}
+ 	return NWE_BUFFER_INVALID_LEN;
++}
++
++long
++ncp_ns_scan_salvageable_file2(struct ncp_conn* conn, u_int8_t src_ns,
++			     int dirstyle, 
++			     u_int8_t vol_num, u_int32_t dir_base,
++			     const unsigned char *encpath, int pathlen,
++			     struct ncp_deleted_file* finfo,
++			     struct NSI_Change* dinfo,
++		 	     u_int32_t rim,
++			     void *target, size_t sizeoftarget)
++{
++	long result;
++	NWCCODE err;
++
++	ncp_init_request(conn);
++	ncp_add_byte(conn, 0x10);
++	ncp_add_byte(conn, src_ns);
++	ncp_add_byte(conn, 0);
++	ncp_add_dword_lh(conn, rim);
++	ncp_add_dword_lh(conn, finfo->seq);
++	result = ncp_add_handle_path2(conn, vol_num, dir_base, dirstyle, encpath, pathlen);
++	if (result) {
++		ncp_unlock_conn(conn);
++		return result;
++	}
++	result = ncp_request(conn, 0x57);
++	if (result) {
++		ncp_unlock_conn(conn);
++		return result;
++	}
++	if (conn->ncp_reply_size < 0x61) {
++		ncp_unlock_conn(conn);
++		return NWE_INVALID_NCP_PACKET_LENGTH;
++	}
++	
++	finfo->seq = ncp_reply_dword_lh(conn, 0x00);
++	finfo->vol = ncp_reply_dword_lh(conn, 0x0C);
++	finfo->base = ncp_reply_dword_lh(conn, 0x10);
++	
++	dinfo->Time = ncp_reply_word_lh(conn, 0x04);
++	dinfo->Date = ncp_reply_word_lh(conn, 0x06);
++	dinfo->ID = ncp_reply_dword_hl(conn, 0x08);
++	
++	err = ncp_ns_extract_file_info(NULL, rim, 
++			ncp_reply_data(conn, 20), conn->ncp_reply_size - 20, 
++			target, sizeoftarget);
++	
++	ncp_unlock_conn(conn);
++	return result;
+ }
+ 
+ static const size_t field_sizes[32] = {
+diff -r 08f41478a208 -r fc77f4249198 lib/libncp.vers
+--- a/lib/libncp.vers	Sun Apr 10 10:36:35 2005 +0000
++++ b/lib/libncp.vers	Wed May 11 20:46:55 2005 +0000
+@@ -617,3 +617,8 @@ NCPFS_2.2.4 {
+ NCPFS_2.2.4 {
+ 		ncp_change_job_position;
+ };
++
++NCPFS_2.2.7 {
++		ncp_ns_salvage_file;
++		ncp_ns_scan_salvageable_file2;
++};
+diff -r 08f41478a208 -r fc77f4249198 lib/ltrace/ncplib.conf
+--- a/lib/ltrace/ncplib.conf	Sun Apr 10 10:36:35 2005 +0000
++++ b/lib/ltrace/ncplib.conf	Wed May 11 20:46:55 2005 +0000
+@@ -94,6 +94,8 @@ int ncp_get_effective_dir_rights(addr, a
+ int ncp_get_effective_dir_rights(addr, addr, addr);
+ int ncp_add_trustee_set(addr, uint, uint, uint, int, addr);
+ int ncp_ns_scan_salvageable_file(addr, uint, int, uint, uint, addr, uint, addr, addr, uint);
++int ncp_ns_scan_salvageable_file2(addr, uint, int, uint, uint, addr, int, addr, addr, uint, addr, uint);
++int ncp_ns_salvage_file(addr, uint, addr, addr);
+ int ncp_ns_purge_file(addr, addr);
+ int ncp_ns_get_full_name(addr, uint, uint, int, uint, uint, addr, uint, addr, uint);
+ int ncp_get_conn_type(addr);
+diff -r 08f41478a208 -r fc77f4249198 util/Makefile.in
+--- a/util/Makefile.in	Sun Apr 10 10:36:35 2005 +0000
++++ b/util/Makefile.in	Wed May 11 20:46:55 2005 +0000
+@@ -22,7 +22,7 @@ O_USERUTILS = slist.o pqlist.o nwfsinfo.
+ 	pqstat.o nwpqjob.o nwbpcreate.o nwbprm.o nwbpvalues.o nwbpadd.o \
+ 	nwbpset.o nwgrant.o nwrevoke.o nwuserlist.o nwauth.o \
+ 	nwfstime.o nwvolinfo.o nwtrustee.o nwdir.o \
+-	nwfsctrl.o nwpjmv.o
++	nwfsctrl.o nwpjmv.o nwsalvage.o nwlistsalvage.o
+ O_SBINUTILS =
+ ifeq ($(USE_KERNEL),1)
+ O_USERUTILS += ncopy.o nwtrustee2.o nwpurge.o nwrights.o
+diff -r 08f41478a208 -r fc77f4249198 util/nwlistsalvage.c
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/util/nwlistsalvage.c	Wed May 11 20:46:55 2005 +0000
+@@ -0,0 +1,302 @@
++/*
++    nwlistsalvage.c - Utility to list information about salvageagle files
++    on NetWare volumes
++    Copyright (c) 2005		Scott Bentley
++
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++
++    Revision history:
++
++	0.00  2005			Scott Bentley
++		Initial revision.
++ */
++
++#include <stdlib.h>
++#include <string.h>
++#include <unistd.h>
++
++#include <ncp/nwcalls.h>
++#include <ncp/nwnet.h>
++#include <ncp/eas.h>
++
++#include "private/libintl.h"
++#define _(X) gettext(X)
++
++#ifdef N_PLAT_DOS
++#ifndef NTYPES_H
++typedef unsigned int   nuint16;
++#endif
++typedef unsigned long  nuint32;
++typedef unsigned int   nuint;
++#else
++#endif
++
++static inline size_t my_strftime(char *s, size_t max, const char *fmt, const struct tm *tm) {
++	return strftime(s, max, fmt, tm);
++}
++
++static void doID(NWCONN_HANDLE conn, nuint32 id) {
++	NWCCODE err;
++	char user[MAX_DN_BYTES];
++	nuint16 type;
++
++	if (!id) {
++		printf(_("Nobody"));
++	} else {
++#ifdef N_PLAT_DOS
++		id = ntohl(id);
++#endif
++		err = NWGetObjectName(conn, id, user, &type);
++		if (err) {
++			NWDSContextHandle ctx;
++			
++			sprintf(user, _("Unknown:N/A"));
++			err = NWDSCreateContextHandle(&ctx);
++			if (!err) {
++				NWDSAddConnection(ctx, conn);
++				err = NWDSMapIDToName(ctx, conn, id, user);
++				if (err)
++					sprintf(user, _("Unknown:<%s>"), strnwerror(err));
++				NWDSFreeContext(ctx);
++			}
++		} else {
++			switch (type) {
++				case OT_USER:       printf(_("User:"));break;
++				case OT_USER_GROUP: printf(_("Group:"));break;
++				case OT_FILE_SERVER:printf(_("FileServer:"));break;
++				default:            printf(_("Unknown(%04X):"), type);break;
++			}
++		}
++		printf("%s", user);
++	}
++}
++
++static void dodate(nuint date) {
++	static const time_t zero_time_t = 0;
++	struct tm* tm;
++	char text[100];
++	
++	tm = gmtime(&zero_time_t);
++	tm->tm_year = (date>>9)+80;
++	tm->tm_mon = ((date>>5) & 0xF) - 1;
++	tm->tm_mday = date & 0x1F;
++	tm->tm_isdst = 0;
++	my_strftime(text, sizeof(text), "%x", tm);
++	printf("%s", text);
++}
++
++static void dotime(nuint dtime) {
++	static const time_t zero_time_t = 0;
++	struct tm* tm;
++	char text[100];
++	
++	tm = gmtime(&zero_time_t);
++	tm->tm_hour = dtime >> 11;
++	tm->tm_min = (dtime >> 5) & 0x3F;
++	tm->tm_sec = (dtime << 1) & 0x3F;
++	tm->tm_isdst = 0;
++	my_strftime(text, sizeof(text), "%X", tm);
++	printf("%s", text);
++}
++
++static void dodatesTimesID(NWCONN_HANDLE conn, nuint dtime, nuint date, nuint32 id) {
++	if (dtime || date) {
++		dodate(date);
++		printf(" ");
++		dotime(dtime);
++	} else {
++		printf("%-17s", _("never"));
++	}
++	if (id) {
++		printf("%10s","");
++		doID(conn, id);
++	}
++	printf("\n");
++}
++
++static void usage(void) {
++	printf(_(
++"usage: nwlistsalvage [options] [directory]\n"
++"\n"
++"-h              Print this help text\n"
++"-n <namespace>  Namespace for file access.\n"
++"                  DOS\n"
++"                  LONG - Default\n"
++"                  MAC\n"
++"                  NFS\n"
++"                  FTAM\n"
++"-v              Verbose\n"
++"\n"
++"directory  Directory to examine for salvageable files.  Default is ./\n"
++"\n"
++));
++}
++
++static int g_verbose = 0;
++static int g_files = 0;
++static int g_nwns = NW_NS_LONG;
++
++static void print_file_info(NWCONN_HANDLE conn, const struct ncp_deleted_file info, const struct NSI_Change deleted, const struct nw_info_struct3* vinfo) {
++	NWCCODE err;
++	struct NSI_Attributes attr;
++	struct NSI_Name name;
++	struct NSI_Modify modify;
++	struct NSI_Change created;
++	const char* type;
++		
++	//Get attributes
++	err = ncp_ns_extract_info_field(vinfo,NSIF_ATTRIBUTES,&attr,sizeof(attr));
++	if (err) {
++		printf("Cannot retrieve file attributes: %s\n",strnwerror(err));
++		return;
++	}
++	if (attr.Attributes & A_DIRECTORY) {
++		type = "D";
++	} else {
++		type = "F";
++	}
++	
++	//Get name	
++	err = ncp_ns_extract_info_field(vinfo,NSIF_NAME,&name,sizeof(name));
++	if (err) {
++		printf(_("Cannot retrieve file name: %s\n"),strnwerror(err));
++		return;
++	}
++	
++	// Show standard set of info
++	printf("%2s%s %d %s\n", "", type, info.seq, name.Name);
++	
++	// Show verbose info	
++	if(g_verbose) {
++		printf("%5sDeleted:\t\t","");
++		dodatesTimesID(conn,deleted.Time,deleted.Date,deleted.ID);
++		
++		printf("%5sCreated:\t\t","");
++		err = ncp_ns_extract_info_field(vinfo,NSIF_CREATION,&created,sizeof(created));
++		if (err) {
++			printf(_("Cannot retrieve creation info: %s\n"),strnwerror(err));
++			return;
++		} else {
++			dodatesTimesID(conn,created.Time,created.Date,created.ID);
++		}
++	
++		printf("%5sLast Modified:\t","");
++		err = ncp_ns_extract_info_field(vinfo,NSIF_MODIFY,&modify,sizeof(modify));
++		if (err) {
++			printf(_("Cannot retrieve modified info: %s\n"),strnwerror(err));
++			return;
++		} else {
++			dodatesTimesID(conn,modify.Modify.Time,modify.Modify.Date,modify.Modify.ID);
++		}
++	}
++}
++
++static void list_salvageable_files(struct ncp_conn* conn, int volume, u_int32_t directory_id) {
++	struct ncp_deleted_file info;//file info
++	struct nw_info_struct3 vinfo;//verbose file info
++	struct NSI_Change deleted;
++
++	vinfo.len =0;
++	vinfo.data = NULL;
++	
++	info.seq = -1;//Initialize the file id to start with first file
++	while (!ncp_ns_scan_salvageable_file2(conn, g_nwns, 
++			1, volume, directory_id, NULL, 0, 
++			&info, &deleted,
++			IM_ALL, &vinfo, sizeof(vinfo)
++			)) {
++
++		print_file_info(conn,info,deleted,&vinfo);
++		
++		vinfo.len = 0;
++		free(vinfo.data);
++		vinfo.data = NULL;
++
++		g_files++;
++	}
++	printf("\n");
++}
++
++int main(int argc, char* argv[]) {
++	struct NWCCRootEntry root;
++	const char* mount_path;
++	const char* opt_n;
++	struct ncp_conn* conn;
++	int err;
++	int c;
++
++	setlocale(LC_ALL, "");
++	bindtextdomain(NCPFS_PACKAGE, LOCALEDIR);
++	textdomain(NCPFS_PACKAGE);
++	
++	while ((c = getopt(argc, argv, "hnv")) != -1) {
++		switch (c) {
++			case '?':
++			case ':':
++			case 'h':usage(); exit(2);
++			case 'n':
++				opt_n = argv[optind++];
++				if (strcasecmp(opt_n, "DOS") == 0) {
++					g_nwns = NW_NS_DOS;
++				} else if (strcasecmp(opt_n, "MAC") == 0) {
++					g_nwns = NW_NS_MAC;
++				} else if (strcasecmp(opt_n, "NFS") == 0) {
++					g_nwns = NW_NS_NFS;
++				} else if (strcasecmp(opt_n, "FTAM") == 0) {
++					g_nwns = NW_NS_FTAM;
++				} else if (strcasecmp(opt_n, "LONG") == 0) {
++					g_nwns = NW_NS_LONG;
++				} else {
++					fprintf(stderr, _("Unrecognized namespace for option '-%c'\n"), c);
++					exit(1);
++				}
++				break;	
++			case 'v':g_verbose = 1;
++				 break;
++			default: fprintf(stderr, _("Unexpected option `-%c'\n"), c);
++				 break;
++		}
++	}
++	if (optind < argc) {
++		mount_path = argv[optind++];
++	} else {
++		mount_path = ".";
++	}
++	err = ncp_open_mount(mount_path, &conn);
++	if (err) {
++		com_err("nwlistsalvage", err, _("in ncp_open_mount"));
++		exit(1);
++	}
++	err = NWCCGetConnInfo(conn, NWCC_INFO_ROOT_ENTRY, sizeof(root), &root);
++	if (err) {
++		com_err("nwlistsalvage", err, _("when retrieving root entry"));
++		ncp_close(conn);
++		return 0;
++	}
++	
++	list_salvageable_files(conn, root.volume, root.dirEnt);
++
++	if (!g_files) {
++		printf(_("No salvageable files were found.\n"));
++	} else if (g_files == 1) {
++		printf(_("1 salvageable file was found.\n"));
++	} else {
++		printf(_("%d salvageable files were found.\n"), g_files);
++	}
++
++	ncp_close(conn);
++	return 0;
++}
++
+diff -r 08f41478a208 -r fc77f4249198 util/nwsalvage.c
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/util/nwsalvage.c	Wed May 11 20:46:55 2005 +0000
+@@ -0,0 +1,171 @@
++/*
++    nwsalvage.c - Utility for salvaging deleted files from NetWare volumes
++    Copyright (c) 2005		Scott Bentley
++
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++
++    Revision history:
++
++	0.00  2005			Scott Bentley
++		Initial revision.
++ */
++
++#include <stdlib.h>
++#include <string.h>
++#include <ncp/nwcalls.h>
++#include <unistd.h>
++
++#include "private/libintl.h"
++#define _(X) gettext(X)
++
++static void usage(void) {
++	printf(_(
++"usage: nwsalvage [options] directory file_id\n"
++"\n"
++"-h              Print this help text.\n"
++"-s              Silent mode.\n"
++"-n <namespace>  Namespace for accessing files\n"
++"                  DOS\n"
++"                  LONG - Default\n"
++"                  MAC\n"
++"                  FTAM\n"
++"                  NFS\n"
++"\n"
++"directory       Directory in which salvageable file(s) resides.\n"
++"                Default is current directory.\n"
++"\n"
++"file_id         The file identified by file_id will be salvaged.\n"
++"                Numeric file_id is obtained from nwlistsalvage.\n"
++"\n"
++));
++}
++
++static int g_silent = 0;
++static int g_nwns = NW_NS_LONG;
++
++static void process_salvage(struct ncp_conn* conn, int volume, u_int32_t directory_id, int file_id) {
++	struct ncp_deleted_file info;
++	int found;
++	char dirname[1024];
++	char filename[1024];
++	char name[1024];
++	
++	if (!ncp_ns_get_full_name(conn, g_nwns, g_nwns,
++		1, volume, directory_id, NULL, 0,
++		dirname, sizeof(dirname))) {
++	}
++	strcat(dirname,"/");
++
++	NWCCODE err;
++
++	found = 0;
++	info.seq = -1;	
++	while (!ncp_ns_scan_salvageable_file(conn, g_nwns, 
++				1, volume, directory_id, NULL, 0, 
++				&info, filename, sizeof(filename))){
++	
++		strcpy(name,dirname);
++		strcat(name,filename);
++	
++		if (info.seq == file_id) {
++			found++;
++			if ((err = ncp_ns_salvage_file(conn, g_nwns, &info, name)) != 0) {
++				if (!g_silent) {
++					if (err == 0x89FE) {
++						printf(_("%8s%d -- failed (File already exists, or path inaccessible)\n"), "", info.seq);
++					} else {
++						printf(_("%8s%d %s -- failed (%s)\n"), "", info.seq, name, strnwerror(err));
++					}
++				}
++			} else {
++				if (!g_silent) {
++					printf(_("%8s%d %s -- salvaged \n"), "", info.seq, name);
++				}
++			}
++			break;
++		}
++	}
++	if (!found) {
++		printf(_("%8sFile with scan ID '%d' was not found in directory '%s'."), "", file_id, dirname);
++	}
++	printf("\n");
++}
++
++int main(int argc, char* argv[]) {
++	struct NWCCRootEntry root;
++	const char* mount_path;
++	int file_id;
++	struct ncp_conn* conn;
++	int err;
++	int c;
++	char* opt_n;
++
++	setlocale(LC_ALL, "");
++	bindtextdomain(NCPFS_PACKAGE, LOCALEDIR);
++	textdomain(NCPFS_PACKAGE);
++	
++	while ((c = getopt(argc, argv, "hsn")) != -1) {
++		switch (c) {
++			case '?':
++			case ':':break;
++			case 'h':usage(); exit(2);
++			case 's':g_silent=1;
++				 break;
++			case 'n':
++				opt_n = argv[optind++];
++				if (strcasecmp(opt_n, "DOS") == 0) {
++					g_nwns = NW_NS_DOS;
++				} else if (strcasecmp(opt_n, "MAC") == 0) {
++					g_nwns = NW_NS_MAC;
++				} else if (strcasecmp(opt_n, "NFS") == 0) {
++					g_nwns = NW_NS_NFS;
++				} else if (strcasecmp(opt_n, "FTAM") == 0) {
++					g_nwns = NW_NS_FTAM;
++				} else if (strcasecmp(opt_n, "LONG") == 0) {
++					g_nwns = NW_NS_LONG;
++				} else {
++					fprintf(stderr, _("Unrecognized namespace for option '-%c'\n"), c);
++					exit(1);
++				}
++				break;	
++			default: fprintf(stderr, _("Unexpected option `-%c'\n"), c);
++				 break;
++		}
++	}
++	if (optind < argc) {
++		mount_path = argv[optind++];
++		file_id = atoi(argv[optind++]);
++	} else {
++		usage();
++		exit(2);
++	}
++	err = ncp_open_mount(mount_path, &conn);
++	if (err) {
++		com_err("nwsalvage", err, _("in ncp_open_mount"));
++		exit(1);
++	}
++	err = NWCCGetConnInfo(conn, NWCC_INFO_ROOT_ENTRY, sizeof(root), &root);
++	if (err) {
++		com_err("nwsalvage", err, _("when retrieving root entry"));
++		ncp_close(conn);
++		return 0;
++	}
++	
++	process_salvage(conn, root.volume, root.dirEnt, file_id);
++
++	ncp_close(conn);
++	return 0;
++}
++
+

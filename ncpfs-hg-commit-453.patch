@@ -1,0 +1,29 @@
+changeset:   453:329b32c7d8a6
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Thu Apr 13 19:59:28 2006 +0200
+files:       lib/ndslib.c
+description:
+Fix nds_beginauth2 on Fedora
+
+nds_beginauth2 was aliging pointer to be multiple of 4 bytes, instead of
+aligning offset from start of buffer to the pointer to be multiple of 4
+bytes.  This was not problem before, as buffer itself was 4 byte aligned,
+but Fedora's compiler has options which can misalign it...
+
+See https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=186683.
+
+
+diff -r b2ec015c1689 -r 329b32c7d8a6 lib/ndslib.c
+--- a/lib/ndslib.c	Sun Oct 16 04:14:27 2005 +0200
++++ b/lib/ndslib.c	Thu Apr 13 19:59:28 2006 +0200
+@@ -1026,7 +1026,8 @@ static NWDSCCODE nds_beginauth2(
+ 		goto err_exit;
+ 	}
+ 	copyfill(n_temp, n1, p, n3a);
+-	p = (void*)(((unsigned long)k1end + 3) & ~3);
++	/* align p to the first 4 byte boundary beyond k1end */
++	p = k1end + ((p - k1end) & 3);
+ 	err = modexpkey(s_key, n_temp, n_temp, n1);
+ 	if (err) {
+ 		ISRPrint("modexpkey failed\n");
+

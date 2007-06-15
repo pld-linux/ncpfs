@@ -1,0 +1,90 @@
+changeset:   415:005801e1fd28
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Sat May 28 15:07:13 2005 +0000
+files:       include/private/list.h lib/ncplib.c lib/nwnet.c
+description:
+Rename LIST_HEAD to NCP_LIST_HEAD.  LIST_HEAD exists on Darwin.
+
+
+diff -r 5e027b02f28c -r 005801e1fd28 include/private/list.h
+--- a/include/private/list.h	Sat May 28 13:49:58 2005 +0000
++++ b/include/private/list.h	Sat May 28 15:07:13 2005 +0000
+@@ -16,10 +16,10 @@ struct list_head {
+ 	struct list_head *next, *prev;
+ };
+ 
+-#define LIST_HEAD(name) \
++#define NCP_LIST_HEAD(name) \
+ 	struct list_head name = { &name, &name }
+ 
+-#define INIT_LIST_HEAD(ptr) do { \
++#define NCP_INIT_LIST_HEAD(ptr) do { \
+ 	(ptr)->next = (ptr); (ptr)->prev = (ptr); \
+ } while (0)
+ 
+@@ -64,7 +64,7 @@ static __inline__ void list_del(struct l
+ static __inline__ void list_del(struct list_head *entry)
+ {
+ 	__list_del(entry->prev, entry->next);
+-	INIT_LIST_HEAD(entry);
++	NCP_INIT_LIST_HEAD(entry);
+ }
+ 
+ static __inline__ int list_empty(struct list_head *head)
+diff -r 5e027b02f28c -r 005801e1fd28 lib/ncplib.c
+--- a/lib/ncplib.c	Sat May 28 13:49:58 2005 +0000
++++ b/lib/ncplib.c	Sat May 28 15:07:13 2005 +0000
+@@ -194,7 +194,7 @@ int in_options = 0;
+ #endif
+ 
+ static ncpt_mutex_t conn_lock = NCPT_MUTEX_INITIALIZER;
+-static LIST_HEAD(conn_list);
++static NCP_LIST_HEAD(conn_list);
+ ncpt_mutex_t nds_ring_lock = NCPT_MUTEX_INITIALIZER;
+ 
+ /* return number of bytes in packet */
+@@ -775,9 +775,9 @@ static struct ncp_conn *ncp_alloc_conn(v
+ 		memset(conn, 0, sizeof(*conn));
+ 		ncpt_atomic_set(&conn->use_count, 1);
+ 		ncpt_atomic_set(&conn->store_count, 0);
+-		INIT_LIST_HEAD(&conn->nds_ring);
++		NCP_INIT_LIST_HEAD(&conn->nds_ring);
+ //		conn->nds_conn = NULL;
+-		INIT_LIST_HEAD(&conn->conn_ring);
++		NCP_INIT_LIST_HEAD(&conn->conn_ring);
+ 		ncpt_mutex_init(&conn->buffer_mutex);
+ 		ncpt_mutex_init(&conn->serverInfo.mutex);
+ //		conn->serverInfo.valid = 0;
+diff -r 5e027b02f28c -r 005801e1fd28 lib/nwnet.c
+--- a/lib/nwnet.c	Sat May 28 13:49:58 2005 +0000
++++ b/lib/nwnet.c	Sat May 28 15:07:13 2005 +0000
+@@ -943,8 +943,8 @@ static NWDSCCODE __NWDSCreateDSConnectio
+ 	memset(tmp, 0, sizeof(*tmp));
+ 	
+ 	tmp->dck.tree_name = NULL;
+-	INIT_LIST_HEAD(&tmp->contexts);
+-	INIT_LIST_HEAD(&tmp->conns);
++	NCP_INIT_LIST_HEAD(&tmp->contexts);
++	NCP_INIT_LIST_HEAD(&tmp->conns);
+ 	*dsh = tmp;
+ 	return 0;
+ }
+@@ -1172,7 +1172,7 @@ NWDSCCODE NWDSCreateContextHandle(NWDSCo
+ 		return ERR_NOT_ENOUGH_MEMORY;
+ 	}
+ 	memset(tmp, 0, sizeof(*tmp));
+-	INIT_LIST_HEAD(&tmp->context_ring);
++	NCP_INIT_LIST_HEAD(&tmp->context_ring);
+ 	tmp->dck.flags = DCV_DEREF_ALIASES | DCV_XLATE_STRINGS | DCV_CANONICALIZE_NAMES;
+ 	tmp->dck.name_form = 0;
+ 	tmp->dck.last_connection.conn = NULL;
+@@ -1237,7 +1237,7 @@ NWDSCCODE NWDSDuplicateContextHandleInt(
+ 		return ERR_NOT_ENOUGH_MEMORY;
+ 
+ 	memset(tmp, 0, sizeof(*tmp));
+-	INIT_LIST_HEAD(&tmp->context_ring);
++	NCP_INIT_LIST_HEAD(&tmp->context_ring);
+ 	/* return typed absolute names */
+ 	tmp->dck.flags = srcctx->dck.flags & ~(DCV_CANONICALIZE_NAMES | DCV_TYPELESS_NAMES);
+ 	tmp->dck.name_form = srcctx->dck.name_form;
+

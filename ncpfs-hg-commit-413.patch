@@ -1,0 +1,21 @@
+changeset:   413:94680aa0251a
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Sat May 28 13:47:31 2005 +0000
+files:       lib/rdn.c
+description:
+Do not include <sys/mman.h> in lib/rdn.h.  It is not needed there.
+
+
+diff -r b4b6191b3d97 -r 94680aa0251a lib/rdn.c
+--- a/lib/rdn.c	Sat May 28 13:46:29 2005 +0000
++++ b/lib/rdn.c	Sat May 28 13:47:31 2005 +0000
+@@ -30,8 +30,6 @@
+ #include <stdlib.h>
+ #include <errno.h>
+ #include <string.h>
+-
+-#include <sys/mman.h>
+ 
+ #include "nwnet_i.h"
+ #include "ncplib_i.h"
+

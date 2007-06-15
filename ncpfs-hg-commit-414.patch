@@ -1,0 +1,52 @@
+changeset:   414:5e027b02f28c
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Sat May 28 13:49:58 2005 +0000
+files:       lib/resolve.c
+description:
+Properly wrap sockaddr_ipx accesses with NCP_IPX_SUPPORT and sockaddr_in
+with NCP_IN_SUPPORT.  Needed on IPX-less architectures.
+
+
+diff -r 94680aa0251a -r 5e027b02f28c lib/resolve.c
+--- a/lib/resolve.c	Sat May 28 13:47:31 2005 +0000
++++ b/lib/resolve.c	Sat May 28 13:49:58 2005 +0000
+@@ -875,7 +875,9 @@ NWCCODE ncp_find_server_addr(const char 
+ 		
+ 		err = NWCCGetConnInfo(conn, NWCC_INFO_TRAN_ADDR, sizeof(ta), &ta);
+ 		if (!err) {
+-			if (ta.type == NT_IPX) {
++			switch (ta.type) {
++#ifdef NCP_IPX_SUPPORT
++			case NT_IPX: {
+ 				struct sockaddr_ipx* ipx = (struct sockaddr_ipx*)addr;
+ 			
+ 				if (len < sizeof(*ipx)) {
+@@ -887,7 +889,12 @@ NWCCODE ncp_find_server_addr(const char 
+ 					memcpy(&ipx->sipx_port, buffer + 10, 2);
+ 					ipx->sipx_type = 0x11;
+ 				}
+-			} else if (ta.type == NT_UDP || ta.type == NT_TCP) {
++				break;
++			}
++#endif
++#ifdef NCP_IN_SUPPORT
++			case NT_UDP:
++			case NT_TCP: {
+ 				struct sockaddr_in* in = (struct sockaddr_in*)addr;
+ 
+ 				if (len < sizeof(*in)) {
+@@ -897,8 +904,12 @@ NWCCODE ncp_find_server_addr(const char 
+ 					memcpy(&in->sin_addr.s_addr, buffer + 2, 4);
+ 					memcpy(&in->sin_port, buffer, 2);
+ 				}
+-			} else {
++				break;
++			}
++#endif
++			default:
+ 				err = EINVAL;
++				break;
+ 			}
+ 			if (!err) {
+ 				err = NWGetFileServerName(conn, sname);
+

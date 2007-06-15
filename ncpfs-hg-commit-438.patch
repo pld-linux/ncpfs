@@ -1,0 +1,23 @@
+changeset:   438:e635f8099d50
+user:        Petr Vandrovec <petr@vandrovec.name>
+date:        Sun Jul 03 22:46:56 2005 +0100
+files:       po/cs.gmo po/cs.po
+description:
+Fix typo in Czech translations.
+
+
+diff -r 06067530cbec -r e635f8099d50 po/cs.gmo
+Binary file po/cs.gmo has changed
+diff -r 06067530cbec -r e635f8099d50 po/cs.po
+--- a/po/cs.po	Sun Jul 03 21:50:24 2005 +0100
++++ b/po/cs.po	Sun Jul 03 22:46:56 2005 +0100
+@@ -2137,7 +2137,7 @@ msgstr "chyba při vytváření\n"
+ #: util/ncptest.c:134
+ #, c-format
+ msgid "dealloc error\n"
+-msgstr "chyba při dealokaci"
++msgstr "chyba při dealokaci\n"
+ 
+ #: util/ncptest.c:137
+ #, c-format
+
