@@ -1,0 +1,19 @@
+pam_ncp_auth.c: In function 'nw_cleanup_conn':
+pam_ncp_auth.c:284: warning: implicit declaration of function 'syslog'
+pam_ncp_auth.c:284: error: 'LOG_NOTICE' undeclared (first use in this function)
+
+ contrib/pam/pam_ncp_auth.c |    1 +
+ 1 files changed, 1 insertion(+)
+
+Index: ncpfs-2.2.6/contrib/pam/pam_ncp_auth.c
+===================================================================
+--- ncpfs-2.2.6.orig/contrib/pam/pam_ncp_auth.c
++++ ncpfs-2.2.6/contrib/pam/pam_ncp_auth.c
+@@ -266,6 +266,7 @@
+ #include <fcntl.h>
+ #include <errno.h>
+ #include <ctype.h>
++#include <syslog.h>
+ 
+ #include "support.h"
+ 

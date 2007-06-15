@@ -1,0 +1,17 @@
+linux/stddef.h was included by accident. use private offsetof macro
+
+---
+ sutil/ncpm_common.h |    1 +
+ 1 file changed, 1 insertion(+)
+
+Index: ncpfs-2.2.6/sutil/ncpm_common.h
+===================================================================
+--- ncpfs-2.2.6.orig/sutil/ncpm_common.h
++++ ncpfs-2.2.6/sutil/ncpm_common.h
+@@ -122,5 +122,6 @@ int proc_aftermount(const struct ncp_mou
+ int proc_ncpm_umount(const char* dir);
+ 
+ #define UNUSED(x)	x __attribute__((unused))
++#define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
+ 
+ #endif	/* __NCPM_COMMON_H__ */

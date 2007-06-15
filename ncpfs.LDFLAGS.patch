@@ -1,0 +1,80 @@
+ lib/Makefile.in   |    5 +++--
+ sutil/Makefile.in |   11 +++++++----
+ 2 files changed, 10 insertions(+), 6 deletions(-)
+
+--- ncpfs-2.2.6.orig/lib/Makefile.in
++++ ncpfs-2.2.6/lib/Makefile.in
+@@ -21,6 +21,7 @@ STATIC_NCPLIB := libncp.$(libext)
+ STATIC_NCPLIB_BIN := $(STATIC_NCPLIB)
+ 
+ CCFLAGS += -I.
++PIE_FLAGS := -fpie
+ PIC_FLAGS := -fPIC
+ NWCOMPAT := 1
+ 
+@@ -57,7 +58,7 @@ NDS_CFLAGS := $(BASE_CFLAGS) -DPORTABLE 
+ CFLAGS_ncplib.o   := -DNWSFIND=\"$(bindir)/nwsfind\"
+ CFLAGS_cfgfile.o  := -DGLOBALCFGFILE=\"$(sysconfdir)/ncpfs.conf\"
+ 
+-STATIC_CFLAGS    := $(CFLAGS) $(CCFLAGS) $(REENTRANT_CFLAGS) @FFUNCTION_SECTIONS@
++STATIC_CFLAGS    := $(CFLAGS) $(CCFLAGS) $(REENTRANT_CFLAGS) $(PIE_FLAGS) @FFUNCTION_SECTIONS@
+ SHARED_CFLAGS    := $(CFLAGS) $(CCFLAGS) $(REENTRANT_CFLAGS) $(PIC_FLAGS) $(SHARED_VLINK_CFLAGS)
+ 
+ .PHONY : all dep install install-dev clean mrproper distclean
+@@ -127,7 +128,7 @@ $(SHARED_NCPLIB): $(SHARED_NCPLIB_BIN)
+ 	ln -sf $< $@
+ 
+ $(SHARED_NCPLIB_BIN): $(SHARED_O_OBJ) ${this_srcdir}/libncp.vers
+-	$(CC) -shared -o $@ -Wl,-soname=$(SHARED_NCPLIB_SONAME) $(SHARED_VLINK) $(SHARED_O_OBJ) ${LIBS} -lc
++	$(CC) -shared -o $@ -Wl,-soname=$(SHARED_NCPLIB_SONAME) $(SHARED_VLINK) $(SHARED_O_OBJ) ${LIBS}
+ 
+ install_static: $(STATIC_NCPLIB_BIN)
+ 	$(INSTALL) -d $(DESTDIR)$(libadir)
+--- ncpfs-2.2.6.orig/sutil/Makefile.in
++++ ncpfs-2.2.6/sutil/Makefile.in
+@@ -18,6 +18,9 @@ LIBS = @INTLLIBS@ @LIBICONV@ @LIBS@
+ # environ in ncpmount
+ CCFLAGS += -D_GNU_SOURCE
+ 
++PIE_CFLAGS = -fpie
++PIE_LDFLAGS = -pie
++
+ O_UTILS := nwsfind.o
+ ifeq ($(USE_KERNEL),1)
+ O_UTILS += ncpmount.o ncpumount.o
+@@ -58,7 +61,7 @@ endif
+ install-dev:
+ 
+ $(O_UTILS): %.o: %.c
+-	$(CC) $(CFLAGS) $(CCFLAGS) $(CFLAGS_$@) -o $@ -c $<
++	$(CC) $(CFLAGS) $(CCFLAGS) $(CFLAGS_$@) $(PIE_CFLAGS) -o $@ -c $<
+ 
+ $(O_UTILS:.o=.d): %.d: %.c
+ 	set -e; $(CC) -M $(CFLAGS) $(CCFLAGS) $(CFLAGS_$(@:.d=.o)) $< \
+@@ -70,7 +73,7 @@ ncplogin: ncpm_common.o mount_login.o
+ ncpmap: ncpm_common.o
+ 
+ ncpmap.o: %.o: ncplogin.c
+-	$(CC) $(CFLAGS) $(CCFLAGS) $(CFLAGS_$@) -o $@ -c $<
++	$(CC) $(CFLAGS) $(CCFLAGS) $(CFLAGS_$@) $(PIE_CFLAGS) -o $@ -c $<
+ 
+ ncpmap.d: %.d: ncplogin.c
+ 	set -e; $(CC) -M $(CFLAGS) $(CCFLAGS) $(CFLAGS_$(@:.d=.o)) $< \
+@@ -78,7 +81,7 @@ ncpmap.d: %.d: ncplogin.c
+ 		[ -s $@ ] || rm -f $@
+ 
+ ncpm_common.o mount_login.o: %.o: %.c
+-	$(CC) $(CFLAGS) $(CCFLAGS) $(CFLAGS_$@) -o $@ -c $<
++	$(CC) $(CFLAGS) $(CCFLAGS) $(CFLAGS_$@) $(PIE_CFLAGS) -o $@ -c $<
+ 
+ ncpm_common.d mount_login.d: %.d: %.c
+ 	set -e; $(CC) -M $(CFLAGS) $(CCFLAGS) $(CFLAGS_$(@:.d=.o)) $< \
+@@ -86,7 +89,7 @@ ncpm_common.d mount_login.d: %.d: %.c
+ 		[ -s $@ ] || rm -f $@
+ 
+ $(UTILS): %: %.o ../lib/libncp.$(libext)
+-	$(CC) @GC_SECTIONS@-o $@ $^ ${LIBS}
++	$(CC) @GC_SECTIONS@-o $@ $^ $(PIE_LDFLAGS) ${LIBS}
+ 
+ ../lib/libncp.$(libext):
+ 	make -C ../lib libncp.$(libext)
