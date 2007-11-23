@@ -1,0 +1,26 @@
+--- lib/Makefile.in	2007-11-23 14:32:58.970120715 +0100
++++ lib/Makefile.in-new	2007-11-23 14:33:19.787980229 +0100
+@@ -14,7 +14,7 @@
+ REENTRANT_CFLAGS := @REENTRANT_CFLAGS@
+ VERSIONED_LINK := @VERSIONED_LINK@
+ 
+-SHARED_NCPLIB := libncp.$(shlibext)
++SHARED_NCPLIB := libncp.so
+ SHARED_NCPLIB_BIN := $(SHARED_NCPLIB).$(VERSION_SOLIB)
+ SHARED_NCPLIB_SONAME := $(SHARED_NCPLIB).$(VERSION_SONAME)
+ STATIC_NCPLIB := libncp.$(libext)
+--- contrib/pam/Makefile.in	2007-11-23 14:35:17.398052561 +0100
++++ contrib/pam/Makefile.in-new	2007-11-23 14:39:11.038106907 +0100
+@@ -10,10 +10,10 @@
+ LIBS = @INTLLIBS@ @LIBS@
+ LIB_PAM_SECURITY = @LIB_PAM_SECURITY@
+ 
+-NCP_LIB = libncp.$(shlibext)
++NCP_LIB = libncp.so
+ NCPLIB_DIR = ../../lib
+ 
+-PAM_LIBRARY = pam_ncp_auth.$(shlibext)
++PAM_LIBRARY = pam_ncp_auth.so
+ PAM_OBJECTS = pam_ncp_auth.do support.do
+ 
+ CFLAGS_pam_ncp_auth.do := -DNCPMOUNT_PATH=\"$(bindir)/ncpmount\" -DNCPUMOUNT_PATH=\"$(bindir)/ncpumount\"
