@@ -101,6 +101,7 @@ Patch458:       %{name}-hg-commit-458.patch
 Patch1002:      %{name}.LDFLAGS.patch
 Patch1003:      %{name}.pam_ncp_auth.syslog.patch
 Patch1005:      %{name}.offsetof.patch
+Patch1006:	%{name}-shlibext.patch
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	gettext-devel
@@ -390,6 +391,7 @@ necessários para desenvolver programas que usam o NCPfs.
 %patch21 -p1
 %patch22 -p1
 %patch23 -p1
+%patch1006 -p0
 
 %build
 cd contrib/php
