@@ -37,70 +37,70 @@ Patch7:		%{name}-ac-php.patch
 Patch8:		%{name}-gettext.patch
 
 # Fedora patches
-Patch20:	%{name}-2.2.6-align.patch  
-Patch21:	%{name}-2.2.6-getuid.patch  
+Patch20:	%{name}-2.2.6-align.patch
+Patch21:	%{name}-2.2.6-getuid.patch
 Patch22:	%{name}-2.2.6-ldconfig.patch
 Patch23:	%{name}-2.2.6-offsetof.patch
 
 # SUSE patches
-Patch403:       %{name}-hg-commit-403.patch
-Patch404:       %{name}-hg-commit-404.patch
-Patch405:       %{name}-hg-commit-405.patch
-Patch406:       %{name}-hg-commit-406.patch
-Patch407:       %{name}-hg-commit-407.patch
-Patch408:       %{name}-hg-commit-408.patch
-Patch409:       %{name}-hg-commit-409.patch
-Patch410:       %{name}-hg-commit-410.patch
-Patch411:       %{name}-hg-commit-411.patch
-Patch412:       %{name}-hg-commit-412.patch
-Patch413:       %{name}-hg-commit-413.patch
-Patch414:       %{name}-hg-commit-414.patch
-Patch415:       %{name}-hg-commit-415.patch
-Patch416:       %{name}-hg-commit-416.patch
-Patch417:       %{name}-hg-commit-417.patch
-Patch419:       %{name}-hg-commit-419.patch
-Patch420:       %{name}-hg-commit-420.patch
-Patch421:       %{name}-hg-commit-421.patch
-Patch422:       %{name}-hg-commit-422.patch
-Patch423:       %{name}-hg-commit-423.patch
-Patch424:       %{name}-hg-commit-424.patch
-Patch425:       %{name}-hg-commit-425.patch
-Patch426:       %{name}-hg-commit-426.patch
-Patch427:       %{name}-hg-commit-427.patch
-Patch428:       %{name}-hg-commit-428.patch
-Patch429:       %{name}-hg-commit-429.patch
-Patch430:       %{name}-hg-commit-430.patch
-Patch431:       %{name}-hg-commit-431.patch
-Patch432:       %{name}-hg-commit-432.patch
-Patch433:       %{name}-hg-commit-433.patch
-Patch434:       %{name}-hg-commit-434.patch
-Patch435:       %{name}-hg-commit-435.patch
-Patch436:       %{name}-hg-commit-436.patch
-Patch437:       %{name}-hg-commit-437.patch
-Patch438:       %{name}-hg-commit-438.patch
-Patch439:       %{name}-hg-commit-439.patch
-Patch440:       %{name}-hg-commit-440.patch
-Patch441:       %{name}-hg-commit-441.patch
-Patch442:       %{name}-hg-commit-442.patch
-Patch443:       %{name}-hg-commit-443.patch
-Patch444:       %{name}-hg-commit-444.patch
-Patch445:       %{name}-hg-commit-445.patch
-Patch446:       %{name}-hg-commit-446.patch
-Patch447:       %{name}-hg-commit-447.patch
-Patch448:       %{name}-hg-commit-448.patch
-Patch449:       %{name}-hg-commit-449.patch
-Patch450:       %{name}-hg-commit-450.patch
-Patch451:       %{name}-hg-commit-451.patch
-Patch452:       %{name}-hg-commit-452.patch
-Patch453:       %{name}-hg-commit-453.patch
-Patch454:       %{name}-hg-commit-454.patch
-Patch455:       %{name}-hg-commit-455.patch
-Patch456:       %{name}-hg-commit-456.patch
-Patch457:       %{name}-hg-commit-457.patch
-Patch458:       %{name}-hg-commit-458.patch
-Patch1002:      %{name}.LDFLAGS.patch
-Patch1003:      %{name}.pam_ncp_auth.syslog.patch
-Patch1005:      %{name}.offsetof.patch
+Patch403:	%{name}-hg-commit-403.patch
+Patch404:	%{name}-hg-commit-404.patch
+Patch405:	%{name}-hg-commit-405.patch
+Patch406:	%{name}-hg-commit-406.patch
+Patch407:	%{name}-hg-commit-407.patch
+Patch408:	%{name}-hg-commit-408.patch
+Patch409:	%{name}-hg-commit-409.patch
+Patch410:	%{name}-hg-commit-410.patch
+Patch411:	%{name}-hg-commit-411.patch
+Patch412:	%{name}-hg-commit-412.patch
+Patch413:	%{name}-hg-commit-413.patch
+Patch414:	%{name}-hg-commit-414.patch
+Patch415:	%{name}-hg-commit-415.patch
+Patch416:	%{name}-hg-commit-416.patch
+Patch417:	%{name}-hg-commit-417.patch
+Patch419:	%{name}-hg-commit-419.patch
+Patch420:	%{name}-hg-commit-420.patch
+Patch421:	%{name}-hg-commit-421.patch
+Patch422:	%{name}-hg-commit-422.patch
+Patch423:	%{name}-hg-commit-423.patch
+Patch424:	%{name}-hg-commit-424.patch
+Patch425:	%{name}-hg-commit-425.patch
+Patch426:	%{name}-hg-commit-426.patch
+Patch427:	%{name}-hg-commit-427.patch
+Patch428:	%{name}-hg-commit-428.patch
+Patch429:	%{name}-hg-commit-429.patch
+Patch430:	%{name}-hg-commit-430.patch
+Patch431:	%{name}-hg-commit-431.patch
+Patch432:	%{name}-hg-commit-432.patch
+Patch433:	%{name}-hg-commit-433.patch
+Patch434:	%{name}-hg-commit-434.patch
+Patch435:	%{name}-hg-commit-435.patch
+Patch436:	%{name}-hg-commit-436.patch
+Patch437:	%{name}-hg-commit-437.patch
+Patch438:	%{name}-hg-commit-438.patch
+Patch439:	%{name}-hg-commit-439.patch
+Patch440:	%{name}-hg-commit-440.patch
+Patch441:	%{name}-hg-commit-441.patch
+Patch442:	%{name}-hg-commit-442.patch
+Patch443:	%{name}-hg-commit-443.patch
+Patch444:	%{name}-hg-commit-444.patch
+Patch445:	%{name}-hg-commit-445.patch
+Patch446:	%{name}-hg-commit-446.patch
+Patch447:	%{name}-hg-commit-447.patch
+Patch448:	%{name}-hg-commit-448.patch
+Patch449:	%{name}-hg-commit-449.patch
+Patch450:	%{name}-hg-commit-450.patch
+Patch451:	%{name}-hg-commit-451.patch
+Patch452:	%{name}-hg-commit-452.patch
+Patch453:	%{name}-hg-commit-453.patch
+Patch454:	%{name}-hg-commit-454.patch
+Patch455:	%{name}-hg-commit-455.patch
+Patch456:	%{name}-hg-commit-456.patch
+Patch457:	%{name}-hg-commit-457.patch
+Patch458:	%{name}-hg-commit-458.patch
+Patch1002:	%{name}.LDFLAGS.patch
+Patch1003:	%{name}.pam_ncp_auth.syslog.patch
+Patch1005:	%{name}.offsetof.patch
 Patch1006:	%{name}-shlibext.patch
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -108,8 +108,8 @@ BuildRequires:	gettext-devel
 BuildRequires:	libtool
 BuildRequires:	pam-devel
 %{?with_php:BuildRequires:	php-devel}
-%{?with_ipx:Requires:	ipxutils = %{epoch}:%{version}-%{release}}
 #Requires:	iconv
+%{?with_ipx:Requires:	ipxutils = %{epoch}:%{version}-%{release}}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_sbindir	/sbin
@@ -139,16 +139,12 @@ au protocole NCP. Ce protocole est utilisé par les clients Novell
 NetWare pour communiquer avec les serveurs NetWare.
 
 %description -l ja.UTF-8
-ncpfs は Novell NetWare(TM) NCP として理解されるファイルシステムです。
-機能的には、NCP は、NFS が TCP/IP の世界で用いられるように、NetWare で
-用いられます。Linux システムが NetWare
-ファイルシステムをマウントするには、
-特別なマウントプログラムが必要です。ncpfs
-パッケージはそのようなマウント プログラムと、ncpfs
-ファイルシステムの設定と利用のためのツールを含みます。
+ncpfs は Novell NetWare(TM) NCP として理解されるファイルシステムです。 機能的には、NCP は、NFS が
+TCP/IP の世界で用いられるように、NetWare で 用いられます。Linux システムが NetWare
+ファイルシステムをマウントするには、 特別なマウントプログラムが必要です。ncpfs パッケージはそのようなマウント
+プログラムと、ncpfs ファイルシステムの設定と利用のためのツールを含みます。
 
-Novell NetWare のファイルかサービスを使うために ncpfs
-ファイルシステムを 用いる必要があるなら、ncpfs
+Novell NetWare のファイルかサービスを使うために ncpfs ファイルシステムを 用いる必要があるなら、ncpfs
 パッケージをインストールしましょう。
 
 %description -l pl.UTF-8
@@ -249,13 +245,11 @@ protocole de bas niveau utilisé par NetWare pour transférer des
 données.
 
 %description -n ipxutils -l ja.UTF-8
-ipxutils パッケージは、Linux で IPX
-インタフェイスとネットワークの設定と
+ipxutils パッケージは、Linux で IPX インタフェイスとネットワークの設定と
 デバッグをするためのユーティリティを含みます。IPX は Novell NetWare の
 ファイルシステムでデータを転送するのに用いられる低レヴェルプロトコルです。
 
-ネットワークで IPX 設定をする必要があれば、ipxutils
-をインストールしましょう。
+ネットワークで IPX 設定をする必要があれば、ipxutils をインストールしましょう。
 
 %description -n ipxutils -l pl.UTF-8
 Pakiet zawiera narzędzia niezbędne do konfigurowania interfejsów i
@@ -438,7 +432,7 @@ cd ../..
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{/etc/rc.d/init.d,%{_includedir},/%{_lib}/security} \
-	$RPM_BUILD_ROOT{%{_sbindir},/usr/%{_lib}/php}
+$RPM_BUILD_ROOT{%{_sbindir},%{_prefix}/%{_lib}/php}
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
@@ -447,7 +441,7 @@ ln -s $(cd $RPM_BUILD_ROOT%{_libdir}; ls libncp.so.*.*.*) $RPM_BUILD_ROOT%{_libd
 cp -a include/ncp $RPM_BUILD_ROOT%{_includedir}
 
 %if %{with php}
-install contrib/php/modules/php_auth_nds.so $RPM_BUILD_ROOT/usr/%{_lib}/php
+install contrib/php/modules/php_auth_nds.so $RPM_BUILD_ROOT%{_prefix}/%{_lib}/php
 %endif
 
 rm -f $RPM_BUILD_ROOT%{_mandir}/man8/mount.ncp.8*
@@ -488,7 +482,7 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with php}
 %files -n php-auth_nds
 %defattr(644,root,root,755)
-%attr(755,root,root) /usr/%{_lib}/php/*.so
+%attr(755,root,root) %{_prefix}/%{_lib}/php/*.so
 %endif
 
 %if %{with ipx}
