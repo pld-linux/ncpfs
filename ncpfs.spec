@@ -108,6 +108,7 @@ BuildRequires:	gettext-devel
 BuildRequires:	libtool
 BuildRequires:	pam-devel
 %{?with_php:BuildRequires:	php-devel}
+BuildRequires:	sed >= 4.0
 #Requires:	iconv
 %{?with_ipx:Requires:	ipxutils = %{epoch}:%{version}-%{release}}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -386,6 +387,8 @@ necessários para desenvolver programas que usam o NCPfs.
 %patch22 -p1
 %patch23 -p1
 %patch1006 -p0
+
+sed '/AM_ICONV/a\  :' -i configure.ac
 
 %build
 cd contrib/php
