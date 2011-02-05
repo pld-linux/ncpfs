@@ -197,7 +197,6 @@ użyciu loginu i hasła przechowywanych na serwerze Netware.
 %package -n php-auth_nds
 Summary:	PHP module for authenticate using using login/password stored on Netware server
 Summary(pl.UTF-8):	Moduł PHP uwierzytelniający poprzez login i hasło trzymane na serwerze Netware
-Summary(pl.UTF-8):	Narzędzia do konfigurowania IPX
 Group:		Networking/Utilities
 Requires:	%{name} = %{epoch}:%{version}-%{release}
 
