@@ -325,7 +325,7 @@ necessários para desenvolver programas que usam o NCPfs.
 %patch406 -p1
 %patch407 -p1
 %patch408 -p1
-%patch409 -p1
+#%patch409 -p1
 %patch410 -p1
 %patch411 -p1
 %patch412 -p1
