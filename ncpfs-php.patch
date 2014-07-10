@@ -1,0 +1,11 @@
+--- ncpfs-2.2.6/contrib/php/php_auth_nds.c.orig	2014-07-10 21:08:33.943715018 +0200
++++ ncpfs-2.2.6/contrib/php/php_auth_nds.c	2014-07-10 22:19:01.596870933 +0200
+@@ -1100,7 +1100,7 @@
+ 	php_info_print_table_end();
+ }
+ 
+-function_entry auth_nds_functions[] = {
++static zend_function_entry auth_nds_functions[] = {
+ 	PHP_FE(auth_bindery,			NULL)
+ 	PHP_FE(auth_nds,			NULL)
+ 	PHP_FE(auth_tree,			NULL)

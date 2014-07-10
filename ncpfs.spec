@@ -37,6 +37,7 @@ Patch5:		%{name}-syslog.patch
 Patch6:		%{name}-offsetof.patch
 Patch7:		%{name}-ac-php.patch
 Patch8:		%{name}-gettext.patch
+Patch9:		%{name}-php.patch
 
 # Fedora patches
 Patch20:	%{name}-2.2.6-align.patch
@@ -322,6 +323,7 @@ necessários para desenvolver programas que usam o NCPfs.
 %patch6 -p1
 %patch7 -p1
 #%patch8 -p1
+%patch9 -p1
 
 %patch403 -p1
 %patch404 -p1
