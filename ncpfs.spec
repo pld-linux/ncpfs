@@ -2,12 +2,14 @@
 # - update and finish pl.po (lang patch)
 # - fix/write from scrach -devel Summary and %%description
 # - review php-auth_nds Summary and %%description
-# - register php module in php.ini like other modules from php.spec (?)
+# - lang files seem not installed
 #
 # Conditional build:
 %bcond_without	php	# don't build PHP module
 %bcond_without	ipx	# don't build ipxutils
-#
+
+%define		rel	5
+%define		php_name	php%{?php_suffix}
 Summary:	Support Utilities for ncpfs, the free netware client for Linux
 Summary(de.UTF-8):	Support-Dienstprogramme für ncpfs, den kostenlosen Netware-Client
 Summary(es.UTF-8):	Utilitarios de soporte para ncpfs, que es el cliente Linux free para netware
@@ -20,7 +22,7 @@ Summary(tr.UTF-8):	Linux için Netware istemcisi destek yazılımları
 Summary(uk.UTF-8):	Утиліти для файлової системи ncpfs, клієнта NetWare для Linux
 Name:		ncpfs
 Version:	2.2.6
-Release:	4%{!?with_ipx:noipx}
+Release:	%{rel}%{!?with_ipx:noipx}
 Epoch:		1
 License:	GPL
 Group:		Networking/Utilities
@@ -102,12 +104,12 @@ Patch1002:	%{name}.LDFLAGS.patch
 Patch1003:	%{name}.pam_ncp_auth.syslog.patch
 Patch1005:	%{name}.offsetof.patch
 Patch1006:	%{name}-shlibext.patch
+%{?with_php:BuildRequires:	%{php_name}-devel}
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	gettext-devel
 BuildRequires:	libtool
 BuildRequires:	pam-devel
-%{?with_php:BuildRequires:	php-devel}
 BuildRequires:	sed >= 4.0
 #Requires:	iconv
 %{?with_ipx:Requires:	ipxutils = %{epoch}:%{version}-%{release}}
@@ -194,17 +196,19 @@ login/password stored on Netware server.
 Moduł pam_ncp_auth to moduł PAM służący do uwierzytelniania przy
 użyciu loginu i hasła przechowywanych na serwerze Netware.
 
-%package -n php-auth_nds
+%package -n %{php_name}-auth_nds
 Summary:	PHP module for authenticate using using login/password stored on Netware server
 Summary(pl.UTF-8):	Moduł PHP uwierzytelniający poprzez login i hasło trzymane na serwerze Netware
 Group:		Networking/Utilities
+%{?requires_php_extension}
 Requires:	%{name} = %{epoch}:%{version}-%{release}
+Provides:	php(auth_nds) = %{version}
 
-%description -n php-auth_nds
+%description -n %{php_name}-auth_nds
 The php-auth_nds module is PHP module for authenticate using
 login/password stored on Netware server.
 
-%description -n php-auth_nds -l pl.UTF-8
+%description -n %{php_name}-auth_nds -l pl.UTF-8
 Moduł php-ncp_auth to moduł PHP służący do uwierzytelniania przy
 użyciu loginu i hasła przechowywanych na serwerze Netware.
 
@@ -390,11 +394,13 @@ necessários para desenvolver programas que usam o NCPfs.
 sed '/AM_ICONV/a\  :' -i configure.ac
 
 %build
+%if %{with php}
 cd contrib/php
 %{__libtoolize}
 %{__aclocal}
 %{__autoconf}
 cd ../..
+%endif
 
 %{__gettextize}
 %{__aclocal}
@@ -433,8 +439,7 @@ cd ../..
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{/etc/rc.d/init.d,%{_includedir},/%{_lib}/security} \
-$RPM_BUILD_ROOT{%{_sbindir},%{_prefix}/%{_lib}/php}
+install -d $RPM_BUILD_ROOT{/etc/rc.d/init.d,%{_includedir},/%{_lib}/security,%{_sbindir}}
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
@@ -443,7 +448,12 @@ ln -s $(cd $RPM_BUILD_ROOT%{_libdir}; ls libncp.so.*.*.*) $RPM_BUILD_ROOT%{_libd
 cp -a include/ncp $RPM_BUILD_ROOT%{_includedir}
 
 %if %{with php}
-install contrib/php/modules/php_auth_nds.so $RPM_BUILD_ROOT%{_prefix}/%{_lib}/php
+install -d $RPM_BUILD_ROOT{%{php_extensiondir},%{php_sysconfdir}/conf.d}
+cat <<'EOF' > $RPM_BUILD_ROOT%{php_sysconfdir}/conf.d/auth_nds.ini
+; Enable auth_nds extension module
+extension=php_auth_nds.so
+EOF
+install -p contrib/php/modules/php_auth_nds.so $RPM_BUILD_ROOT%{php_extensiondir}
 %endif
 
 rm -f $RPM_BUILD_ROOT%{_mandir}/man8/mount.ncp.8*
@@ -452,7 +462,7 @@ echo '.so ncpmount.8' > $RPM_BUILD_ROOT%{_mandir}/man8/mount.ncp.8
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/pqrm.1*
 echo '.so nwpqjob.1' > $RPM_BUILD_ROOT%{_mandir}/man1/pqrm.1
 
-%find_lang %{name}
+#find_lang %{name}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -460,7 +470,7 @@ rm -rf $RPM_BUILD_ROOT
 %post   -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
 
-%files -f %{name}.lang
+%files
 %defattr(644,root,root,755)
 %doc BUGS Changes FAQ README* ncpfs-*
 %attr(755,root,root) %{_bindir}/[!i]*
@@ -482,9 +492,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) /%{_lib}/security/pam_ncp_auth.so
 
 %if %{with php}
-%files -n php-auth_nds
+%files -n %{php_name}-auth_nds
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_prefix}/%{_lib}/php/*.so
+%config(noreplace) %verify(not md5 mtime size) %{php_sysconfdir}/conf.d/auth_nds.ini
+%attr(755,root,root) %{php_extensiondir}/php_auth_nds.so
 %endif
 
 %if %{with ipx}
