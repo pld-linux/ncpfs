@@ -1,7 +1,5 @@
 # TODO:
 # - update and finish pl.po (lang patch)
-# - fix/write from scrach -devel Summary and %%description
-# - review php-auth_nds Summary and %%description
 #
 # Conditional build:
 %bcond_without	php	# don't build PHP module
@@ -182,6 +180,38 @@ Ncpfs - це файлова система поверх протоколу Novel
 програму плюс інші інструменти для конфігурування та використання
 файлової системи ncpfs.
 
+%package devel
+Summary:	Files for developing NCP-aware software
+Summary(es.UTF-8):	Archivos de inclusión para NCPfs
+Summary(pl.UTF-8):	Pliki do tworzenia oprogramowania używającego NCP
+Summary(pt_BR.UTF-8):	Arquivos de inclusão para o NCPfs
+Summary(ru.UTF-8):	Файлы для разработки с использованием библиотеки ncpfs
+Summary(uk.UTF-8):	Файли для розробки з використанням бібліотеки ncpfs
+Group:		Development/Libraries
+Requires:	%{name} = %{epoch}:%{version}-%{release}
+
+%description devel
+Files for developing NCP-aware software.
+
+%description devel -l es.UTF-8
+Este paquete contiene los archivos de inclusión que se necesitan para
+desarrollar programas que usan NCPfs.
+
+%description devel -l pl.UTF-8
+Pliki do tworzenia oprogramowania używającego NCP.
+
+%description devel -l pt_BR.UTF-8
+Este pacote contém os arquivos de inclusão que são necessários para
+desenvolver programas que usam o NCPfs.
+
+%description devel -l ru.UTF-8
+Этот пакет содержит файлы, необходимые для разработки программ с
+использованием библиотеки ncpfs.
+
+%description devel -l uk.UTF-8
+Цей пакет містить файли, необхідні для розробки програм з
+використанням бібліотеки ncpfs.
+
 %package -n pam-pam_ncp_auth
 Summary:	PAM module for authenticate using using login/password stored on Netware server
 Summary(pl.UTF-8):	Moduł PAM uwierzytelniający poprzez login i hasło trzymane na serwerze Netware
@@ -280,38 +310,6 @@ içermektedir.
 Цей пакет містить утиліти, необхідні для конфігурування та відладки
 IPX інтерфейсів та мереж під Linux. IPX - це низькорівневий протокол,
 що використовується в NetWare для передачі даних.
-
-%package devel
-Summary:	Files for developing NCP-aware software
-Summary(es.UTF-8):	Archivos de inclusión y bibliotecas para NCPfs
-Summary(pl.UTF-8):	Pliki do tworzenia oprogramowania używającego NCP
-Summary(pt_BR.UTF-8):	Arquivos de inclusão e bibliotecas para o NCPfs
-Summary(ru.UTF-8):	Файлы для разработки с использованием библиотеки ncpfs
-Summary(uk.UTF-8):	Файли для розробки з використанням бібліотеки ncpfs
-Group:		Development/Libraries
-Requires:	%{name} = %{epoch}:%{version}-%{release}
-
-%description devel
-Files for developing NCP-aware software.
-
-%description devel -l es.UTF-8
-Este paquete contiene los archivos de inclusión y bibliotecas que se
-necesitan para desarrollar programas que usan NCPfs.
-
-%description devel -l pl.UTF-8
-Pliki do tworzenia oprogramowania używającego NCP.
-
-%description devel -l pt_BR.UTF-8
-Este pacote contém os arquivos de inclusão e bibliotecas que são
-necessários para desenvolver programas que usam o NCPfs.
-
-%description devel -l ru.UTF-8
-Этот пакет содержит файлы, необходимые для разработки программ с
-использованием библиотеки ncpfs.
-
-%description devel -l uk.UTF-8
-Цей пакет містить файли, необхідні для розробки програм з
-використанням бібліотеки ncpfs.
 
 %prep
 %setup -q
