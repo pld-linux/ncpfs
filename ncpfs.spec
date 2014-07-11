@@ -2,7 +2,6 @@
 # - update and finish pl.po (lang patch)
 # - fix/write from scrach -devel Summary and %%description
 # - review php-auth_nds Summary and %%description
-# - lang files seem not installed
 #
 # Conditional build:
 %bcond_without	php	# don't build PHP module
@@ -24,7 +23,7 @@ Name:		ncpfs
 Version:	2.2.6
 Release:	%{rel}%{!?with_ipx:noipx}
 Epoch:		1
-License:	GPL
+License:	GPL v2+
 Group:		Networking/Utilities
 Source0:	ftp://platan.vc.cvut.cz/pub/linux/ncpfs/%{name}-%{version}.tar.gz
 # Source0-md5:	a9ab9f135d504440202069393dd9eb36
@@ -32,11 +31,8 @@ Patch0:		%{name}-lang.patch
 Patch1:		%{name}-nwsfind.patch
 Patch2:		%{name}-ac.patch
 Patch3:		%{name}-sbindir.patch
-Patch4:		%{name}-gcc4.patch
-Patch5:		%{name}-syslog.patch
 Patch6:		%{name}-offsetof.patch
 Patch7:		%{name}-ac-php.patch
-Patch8:		%{name}-gettext.patch
 Patch9:		%{name}-php.patch
 
 # Fedora patches
@@ -106,7 +102,7 @@ Patch1003:	%{name}.pam_ncp_auth.syslog.patch
 Patch1005:	%{name}.offsetof.patch
 Patch1006:	%{name}-shlibext.patch
 %{?with_php:BuildRequires:	%{php_name}-devel}
-BuildRequires:	autoconf
+BuildRequires:	autoconf >= 2.50
 BuildRequires:	automake
 BuildRequires:	gettext-devel
 BuildRequires:	libtool
@@ -143,12 +139,16 @@ au protocole NCP. Ce protocole est utilisé par les clients Novell
 NetWare pour communiquer avec les serveurs NetWare.
 
 %description -l ja.UTF-8
-ncpfs は Novell NetWare(TM) NCP として理解されるファイルシステムです。 機能的には、NCP は、NFS が
-TCP/IP の世界で用いられるように、NetWare で 用いられます。Linux システムが NetWare
-ファイルシステムをマウントするには、 特別なマウントプログラムが必要です。ncpfs パッケージはそのようなマウント
-プログラムと、ncpfs ファイルシステムの設定と利用のためのツールを含みます。
+ncpfs は Novell NetWare(TM) NCP として理解されるファイルシステムです。
+機能的には、NCP は、NFS が TCP/IP の世界で用いられるように、NetWare で
+用いられます。Linux システムが NetWare
+ファイルシステムをマウントするには、
+特別なマウントプログラムが必要です。ncpfs
+パッケージはそのようなマウント プログラムと、ncpfs
+ファイルシステムの設定と利用のためのツールを含みます。
 
-Novell NetWare のファイルかサービスを使うために ncpfs ファイルシステムを 用いる必要があるなら、ncpfs
+Novell NetWare のファイルかサービスを使うために ncpfs
+ファイルシステムを 用いる必要があるなら、ncpfs
 パッケージをインストールしましょう。
 
 %description -l pl.UTF-8
@@ -318,11 +318,8 @@ necessários para desenvolver programas que usam o NCPfs.
 %patch0 -p1
 %patch1 -p1
 %patch3 -p1
-#%patch4 -p1
-#%patch5 -p1
 %patch6 -p1
 %patch7 -p1
-#%patch8 -p1
 %patch9 -p1
 
 %patch403 -p1
@@ -331,7 +328,7 @@ necessários para desenvolver programas que usam o NCPfs.
 %patch406 -p1
 %patch407 -p1
 %patch408 -p1
-#%patch409 -p1
+%patch409 -p1
 %patch410 -p1
 %patch411 -p1
 %patch412 -p1
@@ -393,7 +390,8 @@ necessários para desenvolver programas que usam o NCPfs.
 %patch23 -p1
 %patch1006 -p0
 
-sed '/AM_ICONV/a\  :' -i configure.ac
+sed -e '/AM_GNU_GETTEXT/iAM_PROG_MKDIR_P\n' -i configure.ac
+sed -e '/AM_ICONV/a\  :' -i configure.ac
 
 %build
 %if %{with php}
@@ -458,13 +456,13 @@ EOF
 install -p contrib/php/modules/php_auth_nds.so $RPM_BUILD_ROOT%{php_extensiondir}
 %endif
 
-rm -f $RPM_BUILD_ROOT%{_mandir}/man8/mount.ncp.8*
+%{__rm} $RPM_BUILD_ROOT%{_mandir}/man8/mount.ncp.8*
 echo '.so ncpmount.8' > $RPM_BUILD_ROOT%{_mandir}/man8/mount.ncp.8
 
-rm -f $RPM_BUILD_ROOT%{_mandir}/man1/pqrm.1*
+%{__rm} $RPM_BUILD_ROOT%{_mandir}/man1/pqrm.1*
 echo '.so nwpqjob.1' > $RPM_BUILD_ROOT%{_mandir}/man1/pqrm.1
 
-#find_lang %{name}
+%find_lang %{name}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -472,16 +470,44 @@ rm -rf $RPM_BUILD_ROOT
 %post   -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
 
-%files
+%files -f %{name}.lang
 %defattr(644,root,root,755)
 %doc BUGS Changes FAQ README* ncpfs-*
-%attr(755,root,root) %{_bindir}/[!i]*
-%attr(755,root,root) %{_sbindir}/[!i]*
-%attr(755,root,root) %{_libdir}/libncp.so.*
-
-%{_mandir}/man8/[!i]*
-%{_mandir}/man1/*
-%{_mandir}/man5/*
+%attr(755,root,root) %{_bindir}/ncopy
+%attr(755,root,root) %{_bindir}/ncplogin
+%attr(755,root,root) %{_bindir}/ncplogout
+%attr(755,root,root) %{_bindir}/ncpmap
+%attr(755,root,root) %{_bindir}/ncpmount
+%attr(755,root,root) %{_bindir}/ncpumount
+%attr(755,root,root) %{_bindir}/nprint
+%attr(755,root,root) %{_bindir}/nsend
+%attr(755,root,root) %{_bindir}/nw*
+%attr(755,root,root) %{_bindir}/pqlist
+%attr(755,root,root) %{_bindir}/pqrm
+%attr(755,root,root) %{_bindir}/pqstat
+%attr(755,root,root) %{_bindir}/pserver
+%attr(755,root,root) %{_bindir}/slist
+%attr(755,root,root) %{_sbindir}/mount.ncp
+%attr(755,root,root) %{_sbindir}/mount.ncpfs
+%attr(755,root,root) %{_sbindir}/nwmsg
+%attr(755,root,root) %{_libdir}/libncp.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libncp.so.2.3
+%{_mandir}/man1/ncopy.1*
+%{_mandir}/man1/nprint.1*
+%{_mandir}/man1/nsend.1*
+%{_mandir}/man1/nw*.1*
+%{_mandir}/man1/pqlist.1*
+%{_mandir}/man1/pqrm.1*
+%{_mandir}/man1/pqstat.1*
+%{_mandir}/man1/pserver.1*
+%{_mandir}/man1/slist.1*
+%{_mandir}/man5/nwclient.5*
+%{_mandir}/man8/mount.ncp.8*
+%{_mandir}/man8/ncplogin.8*
+%{_mandir}/man8/ncpmap.8*
+%{_mandir}/man8/ncpmount.8*
+%{_mandir}/man8/ncpumount.8*
+%{_mandir}/man8/nw*.8*
 
 %files devel
 %defattr(644,root,root,755)
@@ -503,6 +529,6 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with ipx}
 %files -n ipxutils
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_sbindir}/ipx*
-%{_mandir}/man8/ipx*
+%attr(755,root,root) %{_sbindir}/ipx_*
+%{_mandir}/man8/ipx_*.8*
 %endif

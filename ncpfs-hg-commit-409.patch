@@ -20,7 +20,7 @@ diff -r 3ad605e1e151 -r 0cc3f7f08de0 mkinstalldirs
  # Created: 1993-05-16
 -# Public domain
 -
--# $Id$
+-# $Id: mkinstalldirs,v 1.13 1999/01/05 03:18:55 bje Exp $
 +# Public domain.
 +#
 +# This file is maintained in Automake, please report
