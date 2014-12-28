@@ -102,7 +102,7 @@ Patch1006:	%{name}-shlibext.patch
 %{?with_php:BuildRequires:	%{php_name}-devel}
 BuildRequires:	autoconf >= 2.50
 BuildRequires:	automake
-BuildRequires:	gettext-devel
+BuildRequires:	gettext-tools
 BuildRequires:	libtool
 BuildRequires:	pam-devel
 BuildRequires:	sed >= 4.0
