@@ -313,80 +313,80 @@ IPX інтерфейсів та мереж під Linux. IPX - це низько
 
 %prep
 %setup -q
-%patch0 -p1
-%patch1 -p1
-%patch3 -p1
-%patch6 -p1
-%patch7 -p1
-%patch9 -p1
+%patch -P0 -p1
+%patch -P1 -p1
+%patch -P3 -p1
+%patch -P6 -p1
+%patch -P7 -p1
+%patch -P9 -p1
 
-%patch403 -p1
-%patch404 -p1
-%patch405 -p1
-%patch406 -p1
-%patch407 -p1
-%patch408 -p1
-%patch409 -p1
-%patch410 -p1
-%patch411 -p1
-%patch412 -p1
-%patch413 -p1
-%patch414 -p1
-%patch415 -p1
-%patch416 -p1
-%patch417 -p1
-%patch419 -p1
-%patch420 -p1
-%patch421 -p1
-%patch422 -p1
-%patch423 -p1
-%patch424 -p1
-%patch425 -p1
-%patch426 -p1
-%patch427 -p1
-%patch428 -p1
-%patch429 -p1
-%patch430 -p1
-%patch431 -p1
-%patch432 -p1
-%patch433 -p1
-%patch434 -p1
-%patch435 -p1
-%patch436 -p1
-%patch437 -p1
-%patch438 -p1
-%patch439 -p1
-%patch440 -p1
-%patch441 -p1
-%patch442 -p1
-%patch443 -p1
-%patch444 -p1
-%patch445 -p1
-%patch446 -p1
-%patch447 -p1
-%patch448 -p1
-%patch449 -p1
-%patch450 -p1
-%patch451 -p1
-%patch452 -p1
-%patch453 -p1
-%patch454 -p1
-%patch455 -p1
-%patch456 -p1
-%patch457 -p1
-%patch458 -p1
+%patch -P403 -p1
+%patch -P404 -p1
+%patch -P405 -p1
+%patch -P406 -p1
+%patch -P407 -p1
+%patch -P408 -p1
+%patch -P409 -p1
+%patch -P410 -p1
+%patch -P411 -p1
+%patch -P412 -p1
+%patch -P413 -p1
+%patch -P414 -p1
+%patch -P415 -p1
+%patch -P416 -p1
+%patch -P417 -p1
+%patch -P419 -p1
+%patch -P420 -p1
+%patch -P421 -p1
+%patch -P422 -p1
+%patch -P423 -p1
+%patch -P424 -p1
+%patch -P425 -p1
+%patch -P426 -p1
+%patch -P427 -p1
+%patch -P428 -p1
+%patch -P429 -p1
+%patch -P430 -p1
+%patch -P431 -p1
+%patch -P432 -p1
+%patch -P433 -p1
+%patch -P434 -p1
+%patch -P435 -p1
+%patch -P436 -p1
+%patch -P437 -p1
+%patch -P438 -p1
+%patch -P439 -p1
+%patch -P440 -p1
+%patch -P441 -p1
+%patch -P442 -p1
+%patch -P443 -p1
+%patch -P444 -p1
+%patch -P445 -p1
+%patch -P446 -p1
+%patch -P447 -p1
+%patch -P448 -p1
+%patch -P449 -p1
+%patch -P450 -p1
+%patch -P451 -p1
+%patch -P452 -p1
+%patch -P453 -p1
+%patch -P454 -p1
+%patch -P455 -p1
+%patch -P456 -p1
+%patch -P457 -p1
+%patch -P458 -p1
 #
-%patch1002 -p1
-%patch1003 -p1
-%patch1005 -p1
+%patch -P1002 -p1
+%patch -P1003 -p1
+%patch -P1005 -p1
 
-%patch2 -p1
+%patch -P2 -p1
 
-%patch20 -p1
-%patch21 -p1
-%patch22 -p1
-%patch23 -p1
-%patch1006 -p0
+%patch -P20 -p1
+%patch -P21 -p1
+%patch -P22 -p1
+%patch -P23 -p1
+%patch -P1006 -p0
 
 sed -e '/AM_GNU_GETTEXT/iAM_PROG_MKDIR_P\n' -i configure.ac
 sed -e '/AM_ICONV/a\  :' -i configure.ac
